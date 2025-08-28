@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TopGas – Configurações</title>
+    <link rel="stylesheet" href="./css/global.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <h2>Top Gas</h2>
+      <nav>
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/clientes.html">Clientes</a>
+        <a href="/entregas.html">Entregas</a>
+        <a href="/usuarios.html">Usuários</a>
+        <a class="active" href="/configuracoes.html">Configurações</a>
+        <hr />
+        <button class="btn" onclick="Auth.logout()">Sair</button>
+        <p class="copyright">© 2025 Top Gas. Todos os direitos reservados.</p>
+      </nav>
+    </aside>
+
+    <main>
+      <div class="header"><h1>Configurações</h1></div>
+
+      <div class="card" style="margin-bottom: 16px">
+        <form id="frmSetKey">
+          <div
+            class="grid"
+            style="
+              grid-template-columns: 1fr 2fr auto;
+              gap: 10px;
+              max-width: 1000px;
+            "
+          >
+            <input
+              id="cfg_key"
+              class="input"
+              placeholder="key (ex: webhook_confirmar)"
+              required
+            />
+            <input
+              id="cfg_value"
+              class="input"
+              placeholder="value (URL ou outra config)"
+              required
+            />
+            <button class="btn" type="submit">Salvar/Atualizar</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <table class="table" id="tbCfg">
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th>Value</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </main>
+
+    <script src="./js/api.js"></script>
+    <script src="./js/auth.js"></script>
+    <script src="./js/configuracoes.js"></script>
+    <script>
+      (async () => {
+        await Auth.guard({ roles: ["admin"] });
+      })();
+    </script>
+  </body>
+</html>

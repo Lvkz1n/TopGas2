@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TopGas – Login</title>
+    <link rel="stylesheet" href="./css/global.css" />
+  </head>
+  <body>
+    <main class="container" style="max-width: 420px">
+      <h1>Entrar no TopGas</h1>
+      <form id="frmLogin" class="card">
+        <label
+          >Email<br /><input type="email" id="email" required class="input"
+        /></label>
+        <br />
+        <label
+          >Senha<br /><input
+            type="password"
+            id="password"
+            required
+            class="input"
+        /></label>
+        <br />
+        <button class="btn" type="submit">Entrar</button>
+      </form>
+    </main>
+
+    <script src="./js/api.js"></script>
+    <script src="./js/auth.js"></script>
+    <script>
+      document
+        .getElementById("frmLogin")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const email = document.getElementById("email").value.trim();
+          const password = document.getElementById("password").value;
+          try {
+            await window.Auth.loginWithPassword(email, password);
+            location.href = "/dashboard.html";
+          } catch (err) {
+            alert("Login inválido");
+          }
+        });
+    </script>
+  </body>
+</html>

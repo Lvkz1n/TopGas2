@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TopGas – Usuários</title>
+    <link rel="stylesheet" href="./css/global.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <h2>Top Gas</h2>
+      <nav>
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/clientes.html">Clientes</a>
+        <a href="/entregas.html">Entregas</a>
+        <a class="active" href="/usuarios.html">Usuários</a>
+        <a href="/configuracoes.html">Configurações</a>
+        <hr />
+        <button class="btn" onclick="Auth.logout()">Sair</button>
+        <p class="copyright">© 2025 Top Gas. Todos os direitos reservados.</p>
+      </nav>
+    </aside>
+
+    <main>
+      <div class="header"><h1>Usuários</h1></div>
+
+      <div class="card" style="margin-bottom: 16px">
+        <h3>Novo usuário</h3>
+        <form id="frmNovoUser">
+          <div
+            class="grid"
+            style="
+              grid-template-columns: repeat(4, 1fr);
+              gap: 10px;
+              max-width: 1000px;
+            "
+          >
+            <input
+              id="nu_email"
+              type="email"
+              class="input"
+              placeholder="Email"
+              required
+            />
+            <input id="nu_nome" type="text" class="input" placeholder="Nome" />
+            <select id="nu_role" class="input">
+              <option value="user">user</option>
+              <option value="admin">admin</option>
+            </select>
+            <input
+              id="nu_password"
+              type="password"
+              class="input"
+              placeholder="Senha"
+              required
+            />
+          </div>
+          <div style="margin-top: 10px">
+            <label
+              ><input type="checkbox" id="nu_active" checked /> Ativo</label
+            >
+            <button class="btn" type="submit">Criar</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <table class="table" id="tbUsers">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Email</th>
+              <th>Nome</th>
+              <th>Role</th>
+              <th>Ativo</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </main>
+
+    <script src="./js/api.js"></script>
+    <script src="./js/auth.js"></script>
+    <script src="./js/usuarios.js"></script>
+    <script>
+      (async () => {
+        await Auth.guard({ roles: ["admin"] });
+      })();
+    </script>
+  </body>
+</html>

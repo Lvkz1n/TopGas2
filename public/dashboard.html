@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TopGas – Dashboard</title>
+    <link rel="stylesheet" href="./css/global.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <h2>Top Gas</h2>
+      <nav>
+        <a class="active" href="/dashboard.html">Dashboard</a>
+        <a href="/clientes.html">Clientes</a>
+        <a href="/entregas.html">Entregas</a>
+        <a id="menuUsuarios" class="hidden" href="/usuarios.html">Usuários</a>
+        <a id="menuConfigs" class="hidden" href="/configuracoes.html"
+          >Configurações</a
+        >
+        <hr />
+        <button class="btn" onclick="Auth.logout()">Sair</button>
+        <p class="copyright">© 2025 Top Gas. Todos os direitos reservados.</p>
+      </nav>
+    </aside>
+
+    <main>
+      <div class="header"><h1>Dashboard</h1></div>
+      <div class="grid grid-3">
+        <div class="card">
+          <h3>Total de Entregas</h3>
+          <div id="m_total">—</div>
+        </div>
+        <div class="card">
+          <h3>Finalizadas</h3>
+          <div id="m_ok">—</div>
+        </div>
+        <div class="card">
+          <h3>Cancelamentos</h3>
+          <div id="m_cancel">—</div>
+        </div>
+      </div>
+      <div class="card" style="margin-top: 16px">
+        <h3>Melhores Regiões de Entrega</h3>
+        <canvas id="chartRegioes" height="120"></canvas>
+      </div>
+    </main>
+
+    <script src="./js/api.js"></script>
+    <script src="./js/auth.js"></script>
+    <script src="./js/dashboard.js"></script>
+    <script>
+      (async () => {
+        const me = await Auth.guard();
+        if (me?.role === "admin") {
+          document.getElementById("menuUsuarios").classList.remove("hidden");
+          document.getElementById("menuConfigs").classList.remove("hidden");
+        }
+      })();
+    </script>
+  </body>
+</html>

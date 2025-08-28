@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TopGas – Clientes</title>
+    <link rel="stylesheet" href="./css/global.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <h2>Top Gas</h2>
+      <nav>
+        <a href="/dashboard.html">Dashboard</a>
+        <a class="active" href="/clientes.html">Clientes</a>
+        <a href="/entregas.html">Entregas</a>
+        <a id="menuUsuarios" class="hidden" href="/usuarios.html">Usuários</a>
+        <a id="menuConfigs" class="hidden" href="/configuracoes.html"
+          >Configurações</a
+        >
+        <hr />
+        <button class="btn" onclick="Auth.logout()">Sair</button>
+        <p class="copyright">© 2025 Top Gas. Todos os direitos reservados.</p>
+      </nav>
+    </aside>
+
+    <main>
+      <div class="header"><h1>Clientes</h1></div>
+
+      <div class="card" style="margin-bottom: 16px">
+        <form id="frmNovoCliente">
+          <div
+            class="grid"
+            style="grid-template-columns: repeat(5, 1fr); gap: 10px"
+          >
+            <input
+              id="c_nome"
+              class="input"
+              placeholder="Nome do cliente"
+              required
+            />
+            <input id="c_bairro" class="input" placeholder="Bairro" />
+            <input id="c_cidade" class="input" placeholder="Cidade" />
+            <input id="c_tel" class="input" placeholder="Telefone" />
+            <button class="btn" type="submit">Adicionar</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <table class="table" id="tbClientes">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Bairro</th>
+              <th>Cidade</th>
+              <th>Telefone</th>
+              <th>Pedidos Entregues</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </main>
+
+    <script src="./js/api.js"></script>
+    <script src="./js/auth.js"></script>
+    <script src="./js/clientes.js"></script>
+    <script>
+      (async () => {
+        const me = await Auth.guard();
+        if (me?.role === "admin") {
+          document.getElementById("menuUsuarios").classList.remove("hidden");
+          document.getElementById("menuConfigs").classList.remove("hidden");
+        }
+      })();
+    </script>
+  </body>
+</html>
