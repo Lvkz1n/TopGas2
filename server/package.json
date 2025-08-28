@@ -1,0 +1,28 @@
+{
+  "name": "topgas-api",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "cross-env NODE_ENV=production node server.js",
+    "db:create": "psql %DATABASE_URL% -f schema.sql",
+    "db:seed": "node seed.js",
+    "db:seed:mock": "node seed-mock.js",
+    "db:apply": "node db-apply.js",
+    "db:migrate": "node db-migrate.js",
+    "db:setup:mock": "node db-migrate.js; node seed.js; node seed-mock.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie": "^0.5.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "pg": "^8.12.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
+  }
+}

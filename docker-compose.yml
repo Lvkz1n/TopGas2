@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: topgas
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - '5433:5432'
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.mono
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: '8080'
+      DATABASE_URL: postgres://postgres:postgres@db:5432/topgas
+      CORS_ORIGIN: http://localhost
+      ADMIN_EMAIL: admin@topgas.local
+      ADMIN_PASSWORD: admin123
+      SERVE_STATIC: 'false'
+      SKIP_WEBHOOKS: 'true'
+    depends_on:
+      - db
+    ports:
+      - '8080:80'
+volumes:
+  pgdata: {}

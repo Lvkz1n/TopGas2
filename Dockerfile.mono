@@ -1,0 +1,25 @@
+# Dockerfile.mono
+FROM node:20-alpine
+
+RUN apk add --no-cache nginx supervisor
+RUN mkdir -p /run/nginx && mkdir -p /var/log/supervisor && mkdir -p /usr/share/nginx/html
+
+# ===== API =====
+WORKDIR /app
+COPY server/package*.json ./
+RUN npm install
+COPY server/ .
+
+# ===== WEB (Nginx) =====
+COPY public/ /usr/share/nginx/html/
+# >>> COPIAR nginx.conf COMPLETO PARA O ARQUIVO PRINCIPAL <<<
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# ===== Supervisor =====
+COPY supervisord.conf /etc/supervisord.conf
+
+ENV PORT=8080
+ENV NODE_ENV=production
+
+EXPOSE 80
+CMD ["supervisord", "-c", "/etc/supervisord.conf", "-n"]

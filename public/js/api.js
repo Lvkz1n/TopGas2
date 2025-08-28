@@ -1,5 +1,6 @@
 // Base: mesmo domínio (Nginx faz proxy /api → API)
-const API_BASE = "/api";
+// APENAS PARA DEV LOCAL
+const API_BASE = "http://localhost:8080/api";
 
 async function api(path, options = {}) {
   const res = await fetch(API_BASE + path, {

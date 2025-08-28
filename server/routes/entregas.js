@@ -19,20 +19,22 @@ r.get("/", async (_req, res) => {
 
 r.post("/:id/confirmar", async (req, res) => {
   const id = Number(req.params.id);
-  // 1) webhook externo
-  try {
-    const url = await getCfg(
-      "webhook_confirmar",
-      "https://webhook.cerion.com.br/webhook/topgas_confirmar_pedido"
-    );
-    const resp = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pedido_id: id, status: "entregue" }),
-    });
-    if (!resp.ok) throw new Error("Webhook falhou");
-  } catch (e) {
-    return res.status(502).json({ error: "webhook_error" });
+  // 1) webhook externo (pode ser pulado em dev)
+  if (process.env.SKIP_WEBHOOKS !== "true") {
+    try {
+      const url = await getCfg(
+        "webhook_confirmar",
+        "https://webhook.cerion.com.br/webhook/topgas_confirmar_pedido"
+      );
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pedido_id: id, status: "entregue" }),
+      });
+      if (!resp.ok) throw new Error("Webhook falhou");
+    } catch (e) {
+      return res.status(502).json({ error: "webhook_error" });
+    }
   }
   // 2) atualiza DB
   await query(
@@ -44,19 +46,21 @@ r.post("/:id/confirmar", async (req, res) => {
 
 r.post("/:id/cancelar", async (req, res) => {
   const id = Number(req.params.id);
-  try {
-    const url = await getCfg(
-      "webhook_cancelar",
-      "https://webhook.cerion.com.br/webhook/topgas_cancelar_pedido"
-    );
-    const resp = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pedido_id: id, status: "cancelado" }),
-    });
-    if (!resp.ok) throw new Error("Webhook falhou");
-  } catch (e) {
-    return res.status(502).json({ error: "webhook_error" });
+  if (process.env.SKIP_WEBHOOKS !== "true") {
+    try {
+      const url = await getCfg(
+        "webhook_cancelar",
+        "https://webhook.cerion.com.br/webhook/topgas_cancelar_pedido"
+      );
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pedido_id: id, status: "cancelado" }),
+      });
+      if (!resp.ok) throw new Error("Webhook falhou");
+    } catch (e) {
+      return res.status(502).json({ error: "webhook_error" });
+    }
   }
   await query(
     `UPDATE entregas SET status_pedido='cancelado', data_e_hora_cancelamento_pedido=NOW() WHERE id=$1`,

@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import path from "path";
+import url from "url";
 import { query } from "./db.js";
 import { requireAuth, requireAdmin, verifyCredentials } from "./auth.js";
 import clientes from "./routes/clientes.js";
@@ -15,6 +17,11 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
+
+// rota pública de healthcheck
+app.get("/api/health", (_req, res) => {
+  res.json({ ok: true });
+});
 
 // ===== AUTH (usuário/senha) =====
 app.post("/api/auth/login", async (req, res) => {
@@ -69,6 +76,18 @@ app.use("/api/clientes", requireAuth, clientes);
 app.use("/api/entregas", requireAuth, entregas);
 app.use("/api/usuarios", requireAuth, requireAdmin, usuarios);
 app.use("/api/configuracoes", requireAuth, requireAdmin, configuracoes);
+
+// ===== SERVE ESTÁTICO (DEV OPCIONAL) =====
+if (process.env.SERVE_STATIC === "true") {
+  const __filename = url.fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const publicDir = path.resolve(__dirname, "../public");
+  app.use(express.static(publicDir));
+  // fallback para rotas não-API (SPA-like)
+  app.get(/^\/(?!api\/).*/, (_req, res) => {
+    res.sendFile(path.join(publicDir, "index.html"));
+  });
+}
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log("API TopGas ouvindo na porta", PORT));
