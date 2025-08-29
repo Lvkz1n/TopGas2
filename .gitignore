@@ -1,0 +1,41 @@
+# Ambiente
+.env
+.env.*
+!.env.example
+server/.env
+server/.env.*
+
+# Docker
+Dockerfile
+Dockerfile.*
+docker-compose.yml
+docker-compose.*.yml
+
+# Dependências e builds
+server/node_modules/
+**/node_modules/
+dist/
+build/
+
+# Logs e temporários
+*.log
+logs/
+tmp/
+*.tmp
+
+# Arquivos sensíveis adicionais
+server/cookies.txt
+
+# Documentação interna (ignorar no Git)
+ANOTACOES.md
+DEPENDENCIAS.md
+anotacoes.md
+anotacoes/*.md
+
+# SO / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+

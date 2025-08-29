@@ -23,3 +23,6 @@ ENV NODE_ENV=production
 
 EXPOSE 80
 CMD ["supervisord", "-c", "/etc/supervisord.conf", "-n"]
+
+
+

@@ -1,45 +1,28 @@
 # TopGas
 
-## Executar local (sem Docker)
-1. Instale Node 20+ e PostgreSQL 15+.
-2. Crie o banco: `topgas`.
-3. Copie `server/.env.example` para `server/.env` e ajuste `DATABASE_URL`.
-4. No diretório `server/`:
-   - `npm install`
-   - `node db-migrate.js` (cria/atualiza tabelas)
-   - `node seed.js` (cria admin) — login: `admin@topgas.local` / `admin123`
-   - Opcional: `node seed-mock.js` (dados fake)
-   - `npm run dev` (API em `http://localhost:8080`)
-5. Para ver o frontend estático no dev pelo Node, defina `SERVE_STATIC=true` no `.env` e acesse `http://localhost:8080`.
-   - Endpoints de API em `/api/*` (ex.: `/api/health`).
+Aplicação para gestão de entregas de gás, composta por frontend estático e API Node.js com PostgreSQL. O sistema permite cadastrar e gerenciar entregas, clientes e usuários, além de acompanhar métricas básicas em um painel.
 
-## Executar com Docker Compose
-1. `docker compose up --build -d`
-2. Acesse `http://localhost:8080` (Nginx serve estático e faz proxy `/api` → Node).
-3. Popular dados (opcional):
-   - `docker compose exec app node db-migrate.js`
-   - `docker compose exec app node seed.js`
-   - `docker compose exec app node seed-mock.js`
+## Principais recursos
+- Registro e gestão de entregas
+- Listagem agregada de clientes a partir das entregas
+- Autenticação de usuários e perfis de acesso
+- Painel de acompanhamento
 
-## Deploy no EasyPanel
-- App do tipo Dockerfile, apontando para `Dockerfile.mono`.
-- Variáveis de ambiente no painel (iguais às do `.env`):
-  - `DATABASE_URL` (use o Postgres do EasyPanel ou externo)
-  - `CORS_ORIGIN` (ex.: `https://seu-dominio`)
-  - `NODE_ENV=production`, `PORT=8080`, `SERVE_STATIC=false`
-  - `ADMIN_EMAIL`, `ADMIN_PASSWORD`
-- Porta exposta: 80 (o Nginx interno atende e proxy para a API).
+## Tecnologias
+- Frontend estático (`public/`)
+- API Node.js/Express com PostgreSQL (`server/`)
+- Nginx (servir estático e proxy de API)
+- Docker (opcional para empacotamento)
 
-## Estrutura
-- `public/`: frontend estático (html/css/js).
-- `server/`: API Node (Express + Postgres).
-- `Dockerfile.mono`: container com Nginx + Node via Supervisor.
-- `nginx.conf`: serve estático e proxy `/api`.
+## Estrutura do projeto
+- `public/`: HTML, CSS e JS do frontend
+- `server/`: API (rotas, banco e scripts de migração/seed)
+- `Dockerfile.mono` e `nginx.conf`: infraestrutura de execução
 
-## Comandos úteis
-- `npm run db:migrate` → `node db-migrate.js`
-- `npm run db:apply` aplica `schema.sql` diretamente.
-- `npm run db:seed` cria admin; `npm run db:seed:mock` dados de exemplo.
+## Como executar (visão geral)
+- Configure variáveis de ambiente em `server/.env` com credenciais do banco
+- Instale dependências no diretório `server/`
+- Execute as migrações e inicialização do banco
+- Inicie a API e sirva os arquivos estáticos
 
-## Healthcheck
-- `GET /api/health` → `{ ok: true }`
+Observação: este README não inclui dados sensíveis, links externos ou credenciais de acesso. Consulte o arquivo de anotações (ignorado no repositório) para detalhes de desenvolvimento.
