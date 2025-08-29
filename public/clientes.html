@@ -26,25 +26,7 @@
     <main>
       <div class="header"><h1>Clientes</h1></div>
 
-      <div class="card" style="margin-bottom: 16px">
-        <form id="frmNovoCliente">
-          <div
-            class="grid"
-            style="grid-template-columns: repeat(5, 1fr); gap: 10px"
-          >
-            <input
-              id="c_nome"
-              class="input"
-              placeholder="Nome do cliente"
-              required
-            />
-            <input id="c_bairro" class="input" placeholder="Bairro" />
-            <input id="c_cidade" class="input" placeholder="Cidade" />
-            <input id="c_tel" class="input" placeholder="Telefone" />
-            <button class="btn" type="submit">Adicionar</button>
-          </div>
-        </form>
-      </div>
+      <!-- Formulário removido: página de clientes é agregada das entregas (somente leitura) -->
 
       <div class="card">
         <table class="table" id="tbClientes">
@@ -56,7 +38,7 @@
               <th>Cidade</th>
               <th>Telefone</th>
               <th>Pedidos Entregues</th>
-              <th>Ações</th>
+              <!-- Coluna de ações removida (somente leitura) -->
             </tr>
           </thead>
           <tbody></tbody>
