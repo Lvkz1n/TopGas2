@@ -12,7 +12,7 @@ async function getCfg(key, fallback) {
 
 r.get("/", async (_req, res) => {
   const { rows } = await query(
-    "SELECT * FROM entregas ORDER BY id DESC LIMIT 500"
+    "SELECT * FROM topgas_entregas ORDER BY id DESC LIMIT 500"
   );
   res.json(rows);
 });
@@ -38,7 +38,7 @@ r.post("/:id/confirmar", async (req, res) => {
   }
   // 2) atualiza DB
   await query(
-    `UPDATE entregas SET status_pedido='entregue', data_e_hora_confirmacao_pedido=NOW() WHERE id=$1`,
+    `UPDATE topgas_entregas SET status_pedido='entregue', data_e_hora_confirmacao_pedido=NOW() WHERE id=$1`,
     [id]
   );
   res.json({ ok: true });
@@ -63,7 +63,7 @@ r.post("/:id/cancelar", async (req, res) => {
     }
   }
   await query(
-    `UPDATE entregas SET status_pedido='cancelado', data_e_hora_cancelamento_pedido=NOW() WHERE id=$1`,
+    `UPDATE topgas_entregas SET status_pedido='cancelado', data_e_hora_cancelamento_pedido=NOW() WHERE id=$1`,
     [id]
   );
   res.json({ ok: true });
