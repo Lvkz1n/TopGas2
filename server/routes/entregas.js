@@ -1,8 +1,20 @@
-(async function () {
+import { Router } from "express";
+import { query } from "../db.js";
+
+const r = Router();
+
+  async function getEntregas(fallback) {
+  const { rows } = await query("SELECT value FROM entregas WHERE key=$1", [
+            fallback,
+  ]);
+  return rows[0]?.value || fallback;
+}
+
+async function getEntregas() {
   await Auth.guard();
 
   const tbody = document.querySelector("#tbEntregas tbody");
-  const rows = await API.api("/entregas");
+  const rows = await getEntregas();
 
   tbody.innerHTML = rows
     .map((r) => {
@@ -24,7 +36,7 @@
       </tr>`;
     })
     .join("");
-})();
+}
 
 function getStatusIcon(statusRaw) {
   const s = String(statusRaw || "").trim().toLowerCase();
@@ -44,7 +56,7 @@ function getStatusIcon(statusRaw) {
 
 async function confirmar(id) {
   try {
-    await API.api(`/entregas/${id}/confirmar`, { method: "POST" });
+    await getEntregas(`/entregas/${id}/confirmar`, { method: "POST" });
     alert("Entregue!");
     location.reload();
   } catch (e) {
