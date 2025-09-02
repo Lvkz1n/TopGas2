@@ -53,15 +53,20 @@ app.get("/api/auth/me", requireAuth, (req, res) => {
 
 // ===== MÉTRICAS DASHBOARD =====
 app.get("/api/metricas", requireAuth, async (_req, res) => {
-  const total = await query("SELECT COUNT(*) FROM entregas");
+  const total = await query("SELECT COUNT(*) FROM topgas_entregas");
   const sucesso = await query(
-    "SELECT COUNT(*) FROM entregas WHERE status_pedido='entregue'"
+    "SELECT COUNT(*) FROM topgas_entregas WHERE status_pedido='entregue'"
   );
   const cancel = await query(
-    "SELECT COUNT(*) FROM entregas WHERE status_pedido='cancelado'"
+    "SELECT COUNT(*) FROM topgas_entregas WHERE status_pedido='cancelado'"
   );
   const regioes = await query(
-    `SELECT bairro, COUNT(*)::int AS total FROM entregas WHERE bairro IS NOT NULL GROUP BY bairro ORDER BY total DESC LIMIT 20`
+    `SELECT bairro, COUNT(*)::int AS total 
+     FROM topgas_entregas 
+     WHERE bairro IS NOT NULL 
+     GROUP BY bairro 
+     ORDER BY total DESC 
+     LIMIT 20`
   );
   res.json({
     total_entregas: Number(total.rows[0].count),
@@ -70,6 +75,7 @@ app.get("/api/metricas", requireAuth, async (_req, res) => {
     regioes: regioes.rows,
   });
 });
+
 
 // ===== ROTAS DE MÓDULOS =====
 app.use("/api/clientes", requireAuth, clientes);

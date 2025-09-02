@@ -25,4 +25,3 @@ Aplicação para gestão de entregas de gás, composta por frontend estático e 
 - Execute as migrações e inicialização do banco
 - Inicie a API e sirva os arquivos estáticos
 
-Observação: este README não inclui dados sensíveis, links externos ou credenciais de acesso. Consulte o arquivo de anotações (ignorado no repositório) para detalhes de desenvolvimento.

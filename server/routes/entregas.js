@@ -10,6 +10,7 @@ async function getCfg(key, fallback) {
   return rows[0]?.value || fallback;
 }
 
+// === LISTAR ENTREGAS ===
 r.get("/", async (_req, res) => {
   const { rows } = await query(
     "SELECT * FROM topgas_entregas ORDER BY id DESC LIMIT 500"
@@ -17,9 +18,11 @@ r.get("/", async (_req, res) => {
   res.json(rows);
 });
 
+// === CONFIRMAR ENTREGA ===
 r.post("/:id/confirmar", async (req, res) => {
   const id = Number(req.params.id);
-  // 1) webhook externo (pode ser pulado em dev)
+
+  // 1) webhook externo (opcional)
   if (process.env.SKIP_WEBHOOKS !== "true") {
     try {
       const url = await getCfg(
@@ -36,16 +39,21 @@ r.post("/:id/confirmar", async (req, res) => {
       return res.status(502).json({ error: "webhook_error" });
     }
   }
+
   // 2) atualiza DB
   await query(
-    `UPDATE topgas_entregas SET status_pedido='entregue', data_e_hora_confirmacao_pedido=NOW() WHERE id=$1`,
+    `UPDATE topgas_entregas 
+     SET status_pedido='entregue', data_e_hora_confirmacao_pedido=NOW() 
+     WHERE id=$1`,
     [id]
   );
   res.json({ ok: true });
 });
 
+// === CANCELAR ENTREGA ===
 r.post("/:id/cancelar", async (req, res) => {
   const id = Number(req.params.id);
+
   if (process.env.SKIP_WEBHOOKS !== "true") {
     try {
       const url = await getCfg(
@@ -62,8 +70,11 @@ r.post("/:id/cancelar", async (req, res) => {
       return res.status(502).json({ error: "webhook_error" });
     }
   }
+
   await query(
-    `UPDATE topgas_entregas SET status_pedido='cancelado', data_e_hora_cancelamento_pedido=NOW() WHERE id=$1`,
+    `UPDATE topgas_entregas 
+     SET status_pedido='cancelado', data_e_hora_cancelamento_pedido=NOW() 
+     WHERE id=$1`,
     [id]
   );
   res.json({ ok: true });
