@@ -10,19 +10,35 @@ async function getCfg(key, fallback) {
   return rows[0]?.value || fallback;
 }
 
+// função para converter status em ícone
+function statusToIcon(status) {
+  switch (status) {
+    case "entregue": return "✔️";
+    case "cancelado": return "❌";
+    case "pendente": return "⏳";
+    default: return status;
+  }
+}
+
 // === LISTAR ENTREGAS ===
 r.get("/", async (_req, res) => {
   const { rows } = await query(
     "SELECT * FROM topgas_entregas ORDER BY id DESC LIMIT 500"
   );
-  res.json(rows);
+
+  // adiciona campo extra com ícone
+  const data = rows.map(r => ({
+    ...r,
+    status_icon: statusToIcon(r.status_pedido)
+  }));
+
+  res.json(data);
 });
 
 // === CONFIRMAR ENTREGA ===
 r.post("/:id/confirmar", async (req, res) => {
   const id = Number(req.params.id);
 
-  // 1) webhook externo (opcional)
   if (process.env.SKIP_WEBHOOKS !== "true") {
     try {
       const url = await getCfg(
@@ -40,7 +56,6 @@ r.post("/:id/confirmar", async (req, res) => {
     }
   }
 
-  // 2) atualiza DB
   await query(
     `UPDATE topgas_entregas 
      SET status_pedido='entregue', data_e_hora_confirmacao_pedido=NOW() 
