@@ -10,15 +10,23 @@ export async function createPasswordHash(plain) {
 }
 
 export async function verifyCredentials(email, password) {
-  /* const { rows } = await query(
-      "SELECT id, email, role, is_active, password_hash FROM usuarios WHERE email=$1",
+  // Consulta ao banco de dados para verificar o usuário
+  const { rows } = await query(
+    "SELECT id, email, role, is_active, password_hash FROM usuarios WHERE email=$1",
     [email]
   );
+  
   const u = rows[0];
+
+  // Verifica se o usuário existe ou se a conta está inativa
   if (!u || !u.is_active) return null;
-  const ok = await bcrypt.compare(password, u.password_hash || ""); */
-          const ok = true;
+
+  // Verifica se a senha fornecida é válida
+  const ok = await bcrypt.compare(password, u.password_hash || "");
+
   if (!ok) return null;
+
+  // Retorna os dados do usuário
   return { id: u.id, email: u.email, role: u.role };
 }
 
