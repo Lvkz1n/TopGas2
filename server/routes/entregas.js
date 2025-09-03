@@ -1,69 +1,48 @@
 import { Router } from "express";
 import { query } from "../db.js";
+import { requireAuth } from "../auth.js"; // Importa middleware de autenticação
 
 const r = Router();
 
-
+// Função para obter entregas do banco
 async function getEntregas() {
-  await Auth.guard();
-
-  const tbody = document.querySelector("#tbEntregas tbody");
-  const rows = await getEntregas();
-
-  tbody.innerHTML = rows
-    .map((r) => {
-      const icon = getStatusIcon(r.status_icon || r.status_pedido);
-      const cliente =
-        r.nome_cliente ?? r.cliente_nome ?? r.cliente ?? "-";
-      const entregador = r.entregador || "-";
-
-      return `
-      <tr>
-        <td>${r.id}</td>
-        <td>${cliente}</td>
-        <td style="font-size:18px;text-align:center;">${icon}</td>
-        <td>${entregador}</td>
-        <td>
-          <button class="btn" onclick="confirmar(${r.id})">Confirmar</button>
-          <button class="btn" style="background:#ef4444" onclick="cancelar(${r.id})">Cancelar</button>
-        </td>
-      </tr>`;
-    })
-    .join("");
+  const { rows } = await query("SELECT * FROM topgas_entregas");
+  return rows;
 }
 
-function getStatusIcon(statusRaw) {
-  const s = String(statusRaw || "").trim().toLowerCase();
-  if (["entregue", "finalizado", "finalizada", "finalizadas"].includes(s))
-    return "✔️";
-  if (["cancelado", "cancelada", "canceladas"].includes(s))
-    return "❌";
-  if (
-    ["pendente", "em entrega", "em_entrega", "em rota", "em rota de entrega"].includes(
-      s
-    )
-  )
-    return "⏳";
-  // fallback: mostra o texto original se não bater com nada
-  return statusRaw || "⏳";
-}
-
-async function confirmar(id) {
+// Rota GET /entregas protegida por autenticação
+r.get("/entregas", requireAuth, async (req, res) => {
   try {
-    await getEntregas(`/entregas/${id}/confirmar`, { method: "POST" });
-    alert("Entregue!");
-    location.reload();
-  } catch (e) {
-    alert("Falha: " + e.message);
+    const entregas = await getEntregas();
+    res.json(entregas);
+  } catch (error) {
+    console.error("Erro ao buscar entregas:", error);
+    res.status(500).json({ error: "Erro interno ao buscar entregas" });
   }
-}
+});
 
-async function cancelar(id) {
+// Rota POST /entregas/:id/confirmar para confirmar entrega
+r.post("/entregas/:id/confirmar", requireAuth, async (req, res) => {
+  const { id } = req.params;
   try {
-    await API.api(`/entregas/${id}/cancelar`, { method: "POST" });
-    alert("Cancelado!");
-    location.reload();
-  } catch (e) {
-    alert("Falha: " + e.message);
+    await query("UPDATE topgas_entregas SET status_pedido = 'finalizado' WHERE id = $1", [id]);
+    res.json({ message: "Entrega confirmada" });
+  } catch (error) {
+    console.error("Erro ao confirmar entrega:", error);
+    res.status(500).json({ error: "Erro interno ao confirmar entrega" });
   }
-}
+});
+
+// Rota POST /entregas/:id/cancelar para cancelar entrega
+r.post("/entregas/:id/cancelar", requireAuth, async (req, res) => {
+  const { id } = req.params;
+  try {
+    await query("UPDATE topgas_entregas SET status_pedido = 'cancelado' WHERE id = $1", [id]);
+    res.json({ message: "Entrega cancelada" });
+  } catch (error) {
+    console.error("Erro ao cancelar entrega:", error);
+    res.status(500).json({ error: "Erro interno ao cancelar entrega" });
+  }
+});
+
+export default r;
