@@ -10,7 +10,7 @@ export async function createPasswordHash(plain) {
 }
 
 export async function verifyCredentials(email, password) {
-  // Consulta ao banco de dados para verificar o usuário
+  // Consultar o usuário no banco de dados
   const { rows } = await query(
     "SELECT id, email, role, is_active, password_hash FROM usuarios WHERE email=$1",
     [email]
@@ -19,12 +19,23 @@ export async function verifyCredentials(email, password) {
   const u = rows[0];
 
   // Verifica se o usuário existe ou se a conta está inativa
-  if (!u || !u.is_active) return null;
+  if (!u || !u.is_active) {
+    console.log("Usuário não encontrado ou conta inativa.");
+    return null;
+  }
 
-  // Verifica se a senha fornecida é válida
+  // Verificar se a senha fornecida é válida
   const ok = await bcrypt.compare(password, u.password_hash || "");
 
-  if (!ok) return null;
+  // Log para depuração da senha
+  console.log(`Senha fornecida: ${password}`);
+  console.log(`Senha armazenada: ${u.password_hash}`);
+  console.log(`Senha válida: ${ok}`);
+
+  if (!ok) {
+    console.log("Senha inválida.");
+    return null;
+  }
 
   // Retorna os dados do usuário
   return { id: u.id, email: u.email, role: u.role };
