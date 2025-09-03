@@ -95,5 +95,7 @@ if (process.env.SERVE_STATIC === "true") {
   });
 }
 
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log("API TopGas ouvindo na porta", PORT));
+const port = process.env.PORT || 8080;
+app.listen(port, () => {
+  console.log(`Servidor rodando na porta ${port}`);
+});
