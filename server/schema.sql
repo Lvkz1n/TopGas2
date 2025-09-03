@@ -40,6 +40,24 @@ CREATE TABLE IF NOT EXISTS entregas (
 CREATE INDEX IF NOT EXISTS idx_entregas_status ON entregas(status_pedido);
 CREATE INDEX IF NOT EXISTS idx_entregas_bairro ON entregas(bairro);
 
+-- ===== TOPGAS_ENTREGAS (Tabela consolidada para relatórios) =====
+CREATE TABLE IF NOT EXISTS topgas_entregas (
+  id_pedido SERIAL PRIMARY KEY,
+  id_cliente INTEGER,
+  nome_cliente TEXT NOT NULL,
+  bairro TEXT,
+  cidade TEXT,
+  telefone TEXT,
+  horario_inicio TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  nome_entregador TEXT,
+  horario_recebimento TIMESTAMPTZ,
+  status_entrega TEXT NOT NULL DEFAULT 'pendente', -- 'pendente' | 'em_andamento' | 'entregue' | 'cancelado'
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS idx_topgas_entregas_status ON topgas_entregas(status_entrega);
+CREATE INDEX IF NOT EXISTS idx_topgas_entregas_cliente ON topgas_entregas(id_cliente);
+
 -- ===== CONFIGURAÇÕES =====
 CREATE TABLE IF NOT EXISTS configuracoes (
   id SERIAL PRIMARY KEY,

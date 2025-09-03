@@ -22,14 +22,36 @@
   </aside>
 
   <main>
-    <div class="header"><h1>Entregas</h1></div>
+    <div class="header">
+      <h1>Entregas</h1>
+      <div class="header-actions">
+        <button id="btnDownloadCSV" class="btn btn-primary hidden" onclick="downloadCSV()">
+          📊 Download CSV
+        </button>
+      </div>
+    </div>
+    
     <div class="card">
       <table class="table" id="tbEntregas">
-        <thead><tr>
-          <th>ID</th><th>Cliente</th><th>Status</th><th>Entregador</th><th>Ações</th>
-        </tr></thead>
+        <thead>
+          <tr>
+            <th>ID do Pedido</th>
+            <th>Nome do Cliente</th>
+            <th>Horário de Início</th>
+            <th>Nome do Entregador</th>
+            <th>Horário de Recebimento</th>
+            <th>Status da Entrega</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
         <tbody></tbody>
       </table>
+      
+      <div id="paginacaoEntregas" class="paginacao">
+        <button class="btn" id="btnPrevEntregas" onclick="prevEntregas()">Anterior</button>
+        <span id="pagInfoEntregas"></span>
+        <button class="btn" id="btnNextEntregas" onclick="nextEntregas()">Próxima</button>
+      </div>
     </div>
   </main>
 
@@ -42,6 +64,7 @@
       if (me?.role === 'admin') {
         document.getElementById('menuUsuarios').classList.remove('hidden');
         document.getElementById('menuConfigs').classList.remove('hidden');
+        document.getElementById('btnDownloadCSV').classList.remove('hidden');
       }
     })();
   </script>

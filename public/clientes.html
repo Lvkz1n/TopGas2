@@ -24,7 +24,14 @@
     </aside>
 
     <main>
-      <div class="header"><h1>Clientes</h1></div>
+      <div class="header">
+        <h1>Clientes</h1>
+        <div class="header-actions">
+          <button id="btnDownloadCSV" class="btn btn-primary hidden" onclick="downloadCSV()">
+            📊 Download CSV
+          </button>
+        </div>
+      </div>
 
       <!-- Formulário removido: página de clientes é agregada das entregas (somente leitura) -->
 
@@ -60,6 +67,7 @@
         if (me?.role === "admin") {
           document.getElementById("menuUsuarios").classList.remove("hidden");
           document.getElementById("menuConfigs").classList.remove("hidden");
+          document.getElementById("btnDownloadCSV").classList.remove("hidden");
         }
       })();
     </script>

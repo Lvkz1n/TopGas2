@@ -8,27 +8,15 @@ let paginaAtualClientes = 1;
 const TAM_PAGINA_CLIENTES = 10;
 
 async function renderClientes() {
-  const tbody = document.querySelector("#tbClientes tbody");
-  const entregas = await API.api("/entregas");
-  const byCliente = new Map();
-  for (const e of entregas) {
-    const key = `${(e.telefone_cliente || "").trim()}|${(e.nome_cliente || "").trim()}`;
-    const item = byCliente.get(key) || {
-      id: e.id,
-      nome_cliente: e.nome_cliente || "",
-      bairro: e.bairro || "",
-      cidade: e.cidade || "",
-      telefone_cliente: e.telefone_cliente || "",
-      total_pedidos_entregues: 0,
-    };
-    if ((e.status_pedido || "").toLowerCase() === "entregue") {
-      item.total_pedidos_entregues += 1;
-    }
-    if (!byCliente.has(key)) byCliente.set(key, item);
+  try {
+    const clientes = await API.api("/clientes");
+    clientesCache = clientes;
+    paginaAtualClientes = 1;
+    renderPaginaClientes();
+  } catch (error) {
+    console.error("Erro ao carregar clientes:", error);
+    alert("Erro ao carregar clientes: " + error.message);
   }
-  clientesCache = Array.from(byCliente.values());
-  paginaAtualClientes = 1;
-  renderPaginaClientes();
 }
 
 function renderPaginaClientes() {
@@ -43,26 +31,12 @@ function renderPaginaClientes() {
     .map(
       (r) => `
     <tr>
-      <td>${r.id}</td>
-      <td><input data-id="${r.id}" data-k="nome_cliente" class="input" value="${
-        r.nome_cliente ?? ""
-      }" /></td>
-      <td><input data-id="${r.id}" data-k="bairro" class="input" value="${
-        r.bairro ?? ""
-      }" /></td>
-      <td><input data-id="${r.id}" data-k="cidade" class="input" value="${
-        r.cidade ?? ""
-      }" /></td>
-      <td><input data-id="${
-        r.id
-      }" data-k="telefone_cliente" class="input" value="${
-        r.telefone_cliente ?? ""
-      }" /></td>
-      <td><input data-id="${
-        r.id
-      }" data-k="total_pedidos_entregues" class="input" type="number" min="0" value="${
-        r.total_pedidos_entregues ?? 0
-      }" /></td>
+      <td>${r.id_cliente}</td>
+      <td>${r.nome_cliente ?? ""}</td>
+      <td>${r.bairro ?? ""}</td>
+      <td>${r.cidade ?? ""}</td>
+      <td>${r.telefone ?? ""}</td>
+      <td>${r.total_pedidos_entregues ?? 0}</td>
     </tr>
   `
     )
@@ -91,4 +65,28 @@ function prevClientes() {
   }
 }
 
-// Página somente leitura: funções de salvar/excluir foram removidas.
+async function downloadCSV() {
+  try {
+    const response = await fetch('/clientes/csv', {
+      method: 'GET',
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      throw new Error('Erro ao gerar CSV');
+    }
+    
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'relatorio_clientes.csv';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  } catch (error) {
+    console.error("Erro ao baixar CSV:", error);
+    alert("Erro ao baixar CSV: " + error.message);
+  }
+}
