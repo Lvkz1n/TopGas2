@@ -31,6 +31,7 @@ function renderPaginaClientes() {
     .map(
       (r) => `
     <tr>
+     <td>${r.id ?? ""}</td>
       <td>${r.nome_cliente ?? ""}</td>
       <td>${r.bairro ?? ""}</td>
       <td>${r.cidade ?? ""}</td>
