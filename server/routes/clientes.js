@@ -8,7 +8,7 @@ const r = Router();
 async function getClientesConsolidados() {
   const { rows } = await query(`
     SELECT 
-      MIN(id) as id,
+      MAX(id) as id,
       nome_cliente,
       bairro,
       cidade,
@@ -16,7 +16,7 @@ async function getClientesConsolidados() {
       COUNT(CASE WHEN status_pedido = 'entregue' THEN 1 END) as total_pedidos_entregues
     FROM topgas_entregas 
     GROUP BY nome_cliente, bairro, cidade, telefone_cliente
-    ORDER BY nome_cliente
+    ORDER BY MAX(id) DESC
   `);
   return rows;
 }

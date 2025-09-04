@@ -87,7 +87,7 @@ function generateEntregasCSV(entregas) {
 }
 
 // Rota GET /entregas protegida por autenticação com paginação
-r.get("/entregas", requireAuth, async (req, res) => {
+r.get("/", requireAuth, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -101,7 +101,7 @@ r.get("/entregas", requireAuth, async (req, res) => {
 });
 
 // Rota GET /entregas/csv para download do relatório CSV (apenas admin)
-r.get("/entregas/csv", requireAuth, requireAdmin, async (req, res) => {
+r.get("/csv", requireAuth, requireAdmin, async (req, res) => {
   try {
     // Buscar todas as entregas para o CSV
     const { rows: entregas } = await query(
@@ -128,7 +128,7 @@ r.get("/entregas/csv", requireAuth, requireAdmin, async (req, res) => {
 });
 
 // Rota POST /entregas/:id/confirmar para confirmar entrega
-r.post("/entregas/:id/confirmar", requireAuth, async (req, res) => {
+r.post("/:id/confirmar", requireAuth, async (req, res) => {
   const { id } = req.params;
   try {
     await query(
@@ -143,7 +143,7 @@ r.post("/entregas/:id/confirmar", requireAuth, async (req, res) => {
 });
 
 // Rota POST /entregas/:id/cancelar para cancelar entrega
-r.post("/entregas/:id/cancelar", requireAuth, async (req, res) => {
+r.post("/:id/cancelar", requireAuth, async (req, res) => {
   const { id } = req.params;
   try {
     await query(
