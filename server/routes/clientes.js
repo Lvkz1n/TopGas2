@@ -8,7 +8,7 @@ const r = Router();
 async function getClientesConsolidados() {
   const { rows } = await query(`
     SELECT 
-      id,
+      MIN(id) as id,
       nome_cliente,
       bairro,
       cidade,
@@ -24,6 +24,7 @@ async function getClientesConsolidados() {
 // Função para gerar CSV de clientes
 function generateClientesCSV(clientes) {
   const headers = [
+    'ID',
     'Nome do Cliente',
     'Bairro',
     'Cidade', 
@@ -35,7 +36,7 @@ function generateClientesCSV(clientes) {
   
   for (const cliente of clientes) {
     const row = [
-      `"${cliente.id}"`,
+      cliente.id,
       `"${cliente.nome_cliente}"`,
       `"${cliente.bairro || ''}"`,
       `"${cliente.cidade || ''}"`,

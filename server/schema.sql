@@ -14,49 +14,26 @@ CREATE TABLE IF NOT EXISTS usuarios (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- ===== CLIENTES =====
-CREATE TABLE IF NOT EXISTS clientes (
-  id SERIAL PRIMARY KEY,
-  nome_cliente TEXT NOT NULL,
-  bairro TEXT,
-  cidade TEXT,
-  telefone_cliente TEXT,
-  total_pedidos_entregues INTEGER NOT NULL DEFAULT 0,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ
-);
-
--- ===== ENTREGAS =====
-CREATE TABLE IF NOT EXISTS entregas (
-  id SERIAL PRIMARY KEY,
-  cliente_id INTEGER REFERENCES clientes(id) ON DELETE SET NULL,
-  bairro TEXT,
-  cidade TEXT,
-  status_pedido TEXT NOT NULL DEFAULT 'pendente', -- 'pendente' | 'entregue' | 'cancelado'
-  data_e_hora_confirmacao_pedido TIMESTAMPTZ,
-  data_e_hora_cancelamento_pedido TIMESTAMPTZ,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-CREATE INDEX IF NOT EXISTS idx_entregas_status ON entregas(status_pedido);
-CREATE INDEX IF NOT EXISTS idx_entregas_bairro ON entregas(bairro);
-
--- ===== TOPGAS_ENTREGAS (Tabela consolidada para relatórios) =====
+-- ===== TOPGAS_ENTREGAS (Tabela principal com todas as informações) =====
 CREATE TABLE IF NOT EXISTS topgas_entregas (
-  id_pedido SERIAL PRIMARY KEY,
-  id_cliente INTEGER,
+  id SERIAL PRIMARY KEY,
+  protocolo TEXT NOT NULL,
   nome_cliente TEXT NOT NULL,
-  bairro TEXT,
-  cidade TEXT,
-  telefone TEXT,
-  horario_inicio TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  nome_entregador TEXT,
-  horario_recebimento TIMESTAMPTZ,
-  status_entrega TEXT NOT NULL DEFAULT 'pendente', -- 'pendente' | 'em_andamento' | 'entregue' | 'cancelado'
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ
+  telefone_cliente TEXT NOT NULL,
+  mercadoria_pedido TEXT NOT NULL,
+  entregador TEXT NOT NULL,
+  telefone_entregador TEXT NOT NULL,
+  endereco TEXT NOT NULL,
+  cidade TEXT NOT NULL,
+  bairro TEXT NOT NULL,
+  ponto_de_referencia TEXT NOT NULL,
+  status_pedido TEXT NOT NULL DEFAULT 'pendente', -- 'pendente' | 'em_andamento' | 'entregue' | 'cancelado'
+  data_e_hora_inicio_pedido TEXT NOT NULL,
+  data_e_hora_envio_pedido TEXT NOT NULL,
+  data_e_hora_confirmacao_pedido TEXT NOT NULL,
+  data_e_hora_cancelamento_pedido TEXT NOT NULL,
+  unidade_topgas TEXT DEFAULT '0'
 );
-CREATE INDEX IF NOT EXISTS idx_topgas_entregas_status ON topgas_entregas(status_entrega);
-CREATE INDEX IF NOT EXISTS idx_topgas_entregas_cliente ON topgas_entregas(id_cliente);
 
 -- ===== CONFIGURAÇÕES =====
 CREATE TABLE IF NOT EXISTS configuracoes (
@@ -64,5 +41,4 @@ CREATE TABLE IF NOT EXISTS configuracoes (
   key TEXT NOT NULL UNIQUE,
   value TEXT NOT NULL DEFAULT ''
 );
-
 

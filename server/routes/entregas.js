@@ -20,7 +20,7 @@ async function getEntregas(page = 1, limit = 10) {
             data_e_hora_envio_pedido, data_e_hora_confirmacao_pedido, 
             data_e_hora_cancelamento_pedido, unidade_topgas
      FROM topgas_entregas 
-     ORDER BY data_e_hora_inicio_pedido DESC
+     ORDER BY id DESC
      LIMIT $1 OFFSET $2`,
     [limit, offset]
   );
@@ -111,7 +111,7 @@ r.get("/entregas/csv", requireAuth, requireAdmin, async (req, res) => {
               data_e_hora_envio_pedido, data_e_hora_confirmacao_pedido, 
               data_e_hora_cancelamento_pedido, unidade_topgas
        FROM topgas_entregas 
-       ORDER BY data_e_hora_inicio_pedido DESC`
+       ORDER BY id DESC`
     );
     
     const csv = generateEntregasCSV(entregas);
@@ -132,7 +132,7 @@ r.post("/entregas/:id/confirmar", requireAuth, async (req, res) => {
   const { id } = req.params;
   try {
     await query(
-      "UPDATE topgas_entregas SET status_pedido = 'entregue', data_e_hora_confirmacao_pedido = NOW() WHERE id = $1", 
+      "UPDATE topgas_entregas SET status_pedido = 'entregue', data_e_hora_confirmacao_pedido = NOW()::text WHERE id = $1", 
       [id]
     );
     res.json({ message: "Entrega confirmada" });
@@ -147,7 +147,7 @@ r.post("/entregas/:id/cancelar", requireAuth, async (req, res) => {
   const { id } = req.params;
   try {
     await query(
-      "UPDATE topgas_entregas SET status_pedido = 'cancelado', data_e_hora_cancelamento_pedido = NOW() WHERE id = $1", 
+      "UPDATE topgas_entregas SET status_pedido = 'cancelado', data_e_hora_cancelamento_pedido = NOW()::text WHERE id = $1", 
       [id]
     );
     res.json({ message: "Entrega cancelada" });
