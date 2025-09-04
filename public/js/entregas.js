@@ -16,18 +16,24 @@ async function renderEntregas() {
     tbody.innerHTML = result.entregas
       .map((entrega) => `
         <tr>
-          <td>${entrega.id_pedido}</td>
+          <td>${entrega.id}</td>
+          <td>${entrega.protocolo || "-"}</td>
           <td>${entrega.nome_cliente || "-"}</td>
-          <td>${formatarData(entrega.horario_inicio)}</td>
-          <td>${entrega.nome_entregador || "-"}</td>
-          <td>${entrega.horario_recebimento ? formatarData(entrega.horario_recebimento) : "-"}</td>
-          <td>${getStatusIcon(entrega.status_entrega)} ${entrega.status_entrega}</td>
+          <td>${entrega.telefone_cliente || "-"}</td>
+          <td>${entrega.mercadoria_pedido || "-"}</td>
+          <td>${entrega.entregador || "-"}</td>
+          <td>${entrega.telefone_entregador || "-"}</td>
+          <td>${entrega.endereco || "-"}</td>
+          <td>${entrega.cidade || "-"}</td>
+          <td>${entrega.bairro || "-"}</td>
+          <td>${entrega.ponto_de_referencia || "-"}</td>
+          <td>${getStatusIcon(entrega.status_pedido)} ${entrega.status_pedido || "pendente"}</td>
           <td>
-            ${entrega.status_entrega === 'pendente' ? 
-              `<button class="btn" onclick="confirmar(${entrega.id_pedido})">Confirmar</button>` : ''
+            ${entrega.status_pedido === 'pendente' ? 
+              `<button class="btn" onclick="confirmar(${entrega.id})">Confirmar</button>` : ''
             }
-            ${entrega.status_entrega === 'pendente' || entrega.status_entrega === 'em_andamento' ? 
-              `<button class="btn" style="background:#ef4444" onclick="cancelar(${entrega.id_pedido})">Cancelar</button>` : ''
+            ${entrega.status_pedido === 'pendente' || entrega.status_pedido === 'em_andamento' ? 
+              `<button class="btn" style="background:#ef4444" onclick="cancelar(${entrega.id})">Cancelar</button>` : ''
             }
           </td>
         </tr>
@@ -111,7 +117,7 @@ async function cancelar(id) {
 
 async function downloadCSV() {
   try {
-    const response = await fetch('/entregas/csv', {
+    const response = await fetch('/api/entregas/csv', {
       method: 'GET',
       credentials: 'include'
     });

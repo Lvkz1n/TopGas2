@@ -1,22 +1,20 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import dotenv from "dotenv";
 import path from "path";
 import url from "url";
 import { query } from "./db.js";
 import { requireAuth, requireAdmin, verifyCredentials } from "./auth.js";
+import { serverConfig } from "./config.js";
 import clientes from "./routes/clientes.js";
 import entregas from "./routes/entregas.js";
 import usuarios from "./routes/usuarios.js";
 import configuracoes from "./routes/configuracoes.js";
 
-dotenv.config();
-
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
+app.use(cors({ origin: serverConfig.corsOrigin, credentials: true }));
 
 // rota pública de healthcheck
 app.get("/api/health", (_req, res) => {
@@ -53,27 +51,32 @@ app.get("/api/auth/me", requireAuth, (req, res) => {
 
 // ===== MÉTRICAS DASHBOARD =====
 app.get("/api/metricas", requireAuth, async (_req, res) => {
-  const total = await query("SELECT COUNT(*) FROM topgas_entregas");
-  const sucesso = await query(
-    "SELECT COUNT(*) FROM topgas_entregas WHERE status_pedido='entregue'"
-  );
-  const cancel = await query(
-    "SELECT COUNT(*) FROM topgas_entregas WHERE status_pedido='cancelado'"
-  );
-  const regioes = await query(
-    `SELECT bairro, COUNT(*)::int AS total 
-     FROM topgas_entregas 
-     WHERE bairro IS NOT NULL 
-     GROUP BY bairro 
-     ORDER BY total DESC 
-     LIMIT 20`
-  );
-  res.json({
-    total_entregas: Number(total.rows[0].count),
-    entregas_sucesso: Number(sucesso.rows[0].count),
-    cancelamentos: Number(cancel.rows[0].count),
-    regioes: regioes.rows,
-  });
+  try {
+    const total = await query("SELECT COUNT(*) FROM topgas_entregas");
+    const sucesso = await query(
+      "SELECT COUNT(*) FROM topgas_entregas WHERE status_pedido='entregue'"
+    );
+    const cancel = await query(
+      "SELECT COUNT(*) FROM topgas_entregas WHERE status_pedido='cancelado'"
+    );
+    const regioes = await query(
+      `SELECT bairro, COUNT(*)::int AS total 
+       FROM topgas_entregas 
+       WHERE bairro IS NOT NULL 
+       GROUP BY bairro 
+       ORDER BY total DESC 
+       LIMIT 20`
+    );
+    res.json({
+      total_entregas: Number(total.rows[0].count),
+      entregas_sucesso: Number(sucesso.rows[0].count),
+      cancelamentos: Number(cancel.rows[0].count),
+      regioes: regioes.rows,
+    });
+  } catch (error) {
+    console.error("Erro ao buscar métricas:", error);
+    res.status(500).json({ error: "Erro interno ao buscar métricas" });
+  }
 });
 
 
@@ -84,7 +87,7 @@ app.use("/api/usuarios", requireAuth, requireAdmin, usuarios);
 app.use("/api/configuracoes", requireAuth, requireAdmin, configuracoes);
 
 // ===== SERVE ESTÁTICO (DEV OPCIONAL) =====
-if (process.env.SERVE_STATIC === "true") {
+if (serverConfig.serveStatic) {
   const __filename = url.fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   const publicDir = path.resolve(__dirname, "../public");
@@ -95,7 +98,7 @@ if (process.env.SERVE_STATIC === "true") {
   });
 }
 
-const port = process.env.PORT || 8080;
+const port = serverConfig.port;
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);
 });

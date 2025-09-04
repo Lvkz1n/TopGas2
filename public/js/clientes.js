@@ -31,7 +31,6 @@ function renderPaginaClientes() {
     .map(
       (r) => `
     <tr>
-      <td>${r.id_cliente}</td>
       <td>${r.nome_cliente ?? ""}</td>
       <td>${r.bairro ?? ""}</td>
       <td>${r.cidade ?? ""}</td>
@@ -67,7 +66,7 @@ function prevClientes() {
 
 async function downloadCSV() {
   try {
-    const response = await fetch('/clientes/csv', {
+    const response = await fetch('/api/clientes/csv', {
       method: 'GET',
       credentials: 'include'
     });

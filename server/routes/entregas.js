@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { query } from "../db.js";
-import { requireAuth, requireAdmin } from "../auth.js"; // Importa middleware de autenticação
+import { requireAuth, requireAdmin } from "../auth.js";
 
 const r = Router();
 
@@ -14,10 +14,13 @@ async function getEntregas(page = 1, limit = 10) {
   
   // Buscar registros da página atual
   const { rows } = await query(
-    `SELECT id_pedido, nome_cliente, horario_inicio, nome_entregador, 
-            horario_recebimento, status_entrega 
+    `SELECT id, protocolo, nome_cliente, telefone_cliente, mercadoria_pedido, 
+            entregador, telefone_entregador, endereco, cidade, bairro, 
+            ponto_de_referencia, status_pedido, data_e_hora_inicio_pedido, 
+            data_e_hora_envio_pedido, data_e_hora_confirmacao_pedido, 
+            data_e_hora_cancelamento_pedido, unidade_topgas
      FROM topgas_entregas 
-     ORDER BY horario_inicio DESC 
+     ORDER BY data_e_hora_inicio_pedido DESC
      LIMIT $1 OFFSET $2`,
     [limit, offset]
   );
@@ -36,24 +39,46 @@ async function getEntregas(page = 1, limit = 10) {
 // Função para gerar CSV de entregas
 function generateEntregasCSV(entregas) {
   const headers = [
-    'ID do Pedido',
+    'ID',
+    'Protocolo',
     'Nome do Cliente', 
-    'Horário de Início',
-    'Nome do Entregador',
-    'Horário de Recebimento',
-    'Status da Entrega'
+    'Telefone do Cliente',
+    'Mercadoria/Pedido',
+    'Entregador',
+    'Telefone do Entregador',
+    'Endereço',
+    'Cidade',
+    'Bairro',
+    'Ponto de Referência',
+    'Status do Pedido',
+    'Data e Hora de Início',
+    'Data e Hora de Envio',
+    'Data e Hora de Confirmação',
+    'Data e Hora de Cancelamento',
+    'Unidade TopGas'
   ];
   
   const csvRows = [headers.join(',')];
   
   for (const entrega of entregas) {
     const row = [
-      entrega.id_pedido,
+      entrega.id,
+      entrega.protocolo,
       `"${entrega.nome_cliente}"`,
-      entrega.horario_inicio ? new Date(entrega.horario_inicio).toLocaleString('pt-BR') : '',
-      `"${entrega.nome_entregador || ''}"`,
-      entrega.horario_recebimento ? new Date(entrega.horario_recebimento).toLocaleString('pt-BR') : '',
-      entrega.status_entrega
+      entrega.telefone_cliente,
+      `"${entrega.mercadoria_pedido}"`,
+      `"${entrega.entregador}"`,
+      entrega.telefone_entregador,
+      `"${entrega.endereco}"`,
+      `"${entrega.cidade}"`,
+      `"${entrega.bairro}"`,
+      `"${entrega.ponto_de_referencia}"`,
+      entrega.status_pedido,
+      entrega.data_e_hora_inicio_pedido || '',
+      entrega.data_e_hora_envio_pedido || '',
+      entrega.data_e_hora_confirmacao_pedido || '',
+      entrega.data_e_hora_cancelamento_pedido || '',
+      entrega.unidade_topgas || ''
     ];
     csvRows.push(row.join(','));
   }
@@ -80,10 +105,13 @@ r.get("/entregas/csv", requireAuth, requireAdmin, async (req, res) => {
   try {
     // Buscar todas as entregas para o CSV
     const { rows: entregas } = await query(
-      `SELECT id_pedido, nome_cliente, horario_inicio, nome_entregador, 
-              horario_recebimento, status_entrega 
+      `SELECT id, protocolo, nome_cliente, telefone_cliente, mercadoria_pedido, 
+              entregador, telefone_entregador, endereco, cidade, bairro, 
+              ponto_de_referencia, status_pedido, data_e_hora_inicio_pedido, 
+              data_e_hora_envio_pedido, data_e_hora_confirmacao_pedido, 
+              data_e_hora_cancelamento_pedido, unidade_topgas
        FROM topgas_entregas 
-       ORDER BY horario_inicio DESC`
+       ORDER BY data_e_hora_inicio_pedido DESC`
     );
     
     const csv = generateEntregasCSV(entregas);
@@ -104,7 +132,7 @@ r.post("/entregas/:id/confirmar", requireAuth, async (req, res) => {
   const { id } = req.params;
   try {
     await query(
-      "UPDATE topgas_entregas SET status_entrega = 'entregue', horario_recebimento = NOW() WHERE id_pedido = $1", 
+      "UPDATE topgas_entregas SET status_pedido = 'entregue', data_e_hora_confirmacao_pedido = NOW() WHERE id = $1", 
       [id]
     );
     res.json({ message: "Entrega confirmada" });
@@ -119,7 +147,7 @@ r.post("/entregas/:id/cancelar", requireAuth, async (req, res) => {
   const { id } = req.params;
   try {
     await query(
-      "UPDATE topgas_entregas SET status_entrega = 'cancelado' WHERE id_pedido = $1", 
+      "UPDATE topgas_entregas SET status_pedido = 'cancelado', data_e_hora_cancelamento_pedido = NOW() WHERE id = $1", 
       [id]
     );
     res.json({ message: "Entrega cancelada" });

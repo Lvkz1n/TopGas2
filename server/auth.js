@@ -1,8 +1,6 @@
-import dotenv from "dotenv";
 import cookie from "cookie";
 import bcrypt from "bcryptjs";
 import { query } from "./db.js";
-dotenv.config();
 
 export async function createPasswordHash(plain) {
   const salt = await bcrypt.genSalt(10);

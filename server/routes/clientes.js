@@ -8,14 +8,13 @@ const r = Router();
 async function getClientesConsolidados() {
   const { rows } = await query(`
     SELECT 
-      id_cliente,
       nome_cliente,
       bairro,
       cidade,
-      telefone,
-      COUNT(CASE WHEN status_entrega = 'entregue' THEN 1 END) as total_pedidos_entregues
+      telefone_cliente as telefone,
+      COUNT(CASE WHEN status_pedido = 'entregue' THEN 1 END) as total_pedidos_entregues
     FROM topgas_entregas 
-    GROUP BY id_cliente, nome_cliente, bairro, cidade, telefone
+    GROUP BY nome_cliente, bairro, cidade, telefone_cliente
     ORDER BY nome_cliente
   `);
   return rows;
@@ -24,7 +23,6 @@ async function getClientesConsolidados() {
 // Função para gerar CSV de clientes
 function generateClientesCSV(clientes) {
   const headers = [
-    'ID do Cliente',
     'Nome do Cliente',
     'Bairro',
     'Cidade', 
@@ -36,7 +34,6 @@ function generateClientesCSV(clientes) {
   
   for (const cliente of clientes) {
     const row = [
-      cliente.id_cliente,
       `"${cliente.nome_cliente}"`,
       `"${cliente.bairro || ''}"`,
       `"${cliente.cidade || ''}"`,

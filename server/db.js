@@ -1,9 +1,11 @@
 import pkg from "pg";
 const { Pool } = pkg;
-import dotenv from "dotenv";
-dotenv.config();
+import { DATABASE_URL } from "./config.js";
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+export const pool = new Pool({ 
+  connectionString: DATABASE_URL,
+  ssl: false
+});
 
 export async function query(sql, params) {
   const client = await pool.connect();
