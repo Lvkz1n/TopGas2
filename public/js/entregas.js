@@ -31,6 +31,13 @@ function applyFilters() {
   
   let filteredEntregas = [...todasEntregas];
   
+  // Filtrar apenas status específicos
+  filteredEntregas = filteredEntregas.filter(entrega => 
+    entrega.status_pedido === 'Em Entrega' || 
+    entrega.status_pedido === 'Entregue' || 
+    entrega.status_pedido === 'cancelado'
+  );
+  
   // Aplicar filtro de status
   if (statusFilter) {
     filteredEntregas = filteredEntregas.filter(entrega => 
@@ -59,7 +66,7 @@ function sortEntregas(entregas, sortBy) {
   return entregas.sort((a, b) => {
     switch (sortBy) {
       case 'status':
-        const statusOrder = { 'Em Entrega': 1, 'entregue': 2, 'Entregue': 2, 'cancelado': 3, 'Cancelado': 3 };
+        const statusOrder = { 'Em Entrega': 1, 'Entregue': 2, 'cancelado': 3 };
         return (statusOrder[a.status_pedido] || 4) - (statusOrder[b.status_pedido] || 4);
       
       case 'protocolo':
@@ -84,6 +91,7 @@ function sortEntregas(entregas, sortBy) {
 }
 
 function renderEntregasTable(entregas) {
+  // Renderizar tabela desktop
   const tbody = document.querySelector("#tbEntregas tbody");
   tbody.innerHTML = entregas
     .map((entrega) => `
@@ -92,7 +100,7 @@ function renderEntregasTable(entregas) {
         <td>${entrega.nome_cliente || "-"}</td>
         <td>${entrega.telefone_cliente || "-"}</td>
         <td>${entrega.mercadoria_pedido || "-"}</td>
-        <td>${entrega.entregador || "-"}</td>
+        <td>${formatarEntregador(entrega.entregador)}</td>
         <td>${entrega.endereco || "-"}</td>
         <td>${entrega.bairro || "-"}</td>
         <td>${entrega.unidade_topgas || "-"}</td>
@@ -102,9 +110,68 @@ function renderEntregasTable(entregas) {
     `)
     .join("");
   
+  // Renderizar visualização mobile
+  const mobileContainer = document.getElementById("mobileEntregas");
+  mobileContainer.innerHTML = entregas
+    .map((entrega, index) => `
+      <div class="delivery-item" id="delivery-${index}">
+        <div class="delivery-header" onclick="toggleDeliveryDetails(${index})">
+          <div class="delivery-name">${entrega.nome_cliente || "-"}</div>
+          <div class="delivery-status">${getStatusIcon(entrega.status_pedido)} ${entrega.status_pedido || "pendente"}</div>
+        </div>
+        <div class="delivery-details" id="details-${index}">
+          <div class="detail-row">
+            <span class="detail-label">Protocolo:</span>
+            <span class="detail-value">${entrega.protocolo || "-"}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Telefone:</span>
+            <span class="detail-value">${entrega.telefone_cliente || "-"}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Pedido:</span>
+            <span class="detail-value">${entrega.mercadoria_pedido || "-"}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Entregador:</span>
+            <span class="detail-value">${formatarEntregador(entrega.entregador)}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Endereço:</span>
+            <span class="detail-value">${entrega.endereco || "-"}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Bairro:</span>
+            <span class="detail-value">${entrega.bairro || "-"}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Unidade:</span>
+            <span class="detail-value">${entrega.unidade_topgas || "-"}</span>
+          </div>
+          <div class="delivery-timestamps">
+            ${renderTimestamps(entrega)}
+          </div>
+        </div>
+      </div>
+    `)
+    .join("");
+  
   // Recarregar ícones Lucide após renderizar a tabela
   if (typeof lucide !== 'undefined') {
     lucide.createIcons();
+  }
+}
+
+function toggleDeliveryDetails(index) {
+  const details = document.getElementById(`details-${index}`);
+  const item = document.getElementById(`delivery-${index}`);
+  
+  if (details.classList.contains('expanded')) {
+    details.classList.remove('expanded');
+    item.classList.remove('expanded');
+  } else {
+    details.classList.add('expanded');
+    item.classList.add('expanded');
   }
 }
 
@@ -142,18 +209,25 @@ function formatarData(dataString) {
 }
 
 function formatarDataSimples(dataString) {
-  if (!dataString) return "-";
+  if (!dataString) return "Aguardando...";
   const data = new Date(dataString);
+  if (isNaN(data.getTime())) return "Aguardando...";
   return data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 }
 
 function calcularTempoTotal(inicio, fim) {
-  if (!inicio) return "-";
+  if (!inicio) return "Calculando...";
   
   const dataInicio = new Date(inicio);
   const dataFim = fim ? new Date(fim) : new Date();
   
+  if (isNaN(dataInicio.getTime()) || isNaN(dataFim.getTime())) {
+    return "Calculando...";
+  }
+  
   const diffMs = dataFim - dataInicio;
+  if (diffMs < 0) return "Calculando...";
+  
   const diffHoras = Math.floor(diffMs / (1000 * 60 * 60));
   const diffMinutos = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
   const diffSegundos = Math.floor((diffMs % (1000 * 60)) / 1000);
@@ -227,6 +301,17 @@ function renderTimestamps(entrega) {
   return `<div class="delivery-timestamps">${timestampsHtml}${tempoTotalHtml}</div>`;
 }
 
+function formatarEntregador(entregador) {
+  if (!entregador) return "-";
+  
+  // Se contém dois pontos, pegar apenas a parte depois dos dois pontos
+  if (entregador.includes(':')) {
+    return entregador.split(':').slice(1).join(':').trim();
+  }
+  
+  return entregador;
+}
+
 function getStatusIcon(status) {
   switch (status) {
     case 'entregue':
@@ -293,6 +378,45 @@ async function downloadCSV() {
     const a = document.createElement('a');
     a.href = url;
     a.download = 'relatorio_entregas.csv';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  } catch (error) {
+    console.error("Erro ao baixar CSV:", error);
+    alert("Erro ao baixar CSV: " + error.message);
+  }
+}
+
+async function downloadCSVComPeriodo() {
+  const dataInicio = document.getElementById('csvDataInicio').value;
+  const dataFim = document.getElementById('csvDataFim').value;
+  
+  if (!dataInicio || !dataFim) {
+    alert("Por favor, selecione o período (data início e data fim)");
+    return;
+  }
+  
+  try {
+    const params = new URLSearchParams({
+      data_inicio: dataInicio,
+      data_fim: dataFim
+    });
+    
+    const response = await fetch(`/api/entregas/csv?${params}`, {
+      method: 'GET',
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      throw new Error('Erro ao gerar CSV');
+    }
+    
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `relatorio_entregas_${dataInicio}_${dataFim}.csv`;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);

@@ -69,10 +69,8 @@
           <select class="filter-select" id="filterStatus" onchange="applyFilters()">
             <option value="">Todos</option>
             <option value="Em Entrega">⏳ Em Entrega</option>
-            <option value="entregue">✅ Entregue</option>
             <option value="Entregue">✅ Entregue</option>
             <option value="cancelado">❌ Cancelado</option>
-            <option value="Cancelado">❌ Cancelado</option>
           </select>
         </div>
         <div class="filter-group">
@@ -90,25 +88,43 @@
           <label>Buscar:</label>
           <input type="text" class="filter-select" id="filterSearch" placeholder="Nome, protocolo, bairro..." onkeyup="applyFilters()">
         </div>
+        <div class="filter-group">
+          <label>Período CSV:</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="date" class="filter-select" id="csvDataInicio" style="flex: 1;">
+            <input type="date" class="filter-select" id="csvDataFim" style="flex: 1;">
+            <button class="btn" onclick="downloadCSVComPeriodo()" style="background: var(--orange-500); padding: 8px 12px;">
+              📊 CSV
+            </button>
+          </div>
+        </div>
       </div>
       
-      <table class="table" id="tbEntregas">
-        <thead>
-          <tr>
-            <th>Protocolo</th>
-            <th>Nome do Cliente</th>
-            <th>Número Cliente</th>
-            <th>Pedido</th>
-            <th>Entregador</th>
-            <th>Endereço</th>
-            <th>Bairro</th>
-            <th>Unidade</th>
-            <th>Status</th>
-            <th>Horários</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <!-- Visualização Desktop -->
+      <div class="desktop-delivery-view">
+        <table class="table" id="tbEntregas">
+          <thead>
+            <tr>
+              <th>Protocolo</th>
+              <th>Nome do Cliente</th>
+              <th>Número Cliente</th>
+              <th>Pedido</th>
+              <th>Entregador</th>
+              <th>Endereço</th>
+              <th>Bairro</th>
+              <th>Unidade</th>
+              <th>Status</th>
+              <th>Horários</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      
+      <!-- Visualização Mobile -->
+      <div class="mobile-delivery-view" id="mobileEntregas">
+        <!-- Será preenchido via JavaScript -->
+      </div>
       
       <div id="paginacaoEntregas" class="paginacao">
         <button class="btn" id="btnPrevEntregas" onclick="prevEntregas()">Anterior</button>

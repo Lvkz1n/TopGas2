@@ -411,4 +411,147 @@ copyright,
   .filter-select {
     width: 100%;
   }
+  
+  /* Visualização mobile para entregas */
+  .mobile-delivery-view {
+    display: none;
+  }
+  
+  .desktop-delivery-view {
+    display: block;
+  }
+  
+  .delivery-item {
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-left: 4px solid var(--orange-500);
+  }
+  
+  .delivery-item.expanded {
+    border-left-color: var(--orange-600);
+  }
+  
+  .delivery-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .delivery-name {
+    font-weight: 600;
+    color: var(--orange-700);
+    font-size: 1rem;
+  }
+  
+  .delivery-status {
+    font-size: 0.875rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: var(--orange-50);
+    color: var(--orange-700);
+  }
+  
+  .delivery-details {
+    display: none;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+  }
+  
+  .delivery-details.expanded {
+    display: block;
+  }
+  
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.875rem;
+  }
+  
+  .detail-label {
+    font-weight: 500;
+    color: var(--orange-600);
+    min-width: 80px;
+  }
+  
+  .detail-value {
+    color: #374151;
+    text-align: right;
+    flex: 1;
+    margin-left: 12px;
+  }
+  
+  .delivery-timestamps {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+  }
+  
+  /* Visualização mobile para clientes */
+  .client-item {
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-left: 4px solid var(--orange-500);
+  }
+  
+  .client-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  .client-name {
+    font-weight: 600;
+    color: var(--orange-700);
+    font-size: 1rem;
+  }
+  
+  .client-orders {
+    font-size: 0.875rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: var(--orange-50);
+    color: var(--orange-700);
+  }
+  
+  .client-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    font-size: 0.875rem;
+  }
+  
+  .client-detail {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .client-detail-label {
+    font-weight: 500;
+    color: var(--orange-600);
+    font-size: 0.75rem;
+  }
+  
+  .client-detail-value {
+    color: #374151;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-delivery-view {
+    display: block;
+  }
+  
+  .desktop-delivery-view {
+    display: none;
+  }
 }

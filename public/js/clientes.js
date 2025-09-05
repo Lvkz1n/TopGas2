@@ -27,6 +27,7 @@ function renderPaginaClientes() {
   const inicio = (paginaAtualClientes - 1) * TAM_PAGINA_CLIENTES;
   const fim = inicio + TAM_PAGINA_CLIENTES;
   const pagina = clientesCache.slice(inicio, fim);
+  // Renderizar tabela desktop
   tbody.innerHTML = pagina
     .map(
       (r) => `
@@ -47,6 +48,45 @@ function renderPaginaClientes() {
   `
     )
     .join("");
+    
+  // Renderizar visualização mobile
+  const mobileContainer = document.getElementById("mobileClientes");
+  if (mobileContainer) {
+    mobileContainer.innerHTML = pagina
+      .map((r) => `
+        <div class="client-item">
+          <div class="client-header">
+            <div class="client-name">${r.nome_cliente ?? ""}</div>
+            <div class="client-orders">${r.total_pedidos_entregues ?? 0} entregas</div>
+          </div>
+          <div class="client-details">
+            <div class="client-detail">
+              <span class="client-detail-label">ID:</span>
+              <span class="client-detail-value">${r.id ?? ""}</span>
+            </div>
+            <div class="client-detail">
+              <span class="client-detail-label">Bairro:</span>
+              <span class="client-detail-value">${r.bairro ?? ""}</span>
+            </div>
+            <div class="client-detail">
+              <span class="client-detail-label">Cidade:</span>
+              <span class="client-detail-value">${r.cidade ?? ""}</span>
+            </div>
+            <div class="client-detail">
+              <span class="client-detail-label">Telefone:</span>
+              <span class="client-detail-value">${r.telefone ?? ""}</span>
+            </div>
+          </div>
+          <div style="margin-top: 12px;">
+            <button class="btn" onclick="editarCliente(${r.id})" style="background: var(--orange-500); width: 100%;">
+              <i data-lucide="edit" style="width: 14px; height: 14px; margin-right: 4px;"></i>
+              Editar Cliente
+            </button>
+          </div>
+        </div>
+      `)
+      .join("");
+  }
     
   // Recarregar ícones Lucide após renderizar a tabela
   if (typeof lucide !== 'undefined') {

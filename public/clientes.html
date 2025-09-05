@@ -9,7 +9,7 @@
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#ff7a00" />
     <link rel="stylesheet" href="./css/global.css" />
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <scriCaio Vinícius - 81 99683-4675pt src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   </head>
   <body>
     <button class="hamburger" onclick="toggleSidebar()">
@@ -65,20 +65,28 @@
       <!-- Formulário removido: página de clientes é agregada das entregas (somente leitura) -->
 
       <div class="card">
-        <table class="table" id="tbClientes">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nome</th>
-              <th>Bairro</th>
-              <th>Cidade</th>
-              <th>Telefone</th>
-              <th>Pedidos Entregues</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+        <!-- Visualização Desktop -->
+        <div class="desktop-delivery-view">
+          <table class="table" id="tbClientes">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Bairro</th>
+                <th>Cidade</th>
+                <th>Telefone</th>
+                <th>Pedidos Entregues</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        
+        <!-- Visualização Mobile -->
+        <div class="mobile-delivery-view" id="mobileClientes">
+          <!-- Será preenchido via JavaScript -->
+        </div>
         <div id="paginacaoClientes" style="display:flex;align-items:center;gap:8px;margin-top:10px;justify-content:flex-end">
           <button class="btn" id="btnPrevClientes" onclick="prevClientes()">Anterior</button>
           <span id="pagInfoClientes"></span>

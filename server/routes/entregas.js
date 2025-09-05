@@ -103,21 +103,37 @@ r.get("/", requireAuth, async (req, res) => {
 // Rota GET /entregas/csv para download do relatório CSV (apenas admin)
 r.get("/csv", requireAuth, requireAdmin, async (req, res) => {
   try {
-    // Buscar todas as entregas para o CSV
-    const { rows: entregas } = await query(
-      `SELECT id, protocolo, nome_cliente, telefone_cliente, mercadoria_pedido, 
-              entregador, telefone_entregador, endereco, cidade, bairro, 
-              ponto_de_referencia, status_pedido, data_e_hora_inicio_pedido, 
-              data_e_hora_envio_pedido, data_e_hora_confirmacao_pedido, 
-              data_e_hora_cancelamento_pedido, unidade_topgas
-       FROM topgas_entregas 
-       ORDER BY id DESC`
-    );
+    const { data_inicio, data_fim } = req.query;
+    
+    let querySQL = `
+      SELECT id, protocolo, nome_cliente, telefone_cliente, mercadoria_pedido, 
+             entregador, telefone_entregador, endereco, cidade, bairro, 
+             ponto_de_referencia, status_pedido, data_e_hora_inicio_pedido, 
+             data_e_hora_envio_pedido, data_e_hora_confirmacao_pedido, 
+             data_e_hora_cancelamento_pedido, unidade_topgas
+      FROM topgas_entregas 
+    `;
+    
+    let params = [];
+    
+    // Adicionar filtro de período se fornecido
+    if (data_inicio && data_fim) {
+      querySQL += ` WHERE DATE(data_e_hora_inicio_pedido::timestamp) BETWEEN $1 AND $2`;
+      params = [data_inicio, data_fim];
+    }
+    
+    querySQL += ` ORDER BY id DESC`;
+    
+    const { rows: entregas } = await query(querySQL, params);
     
     const csv = generateEntregasCSV(entregas);
     
+    const filename = data_inicio && data_fim 
+      ? `relatorio_entregas_${data_inicio}_${data_fim}.csv`
+      : 'relatorio_entregas.csv';
+    
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename="relatorio_entregas.csv"');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.setHeader('Content-Length', Buffer.byteLength(csv, 'utf8'));
     
     res.send(csv);
