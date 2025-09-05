@@ -100,69 +100,91 @@ r.get("/", requireAuth, async (req, res) => {
   }
 });
 
+// Rota de teste para verificar dados
+r.get("/test-data", requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { rows } = await query(`
+      SELECT id, protocolo, nome_cliente, status_pedido, 
+             data_e_hora_inicio_pedido, data_e_hora_envio_pedido, 
+             data_e_hora_confirmacao_pedido, data_e_hora_cancelamento_pedido
+      FROM topgas_entregas 
+      ORDER BY id DESC 
+      LIMIT 5
+    `);
+    
+    res.json({ 
+      message: "Dados de teste", 
+      count: rows.length,
+      data: rows 
+    });
+  } catch (error) {
+    console.error("Erro ao buscar dados de teste:", error);
+    res.status(500).json({ error: "Erro interno", details: error.message });
+  }
+});
+
 // Rota GET /entregas/csv para download do relatório CSV (apenas admin)
 r.get("/csv", requireAuth, requireAdmin, async (req, res) => {
   try {
     const { data_inicio, data_fim } = req.query;
     
-    console.log("Parâmetros CSV recebidos:", { data_inicio, data_fim });
+    console.log("=== INÍCIO CSV ===");
+    console.log("Parâmetros recebidos:", { data_inicio, data_fim });
     
-    let querySQL = `
-      SELECT id, protocolo, nome_cliente, telefone_cliente, mercadoria_pedido, 
-             entregador, telefone_entregador, endereco, cidade, bairro, 
-             ponto_de_referencia, status_pedido, data_e_hora_inicio_pedido, 
-             data_e_hora_envio_pedido, data_e_hora_confirmacao_pedido, 
-             data_e_hora_cancelamento_pedido, unidade_topgas
-      FROM topgas_entregas 
-    `;
-    
+    // Query mais simples primeiro
+    let querySQL = `SELECT * FROM topgas_entregas LIMIT 10`;
     let params = [];
     
-    // Adicionar filtro de período se fornecido
+    // Se tem filtro de período, aplicar
     if (data_inicio && data_fim) {
-      // Usar uma abordagem mais simples com DATE()
-      querySQL += ` WHERE DATE(data_e_hora_inicio_pedido) BETWEEN $1 AND $2`;
+      querySQL = `
+        SELECT * FROM topgas_entregas 
+        WHERE data_e_hora_inicio_pedido IS NOT NULL 
+        AND DATE(data_e_hora_inicio_pedido) BETWEEN $1 AND $2
+        ORDER BY id DESC
+      `;
       params = [data_inicio, data_fim];
-      console.log("Query SQL com filtro de período:", querySQL);
-      console.log("Parâmetros:", params);
-    } else {
-      console.log("Query SQL sem filtro de período:", querySQL);
     }
     
-    querySQL += ` ORDER BY id DESC`;
-    
-    console.log("Executando query:", querySQL);
-    console.log("Com parâmetros:", params);
+    console.log("Query SQL:", querySQL);
+    console.log("Parâmetros:", params);
     
     const { rows: entregas } = await query(querySQL, params);
-    console.log(`Encontradas ${entregas.length} entregas para CSV`);
+    console.log(`Encontradas ${entregas.length} entregas`);
     
     if (entregas.length === 0) {
-      console.log("Nenhuma entrega encontrada para o período");
+      console.log("Nenhuma entrega encontrada");
       return res.status(404).json({ 
         error: "Nenhuma entrega encontrada para o período selecionado",
         details: `Período: ${data_inicio} a ${data_fim}`
       });
     }
     
-    const csv = generateEntregasCSV(entregas);
+    // CSV simples para teste
+    const csv = "ID,Protocolo,Nome,Status\n" + 
+                entregas.map(e => `${e.id},${e.protocolo || ''},"${e.nome_cliente || ''}",${e.status_pedido || ''}`).join('\n');
     
     const filename = data_inicio && data_fim 
-      ? `relatorio_entregas_${data_inicio}_${data_fim}.csv`
-      : 'relatorio_entregas.csv';
+      ? `relatorio_${data_inicio}_${data_fim}.csv`
+      : 'relatorio.csv';
     
-    console.log("Nome do arquivo:", filename);
-    console.log("Tamanho do CSV:", csv.length, "caracteres");
+    console.log("CSV gerado:", csv.length, "caracteres");
+    console.log("=== FIM CSV ===");
     
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Content-Length', Buffer.byteLength(csv, 'utf8'));
-    
     res.send(csv);
+    
   } catch (error) {
-    console.error("Erro ao gerar CSV de entregas:", error);
-    console.error("Stack trace:", error.stack);
-    res.status(500).json({ error: "Erro interno ao gerar CSV", details: error.message });
+    console.error("=== ERRO CSV ===");
+    console.error("Erro:", error.message);
+    console.error("Stack:", error.stack);
+    console.error("=== FIM ERRO ===");
+    res.status(500).json({ 
+      error: "Erro interno ao gerar CSV", 
+      details: error.message,
+      stack: error.stack 
+    });
   }
 });
 

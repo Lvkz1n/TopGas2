@@ -209,9 +209,21 @@ function formatarData(dataString) {
 }
 
 function formatarDataSimples(dataString) {
-  if (!dataString) return "Aguardando...";
+  if (!dataString || dataString === null || dataString === '') {
+    return "Aguardando...";
+  }
+  
+  // Se já é uma string formatada, retornar como está
+  if (typeof dataString === 'string' && dataString.includes('/')) {
+    return dataString;
+  }
+  
   const data = new Date(dataString);
-  if (isNaN(data.getTime())) return "Aguardando...";
+  if (isNaN(data.getTime())) {
+    console.log("Data inválida:", dataString);
+    return "Aguardando...";
+  }
+  
   return data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 }
 
@@ -242,18 +254,31 @@ function calcularTempoTotal(inicio, fim) {
 }
 
 function renderTimestamps(entrega) {
+  console.log("=== RENDER TIMESTAMPS ===");
+  console.log("Entrega ID:", entrega.id);
+  console.log("Dados de horário:", {
+    inicio: entrega.data_e_hora_inicio_pedido,
+    envio: entrega.data_e_hora_envio_pedido,
+    confirmacao: entrega.data_e_hora_confirmacao_pedido,
+    cancelamento: entrega.data_e_hora_cancelamento_pedido
+  });
+  
   const timestamps = [];
   
   // Pedido feito - sempre mostrar
+  const pedidoFeito = formatarDataSimples(entrega.data_e_hora_inicio_pedido);
+  console.log("Pedido feito formatado:", pedidoFeito);
   timestamps.push({
     label: 'Pedido feito',
-    value: formatarDataSimples(entrega.data_e_hora_inicio_pedido)
+    value: pedidoFeito
   });
   
   // Enviado - sempre mostrar
+  const enviado = formatarDataSimples(entrega.data_e_hora_envio_pedido);
+  console.log("Enviado formatado:", enviado);
   timestamps.push({
     label: 'Enviado',
-    value: formatarDataSimples(entrega.data_e_hora_envio_pedido)
+    value: enviado
   });
   
   // Finalizado - mostrar confirmação ou cancelamento
@@ -263,6 +288,7 @@ function renderTimestamps(entrega) {
   } else if (entrega.data_e_hora_cancelamento_pedido) {
     finalizado = formatarDataSimples(entrega.data_e_hora_cancelamento_pedido);
   }
+  console.log("Finalizado formatado:", finalizado);
   
   timestamps.push({
     label: 'Finalizado',
@@ -279,6 +305,7 @@ function renderTimestamps(entrega) {
     // Se ainda em andamento, mostrar tempo até agora
     tempoTotal = calcularTempoTotal(entrega.data_e_hora_inicio_pedido) + " (em andamento)";
   }
+  console.log("Tempo total calculado:", tempoTotal);
   
   const timestampsHtml = timestamps.map(ts => 
     `<div class="timestamp-item">
@@ -294,6 +321,7 @@ function renderTimestamps(entrega) {
     </div>
   `;
   
+  console.log("=== FIM RENDER TIMESTAMPS ===");
   return `<div class="delivery-timestamps">${timestampsHtml}${tempoTotalHtml}</div>`;
 }
 
