@@ -392,38 +392,88 @@ async function downloadCSVComPeriodo() {
   const dataInicio = document.getElementById('csvDataInicio').value;
   const dataFim = document.getElementById('csvDataFim').value;
   
+  console.log("Datas selecionadas:", { dataInicio, dataFim });
+  
   if (!dataInicio || !dataFim) {
     alert("Por favor, selecione o período (data início e data fim)");
     return;
   }
   
+  // Validar se a data fim é maior que a data início
+  if (new Date(dataFim) < new Date(dataInicio)) {
+    alert("A data fim deve ser maior que a data início");
+    return;
+  }
+  
   try {
+    // Mostrar loading
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = "⏳ Gerando...";
+    btn.disabled = true;
+    
     const params = new URLSearchParams({
       data_inicio: dataInicio,
       data_fim: dataFim
     });
     
+    console.log("URL da requisição:", `/api/entregas/csv?${params}`);
+    
     const response = await fetch(`/api/entregas/csv?${params}`, {
       method: 'GET',
-      credentials: 'include'
+      credentials: 'include',
+      headers: {
+        'Accept': 'text/csv,application/csv'
+      }
     });
     
+    console.log("Status da resposta:", response.status);
+    console.log("Headers da resposta:", Object.fromEntries(response.headers.entries()));
+    
     if (!response.ok) {
-      throw new Error('Erro ao gerar CSV');
+      let errorMessage = `Erro ${response.status}`;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorData.details || errorMessage;
+      } catch (e) {
+        const errorText = await response.text();
+        errorMessage = errorText || errorMessage;
+      }
+      throw new Error(errorMessage);
     }
     
     const blob = await response.blob();
+    console.log("Blob recebido:", blob.size, "bytes", "tipo:", blob.type);
+    
+    if (blob.size === 0) {
+      throw new Error("Arquivo CSV está vazio. Verifique se há dados no período selecionado.");
+    }
+    
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `relatorio_entregas_${dataInicio}_${dataFim}.csv`;
+    a.style.display = 'none';
     document.body.appendChild(a);
     a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+    
+    // Limpar após um tempo
+    setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    }, 1000);
+    
+    console.log("Download iniciado com sucesso");
+    alert("✅ CSV gerado com sucesso!");
+    
   } catch (error) {
     console.error("Erro ao baixar CSV:", error);
-    alert("Erro ao baixar CSV: " + error.message);
+    alert("❌ Erro ao baixar CSV: " + error.message);
+  } finally {
+    // Restaurar botão
+    const btn = event.target;
+    btn.innerHTML = "📊 CSV";
+    btn.disabled = false;
   }
 }
 

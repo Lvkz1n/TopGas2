@@ -105,6 +105,8 @@ r.get("/csv", requireAuth, requireAdmin, async (req, res) => {
   try {
     const { data_inicio, data_fim } = req.query;
     
+    console.log("Parâmetros CSV recebidos:", { data_inicio, data_fim });
+    
     let querySQL = `
       SELECT id, protocolo, nome_cliente, telefone_cliente, mercadoria_pedido, 
              entregador, telefone_entregador, endereco, cidade, bairro, 
@@ -118,13 +120,22 @@ r.get("/csv", requireAuth, requireAdmin, async (req, res) => {
     
     // Adicionar filtro de período se fornecido
     if (data_inicio && data_fim) {
-      querySQL += ` WHERE DATE(data_e_hora_inicio_pedido::timestamp) BETWEEN $1 AND $2`;
-      params = [data_inicio, data_fim];
+      // Converter datas para timestamp e adicionar 23:59:59 na data fim
+      const dataInicioTimestamp = `${data_inicio} 00:00:00`;
+      const dataFimTimestamp = `${data_fim} 23:59:59`;
+      
+      querySQL += ` WHERE data_e_hora_inicio_pedido::timestamp BETWEEN $1 AND $2`;
+      params = [dataInicioTimestamp, dataFimTimestamp];
+      console.log("Query SQL com filtro de período:", querySQL);
+      console.log("Parâmetros:", params);
+    } else {
+      console.log("Query SQL sem filtro de período:", querySQL);
     }
     
     querySQL += ` ORDER BY id DESC`;
     
     const { rows: entregas } = await query(querySQL, params);
+    console.log(`Encontradas ${entregas.length} entregas para CSV`);
     
     const csv = generateEntregasCSV(entregas);
     
@@ -132,14 +143,18 @@ r.get("/csv", requireAuth, requireAdmin, async (req, res) => {
       ? `relatorio_entregas_${data_inicio}_${data_fim}.csv`
       : 'relatorio_entregas.csv';
     
-    res.setHeader('Content-Type', 'text/csv');
+    console.log("Nome do arquivo:", filename);
+    console.log("Tamanho do CSV:", csv.length, "caracteres");
+    
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.setHeader('Content-Length', Buffer.byteLength(csv, 'utf8'));
     
     res.send(csv);
   } catch (error) {
     console.error("Erro ao gerar CSV de entregas:", error);
-    res.status(500).json({ error: "Erro interno ao gerar CSV" });
+    console.error("Stack trace:", error.stack);
+    res.status(500).json({ error: "Erro interno ao gerar CSV", details: error.message });
   }
 });
 
