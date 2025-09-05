@@ -95,30 +95,66 @@ r.put("/:id", requireAuth, async (req, res) => {
     nome_cliente,
     bairro,
     cidade,
-    telefone_cliente,
-    total_pedidos_entregues,
+    telefone,
   } = req.body || {};
-  const { rows } = await query(
-    `UPDATE clientes
+  
+  console.log("PUT /clientes/:id - ID:", id, "Body:", req.body);
+  
+  try {
+    // Primeiro, buscar o cliente atual para obter os dados originais
+    const { rows: clienteAtual } = await query(`
+      SELECT nome_cliente, bairro, cidade, telefone_cliente
+      FROM topgas_entregas 
+      WHERE id = $1
+    `, [id]);
+    
+    if (!clienteAtual[0]) {
+      return res.status(404).json({ error: "Cliente não encontrado" });
+    }
+    
+    const dadosOriginais = clienteAtual[0];
+    
+    // Atualizar todos os registros do mesmo cliente na tabela topgas_entregas
+    const { rows: updatedRows } = await query(
+      `UPDATE topgas_entregas
        SET nome_cliente = COALESCE($1, nome_cliente),
            bairro = COALESCE($2, bairro),
            cidade = COALESCE($3, cidade),
-           telefone_cliente = COALESCE($4, telefone_cliente),
-           total_pedidos_entregues = COALESCE($5, total_pedidos_entregues),
-           updated_at = NOW()
-     WHERE id=$6
-     RETURNING id, nome_cliente, bairro, cidade, telefone_cliente, total_pedidos_entregues`,
-    [
-      nome_cliente ?? null,
-      bairro ?? null,
-      cidade ?? null,
-      telefone_cliente ?? null,
-      total_pedidos_entregues ?? null,
-      id,
-    ]
-  );
-  if (!rows[0]) return res.status(404).json({ error: "not_found" });
-  res.json(rows[0]);
+           telefone_cliente = COALESCE($4, telefone_cliente)
+       WHERE nome_cliente = $5 AND telefone_cliente = $6
+       RETURNING id, nome_cliente, bairro, cidade, telefone_cliente`,
+      [
+        nome_cliente ?? null,
+        bairro ?? null,
+        cidade ?? null,
+        telefone ?? null,
+        dadosOriginais.nome_cliente,
+        dadosOriginais.telefone_cliente
+      ]
+    );
+    
+    if (updatedRows.length === 0) {
+      return res.status(404).json({ error: "Nenhum registro atualizado" });
+    }
+    
+    // Retornar os dados atualizados do primeiro registro
+    res.json({
+      id: updatedRows[0].id,
+      nome_cliente: updatedRows[0].nome_cliente,
+      bairro: updatedRows[0].bairro,
+      cidade: updatedRows[0].cidade,
+      telefone: updatedRows[0].telefone_cliente,
+      message: `${updatedRows.length} registro(s) atualizado(s) com sucesso`
+    });
+    
+  } catch (error) {
+    console.error("Erro ao atualizar cliente:", error);
+    console.error("Stack trace:", error.stack);
+    res.status(500).json({ 
+      error: "Erro interno ao atualizar cliente",
+      details: error.message 
+    });
+  }
 });
 
 r.delete("/:id", requireAuth, async (req, res) => {

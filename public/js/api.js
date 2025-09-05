@@ -10,11 +10,15 @@ async function api(path, options = {}) {
   });
   if (!res.ok) {
     let msg = "Erro no servidor";
+    let details = null;
     try {
       const j = await res.json();
       msg = j.error || msg;
+      details = j.details;
     } catch {}
-    throw new Error(msg);
+    const error = new Error(msg);
+    if (details) error.details = details;
+    throw error;
   }
   return res.status === 204 ? null : res.json();
 }

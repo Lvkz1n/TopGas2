@@ -183,16 +183,20 @@ async function editarCliente(id) {
     };
     
     try {
-      await API.api(`/clientes/${id}`, {
+      console.log("Enviando dados para atualização:", dadosAtualizados);
+      
+      const response = await API.api(`/clientes/${id}`, {
         method: 'PUT',
         body: JSON.stringify(dadosAtualizados)
       });
       
+      console.log("Resposta do servidor:", response);
       alert("✅ Cliente atualizado com sucesso!");
       fecharModal();
       await renderClientes(); // Recarregar a lista
     } catch (error) {
-      alert("❌ Erro ao atualizar cliente: " + error.message);
+      console.error("Erro ao atualizar cliente:", error);
+      alert("❌ Erro ao atualizar cliente: " + (error.details || error.message));
     }
   });
 }
