@@ -118,6 +118,10 @@ main {
 .grid-3 {
   grid-template-columns: repeat(3, 1fr);
 }
+
+.grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
 .btn {
   background: var(--orange-500);
   color: #fff;

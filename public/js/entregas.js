@@ -16,17 +16,14 @@ async function renderEntregas() {
     tbody.innerHTML = result.entregas
       .map((entrega) => `
         <tr>
-          <td>${entrega.id}</td>
           <td>${entrega.protocolo || "-"}</td>
           <td>${entrega.nome_cliente || "-"}</td>
           <td>${entrega.telefone_cliente || "-"}</td>
           <td>${entrega.mercadoria_pedido || "-"}</td>
           <td>${entrega.entregador || "-"}</td>
-          <td>${entrega.telefone_entregador || "-"}</td>
           <td>${entrega.endereco || "-"}</td>
-          <td>${entrega.cidade || "-"}</td>
           <td>${entrega.bairro || "-"}</td>
-          <td>${entrega.ponto_de_referencia || "-"}</td>
+          <td>${entrega.unidade_topgas || "-"}</td>
           <td>${getStatusIcon(entrega.status_pedido)} ${entrega.status_pedido || "pendente"}</td>
           <td>${renderTimestamps(entrega)}</td>
           <td>
@@ -176,10 +173,13 @@ function renderTimestamps(entrega) {
 function getStatusIcon(status) {
   switch (status) {
     case 'entregue':
+    case 'Entregue':
       return '✅';
     case 'em_andamento':
+    case 'Em Entrega':
       return '⏳';
     case 'cancelado':
+    case 'Cancelado':
       return '❌';
     case 'pendente':
       return '⏳';
