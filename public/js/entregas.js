@@ -27,18 +27,37 @@ async function renderEntregas() {
           <td>${getStatusIcon(entrega.status_pedido)} ${entrega.status_pedido || "pendente"}</td>
           <td>${renderTimestamps(entrega)}</td>
           <td>
-            ${entrega.status_pedido === 'pendente' ? 
-              `<button class="btn" onclick="confirmar(${entrega.id})">Confirmar</button>` : ''
-            }
-            ${entrega.status_pedido === 'pendente' || entrega.status_pedido === 'em_andamento' ? 
-              `<button class="btn" style="background:#ef4444" onclick="cancelar(${entrega.id})">Cancelar</button>` : ''
-            }
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              ${entrega.status_pedido === 'pendente' || entrega.status_pedido === 'em_andamento' ? 
+                `<button class="btn" onclick="confirmarEntrega(${entrega.id})" style="background: var(--orange-500);">
+                  <i data-lucide="check" style="width: 14px; height: 14px; margin-right: 4px;"></i>
+                  Confirmar Entrega
+                </button>` : ''
+              }
+              ${entrega.status_pedido === 'pendente' || entrega.status_pedido === 'em_andamento' ? 
+                `<button class="btn" onclick="cancelarEntrega(${entrega.id})" style="background: #ef4444;">
+                  <i data-lucide="x" style="width: 14px; height: 14px; margin-right: 4px;"></i>
+                  Cancelar Entrega
+                </button>` : ''
+              }
+              ${entrega.status_pedido === 'entregue' || entrega.status_pedido === 'Entregue' ? 
+                `<span style="color: var(--orange-600); font-weight: 500;">✅ Entregue</span>` : ''
+              }
+              ${entrega.status_pedido === 'cancelado' || entrega.status_pedido === 'Cancelado' ? 
+                `<span style="color: #ef4444; font-weight: 500;">❌ Cancelado</span>` : ''
+              }
+            </div>
           </td>
         </tr>
       `)
       .join("");
     
     renderPaginacaoEntregas();
+    
+    // Recarregar ícones Lucide após renderizar a tabela
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
   } catch (error) {
     console.error("Erro ao carregar entregas:", error);
     alert("Erro ao carregar entregas: " + error.message);
@@ -188,23 +207,35 @@ function getStatusIcon(status) {
   }
 }
 
-async function confirmar(id) {
+async function confirmarEntrega(id) {
+  if (!confirm("Tem certeza que deseja confirmar esta entrega?")) {
+    return;
+  }
+  
   try {
     await API.api(`/entregas/${id}/confirmar`, { method: "POST" });
-    alert("Entrega confirmada!");
+    alert("✅ Entrega confirmada com sucesso!");
     await renderEntregas();
+    // Recarregar ícones Lucide após atualizar a tabela
+    lucide.createIcons();
   } catch (e) {
-    alert("Falha: " + e.message);
+    alert("❌ Falha ao confirmar entrega: " + e.message);
   }
 }
 
-async function cancelar(id) {
+async function cancelarEntrega(id) {
+  if (!confirm("Tem certeza que deseja cancelar esta entrega?")) {
+    return;
+  }
+  
   try {
     await API.api(`/entregas/${id}/cancelar`, { method: "POST" });
-    alert("Entrega cancelada!");
+    alert("❌ Entrega cancelada com sucesso!");
     await renderEntregas();
+    // Recarregar ícones Lucide após atualizar a tabela
+    lucide.createIcons();
   } catch (e) {
-    alert("Falha: " + e.message);
+    alert("❌ Falha ao cancelar entrega: " + e.message);
   }
 }
 
@@ -233,3 +264,4 @@ async function downloadCSV() {
     alert("Erro ao baixar CSV: " + error.message);
   }
 }
+

@@ -37,10 +37,21 @@ function renderPaginaClientes() {
       <td>${r.cidade ?? ""}</td>
       <td>${r.telefone ?? ""}</td>
       <td>${r.total_pedidos_entregues ?? 0}</td>
+      <td>
+        <button class="btn" onclick="editarCliente(${r.id})" style="background: var(--orange-500);">
+          <i data-lucide="edit" style="width: 14px; height: 14px; margin-right: 4px;"></i>
+          Editar
+        </button>
+      </td>
     </tr>
   `
     )
     .join("");
+    
+  // Recarregar ícones Lucide após renderizar a tabela
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
 
   const info = document.getElementById("pagInfoClientes");
   const btnPrev = document.getElementById("btnPrevClientes");
@@ -62,6 +73,119 @@ function prevClientes() {
   if (paginaAtualClientes > 1) {
     paginaAtualClientes--;
     renderPaginaClientes();
+  }
+}
+
+async function editarCliente(id) {
+  // Encontrar o cliente no cache
+  const cliente = clientesCache.find(c => c.id === id);
+  if (!cliente) {
+    alert("Cliente não encontrado!");
+    return;
+  }
+  
+  // Criar modal de edição
+  const modal = document.createElement('div');
+  modal.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  `;
+  
+  modal.innerHTML = `
+    <div style="
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    ">
+      <h3 style="margin-top: 0; color: var(--orange-600);">Editar Cliente</h3>
+      <form id="formEditarCliente">
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div>
+            <label style="display: block; margin-bottom: 4px; font-weight: 500;">Nome do Cliente:</label>
+            <input type="text" id="editNome" value="${cliente.nome_cliente || ''}" class="input" required>
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 4px; font-weight: 500;">Telefone:</label>
+            <input type="tel" id="editTelefone" value="${cliente.telefone || ''}" class="input" required>
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 4px; font-weight: 500;">Bairro:</label>
+            <input type="text" id="editBairro" value="${cliente.bairro || ''}" class="input">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 4px; font-weight: 500;">Cidade:</label>
+            <input type="text" id="editCidade" value="${cliente.cidade || ''}" class="input">
+          </div>
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;">
+          <button type="button" onclick="fecharModal()" style="
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+          ">Cancelar</button>
+          <button type="submit" style="
+            background: var(--orange-500);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+          ">Salvar Alterações</button>
+        </div>
+      </form>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Adicionar evento de fechar ao clicar fora
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      fecharModal();
+    }
+  });
+  
+  // Adicionar evento de submit
+  document.getElementById('formEditarCliente').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const dadosAtualizados = {
+      nome_cliente: document.getElementById('editNome').value.trim(),
+      telefone: document.getElementById('editTelefone').value.trim(),
+      bairro: document.getElementById('editBairro').value.trim(),
+      cidade: document.getElementById('editCidade').value.trim()
+    };
+    
+    try {
+      await API.api(`/clientes/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(dadosAtualizados)
+      });
+      
+      alert("✅ Cliente atualizado com sucesso!");
+      fecharModal();
+      await renderClientes(); // Recarregar a lista
+    } catch (error) {
+      alert("❌ Erro ao atualizar cliente: " + error.message);
+    }
+  });
+  
+  function fecharModal() {
+    document.body.removeChild(modal);
   }
 }
 
