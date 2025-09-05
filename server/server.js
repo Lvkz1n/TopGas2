@@ -52,13 +52,25 @@ app.get("/api/auth/me", requireAuth, (req, res) => {
 // ===== MÉTRICAS DASHBOARD =====
 app.get("/api/metricas", requireAuth, async (_req, res) => {
   try {
+    // Total de pedidos
     const total = await query("SELECT COUNT(*) FROM topgas_entregas");
-    const sucesso = await query(
-      "SELECT COUNT(*) FROM topgas_entregas WHERE status_pedido='entregue'"
+    
+    // Finalizados (entregue ou Entregue)
+    const finalizados = await query(
+      "SELECT COUNT(*) FROM topgas_entregas WHERE status_pedido IN ('entregue', 'Entregue')"
     );
-    const cancel = await query(
-      "SELECT COUNT(*) FROM topgas_entregas WHERE status_pedido='cancelado'"
+    
+    // Em andamento (Em Entrega)
+    const emAndamento = await query(
+      "SELECT COUNT(*) FROM topgas_entregas WHERE status_pedido = 'Em Entrega'"
     );
+    
+    // Cancelados (cancelado ou Cancelado)
+    const cancelados = await query(
+      "SELECT COUNT(*) FROM topgas_entregas WHERE status_pedido IN ('cancelado', 'Cancelado')"
+    );
+    
+    // Regiões
     const regioes = await query(
       `SELECT bairro, COUNT(*)::int AS total 
        FROM topgas_entregas 
@@ -67,10 +79,16 @@ app.get("/api/metricas", requireAuth, async (_req, res) => {
        ORDER BY total DESC 
        LIMIT 20`
     );
+    
     res.json({
+      total_pedidos: Number(total.rows[0].count),
+      finalizados: Number(finalizados.rows[0].count),
+      em_andamento: Number(emAndamento.rows[0].count),
+      cancelados: Number(cancelados.rows[0].count),
+      // Manter compatibilidade com versão anterior
       total_entregas: Number(total.rows[0].count),
-      entregas_sucesso: Number(sucesso.rows[0].count),
-      cancelamentos: Number(cancel.rows[0].count),
+      entregas_sucesso: Number(finalizados.rows[0].count),
+      cancelamentos: Number(cancelados.rows[0].count),
       regioes: regioes.rows,
     });
   } catch (error) {

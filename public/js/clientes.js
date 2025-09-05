@@ -86,6 +86,7 @@ async function editarCliente(id) {
   
   // Criar modal de edição
   const modal = document.createElement('div');
+  modal.id = 'modalEditarCliente';
   modal.style.cssText = `
     position: fixed;
     top: 0;
@@ -129,7 +130,7 @@ async function editarCliente(id) {
           </div>
         </div>
         <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;">
-          <button type="button" onclick="fecharModal()" style="
+          <button type="button" id="btnCancelarEdicao" style="
             background: #6b7280;
             color: white;
             border: none;
@@ -152,12 +153,23 @@ async function editarCliente(id) {
   
   document.body.appendChild(modal);
   
+  // Função para fechar modal
+  const fecharModal = () => {
+    const modalElement = document.getElementById('modalEditarCliente');
+    if (modalElement) {
+      document.body.removeChild(modalElement);
+    }
+  };
+  
   // Adicionar evento de fechar ao clicar fora
   modal.addEventListener('click', (e) => {
     if (e.target === modal) {
       fecharModal();
     }
   });
+  
+  // Adicionar evento de cancelar
+  document.getElementById('btnCancelarEdicao').addEventListener('click', fecharModal);
   
   // Adicionar evento de submit
   document.getElementById('formEditarCliente').addEventListener('submit', async (e) => {
@@ -183,10 +195,6 @@ async function editarCliente(id) {
       alert("❌ Erro ao atualizar cliente: " + error.message);
     }
   });
-  
-  function fecharModal() {
-    document.body.removeChild(modal);
-  }
 }
 
 async function downloadCSV() {

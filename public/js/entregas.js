@@ -26,28 +26,6 @@ async function renderEntregas() {
           <td>${entrega.unidade_topgas || "-"}</td>
           <td>${getStatusIcon(entrega.status_pedido)} ${entrega.status_pedido || "pendente"}</td>
           <td>${renderTimestamps(entrega)}</td>
-          <td>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              ${entrega.status_pedido === 'pendente' || entrega.status_pedido === 'em_andamento' ? 
-                `<button class="btn" onclick="confirmarEntrega(${entrega.id})" style="background: var(--orange-500);">
-                  <i data-lucide="check" style="width: 14px; height: 14px; margin-right: 4px;"></i>
-                  Confirmar Entrega
-                </button>` : ''
-              }
-              ${entrega.status_pedido === 'pendente' || entrega.status_pedido === 'em_andamento' ? 
-                `<button class="btn" onclick="cancelarEntrega(${entrega.id})" style="background: #ef4444;">
-                  <i data-lucide="x" style="width: 14px; height: 14px; margin-right: 4px;"></i>
-                  Cancelar Entrega
-                </button>` : ''
-              }
-              ${entrega.status_pedido === 'entregue' || entrega.status_pedido === 'Entregue' ? 
-                `<span style="color: var(--orange-600); font-weight: 500;">✅ Entregue</span>` : ''
-              }
-              ${entrega.status_pedido === 'cancelado' || entrega.status_pedido === 'Cancelado' ? 
-                `<span style="color: #ef4444; font-weight: 500;">❌ Cancelado</span>` : ''
-              }
-            </div>
-          </td>
         </tr>
       `)
       .join("");
