@@ -160,9 +160,53 @@ r.get("/csv", requireAuth, requireAdmin, async (req, res) => {
       });
     }
     
-    // CSV simples para teste
-    const csv = "ID,Protocolo,Nome,Status\n" + 
-                entregas.map(e => `${e.id},${e.protocolo || ''},"${e.nome_cliente || ''}",${e.status_pedido || ''}`).join('\n');
+    // CSV com as colunas corretas do banco
+    const headers = [
+      'ID',
+      'Protocolo', 
+      'Nome do Cliente',
+      'Telefone do Cliente',
+      'Mercadoria/Pedido',
+      'Entregador',
+      'Telefone do Entregador',
+      'Endereço',
+      'Cidade',
+      'Bairro',
+      'Ponto de Referência',
+      'Status do Pedido',
+      'Data e Hora de Início',
+      'Data e Hora de Envio', 
+      'Data e Hora de Confirmação',
+      'Data e Hora de Cancelamento',
+      'Unidade TopGas'
+    ];
+    
+    const csvRows = [headers.join(',')];
+    
+    for (const entrega of entregas) {
+      const row = [
+        entrega.id || '',
+        entrega.protocolo || '',
+        `"${entrega.nome_cliente || ''}"`,
+        entrega.telefone_cliente || '',
+        `"${entrega.mercadoria_pedido || ''}"`,
+        `"${entrega.entregador || ''}"`,
+        entrega.telefone_entregador || '',
+        `"${entrega.endereco || ''}"`,
+        `"${entrega.cidade || ''}"`,
+        `"${entrega.bairro || ''}"`,
+        `"${entrega.ponto_de_referencia || ''}"`,
+        entrega.status_pedido || '',
+        entrega.data_e_hora_inicio_pedido || '',
+        entrega.data_e_hora_envio_pedido || '',
+        entrega.data_e_hora_confirmacao_pedido || '',
+        entrega.data_e_hora_cancelamento_pedido || '',
+        entrega.unidade_topgas || ''
+      ];
+      csvRows.push(row.join(','));
+    }
+    
+    const csv = csvRows.join('\n');
     
     const filename = data_inicio && data_fim 
       ? `relatorio_${data_inicio}_${data_fim}.csv`

@@ -228,29 +228,57 @@ function formatarDataSimples(dataString) {
 }
 
 function calcularTempoTotal(inicio, fim) {
-  if (!inicio) return "Calculando...";
+  console.log("=== CALCULAR TEMPO TOTAL ===");
+  console.log("Início:", inicio);
+  console.log("Fim:", fim);
+  
+  if (!inicio) {
+    console.log("Sem data de início");
+    return "Calculando...";
+  }
   
   const dataInicio = new Date(inicio);
   const dataFim = fim ? new Date(fim) : new Date();
   
-  if (isNaN(dataInicio.getTime()) || isNaN(dataFim.getTime())) {
+  console.log("Data início:", dataInicio);
+  console.log("Data fim:", dataFim);
+  
+  if (isNaN(dataInicio.getTime())) {
+    console.log("Data início inválida");
+    return "Calculando...";
+  }
+  
+  if (fim && isNaN(dataFim.getTime())) {
+    console.log("Data fim inválida");
     return "Calculando...";
   }
   
   const diffMs = dataFim - dataInicio;
-  if (diffMs < 0) return "Calculando...";
+  console.log("Diferença em ms:", diffMs);
+  
+  if (diffMs < 0) {
+    console.log("Diferença negativa");
+    return "Calculando...";
+  }
   
   const diffHoras = Math.floor(diffMs / (1000 * 60 * 60));
   const diffMinutos = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
   const diffSegundos = Math.floor((diffMs % (1000 * 60)) / 1000);
   
+  console.log("Diferença:", { diffHoras, diffMinutos, diffSegundos });
+  
+  let resultado;
   if (diffHoras > 0) {
-    return `${diffHoras}h ${diffMinutos}m`;
+    resultado = `${diffHoras}h ${diffMinutos}m`;
   } else if (diffMinutos > 0) {
-    return `${diffMinutos}m ${diffSegundos}s`;
+    resultado = `${diffMinutos}m ${diffSegundos}s`;
   } else {
-    return `${diffSegundos}s`;
+    resultado = `${diffSegundos}s`;
   }
+  
+  console.log("Resultado final:", resultado);
+  console.log("=== FIM CALCULAR TEMPO TOTAL ===");
+  return resultado;
 }
 
 function renderTimestamps(entrega) {
