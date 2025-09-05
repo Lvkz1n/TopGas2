@@ -4,6 +4,18 @@
   --text: #111;
   --muted: #6b7280;
   --brand: #ff8e44;
+  
+  /* Paleta de cores laranja */
+  --orange-50: #FFF5EC;
+  --orange-100: #FFE7D1;
+  --orange-200: #FFD1A6;
+  --orange-300: #FFB36B;
+  --orange-400: #FF9440;
+  --orange-500: #FF7A00;
+  --orange-600: #E66E00;
+  --orange-700: #B85700;
+  --orange-800: #8A4100;
+  --orange-900: #5C2B00;
 }
 * {
   box-sizing: border-box;
@@ -25,18 +37,69 @@ body {
   width: 240px;
   background: #0f172a;
   color: #fff;
-  padding: 16px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100vh;
 }
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
 .sidebar a {
-  display: block;
-  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
   border-radius: 8px;
   color: #e5e7eb;
   text-decoration: none;
+  height: 2.75rem;
+  transition: all 0.2s;
 }
-.sidebar a.active,
+
+.sidebar a.active {
+  background: var(--orange-50);
+  color: var(--orange-500);
+}
+
 .sidebar a:hover {
   background: #1f2937;
+}
+
+.sidebar-icon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.85;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.sidebar-brand-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--orange-500);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid #374151;
+}
+
+.sidebar-footer button {
+  width: 100%;
+  margin-bottom: 1rem;
 }
 main {
   margin-left: 260px;
@@ -56,7 +119,7 @@ main {
   grid-template-columns: repeat(3, 1fr);
 }
 .btn {
-  background: var(--brand);
+  background: var(--orange-500);
   color: #fff;
   border: none;
   padding: 10px 14px;
@@ -66,7 +129,7 @@ main {
   transition: background-color 0.2s;
 }
 .btn:hover {
-  background: #e67a3a;
+  background: var(--orange-600);
 }
 .btn:disabled {
   background: #ccc;
@@ -131,4 +194,46 @@ copyright,
   margin-top: 12px;
   color: #cbd5e1;
   display: block;
+}
+
+/* Estilos para horários de entrega */
+.delivery-timestamps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.timestamp-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: var(--orange-50);
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.timestamp-label {
+  font-weight: 500;
+  color: var(--orange-700);
+}
+
+.timestamp-value {
+  color: var(--orange-600);
+  font-family: monospace;
+}
+
+.timestamp-total {
+  background: var(--orange-100);
+  border: 1px solid var(--orange-200);
+  font-weight: 600;
+}
+
+.timestamp-total .timestamp-label {
+  color: var(--orange-800);
+}
+
+.timestamp-total .timestamp-value {
+  color: var(--orange-700);
 }

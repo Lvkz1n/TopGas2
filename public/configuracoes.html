@@ -4,21 +4,47 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>TopGas – Configurações</title>
+    <link rel="icon" type="image/png" href="/favi.png" />
+    <link rel="apple-touch-icon" href="/favi.png" />
+    <meta name="theme-color" content="#ff7a00" />
     <link rel="stylesheet" href="./css/global.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   </head>
   <body>
     <aside class="sidebar">
-      <h2>Top Gas</h2>
+      <div class="sidebar-brand">
+        <i data-lucide="flame" class="sidebar-brand-icon"></i>
+        <span>Top Gas</span>
+      </div>
       <nav>
-        <a href="/dashboard.html">Dashboard</a>
-        <a href="/clientes.html">Clientes</a>
-        <a href="/entregas.html">Entregas</a>
-        <a href="/usuarios.html">Usuários</a>
-        <a class="active" href="/configuracoes.html">Configurações</a>
-        <hr />
-        <button class="btn" onclick="Auth.logout()">Sair</button>
-        <p class="copyright">© 2025 Top Gas. Todos os direitos reservados.</p>
+        <a href="/dashboard.html">
+          <i data-lucide="bar-chart-3" class="sidebar-icon"></i>
+          Dashboard
+        </a>
+        <a href="/clientes.html">
+          <i data-lucide="users" class="sidebar-icon"></i>
+          Clientes
+        </a>
+        <a href="/entregas.html">
+          <i data-lucide="truck" class="sidebar-icon"></i>
+          Entregas
+        </a>
+        <a href="/usuarios.html">
+          <i data-lucide="user-cog" class="sidebar-icon"></i>
+          Usuários
+        </a>
+        <a class="active" href="/configuracoes.html">
+          <i data-lucide="settings" class="sidebar-icon"></i>
+          Configurações
+        </a>
       </nav>
+      <div class="sidebar-footer">
+        <button class="btn" onclick="Auth.logout()">
+          <i data-lucide="log-out" class="sidebar-icon"></i>
+          Sair
+        </button>
+        <p class="copyright">© 2025 Top Gas. Todos os direitos reservados.</p>
+      </div>
     </aside>
 
     <main>
@@ -71,6 +97,8 @@
     <script>
       (async () => {
         await Auth.guard({ roles: ["admin"] });
+        // Inicializar ícones Lucide
+        lucide.createIcons();
       })();
     </script>
   </body>
