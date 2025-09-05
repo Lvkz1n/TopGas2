@@ -325,14 +325,21 @@ function renderTimestamps(entrega) {
   
   // Tempo total - calcular do início ao fim do pedido
   let tempoTotal = "Calculando...";
-  if (entrega.data_e_hora_confirmacao_pedido) {
-    tempoTotal = calcularTempoTotal(entrega.data_e_hora_inicio_pedido, entrega.data_e_hora_confirmacao_pedido);
-  } else if (entrega.data_e_hora_cancelamento_pedido) {
-    tempoTotal = calcularTempoTotal(entrega.data_e_hora_inicio_pedido, entrega.data_e_hora_cancelamento_pedido);
-  } else if (entrega.data_e_hora_inicio_pedido) {
-    // Se ainda em andamento, mostrar tempo até agora
-    tempoTotal = calcularTempoTotal(entrega.data_e_hora_inicio_pedido) + " (em andamento)";
+  
+  // Se tem data de início
+  if (entrega.data_e_hora_inicio_pedido) {
+    if (entrega.data_e_hora_confirmacao_pedido) {
+      // Pedido finalizado com sucesso
+      tempoTotal = calcularTempoTotal(entrega.data_e_hora_inicio_pedido, entrega.data_e_hora_confirmacao_pedido);
+    } else if (entrega.data_e_hora_cancelamento_pedido) {
+      // Pedido cancelado
+      tempoTotal = calcularTempoTotal(entrega.data_e_hora_inicio_pedido, entrega.data_e_hora_cancelamento_pedido);
+    } else {
+      // Ainda em andamento
+      tempoTotal = calcularTempoTotal(entrega.data_e_hora_inicio_pedido) + " (em andamento)";
+    }
   }
+  
   console.log("Tempo total calculado:", tempoTotal);
   
   const timestampsHtml = timestamps.map(ts => 
@@ -440,23 +447,7 @@ async function downloadCSV() {
   }
 }
 
-async function downloadCSVComPeriodo() {
-  const dataInicio = document.getElementById('csvDataInicio').value;
-  const dataFim = document.getElementById('csvDataFim').value;
-  
-  console.log("Datas selecionadas:", { dataInicio, dataFim });
-  
-  if (!dataInicio || !dataFim) {
-    alert("Por favor, selecione o período (data início e data fim)");
-    return;
-  }
-  
-  // Validar se a data fim é maior que a data início
-  if (new Date(dataFim) < new Date(dataInicio)) {
-    alert("A data fim deve ser maior que a data início");
-    return;
-  }
-  
+async function downloadCSV() {
   try {
     // Mostrar loading
     const btn = event.target;
@@ -464,14 +455,9 @@ async function downloadCSVComPeriodo() {
     btn.innerHTML = "⏳ Gerando...";
     btn.disabled = true;
     
-    const params = new URLSearchParams({
-      data_inicio: dataInicio,
-      data_fim: dataFim
-    });
+    console.log("Iniciando download CSV...");
     
-    console.log("URL da requisição:", `/api/entregas/csv?${params}`);
-    
-    const response = await fetch(`/api/entregas/csv?${params}`, {
+    const response = await fetch('/api/entregas/csv', {
       method: 'GET',
       credentials: 'include',
       headers: {
@@ -480,7 +466,6 @@ async function downloadCSVComPeriodo() {
     });
     
     console.log("Status da resposta:", response.status);
-    console.log("Headers da resposta:", Object.fromEntries(response.headers.entries()));
     
     if (!response.ok) {
       let errorMessage = `Erro ${response.status}`;
@@ -495,16 +480,16 @@ async function downloadCSVComPeriodo() {
     }
     
     const blob = await response.blob();
-    console.log("Blob recebido:", blob.size, "bytes", "tipo:", blob.type);
+    console.log("Blob recebido:", blob.size, "bytes");
     
     if (blob.size === 0) {
-      throw new Error("Arquivo CSV está vazio. Verifique se há dados no período selecionado.");
+      throw new Error("Arquivo CSV está vazio.");
     }
     
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `relatorio_entregas_${dataInicio}_${dataFim}.csv`;
+    a.download = `relatorio_entregas_${new Date().toISOString().split('T')[0]}.csv`;
     a.style.display = 'none';
     document.body.appendChild(a);
     a.click();
@@ -524,7 +509,7 @@ async function downloadCSVComPeriodo() {
   } finally {
     // Restaurar botão
     const btn = event.target;
-    btn.innerHTML = "📊 CSV";
+    btn.innerHTML = "📊 Download CSV";
     btn.disabled = false;
   }
 }

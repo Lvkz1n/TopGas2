@@ -89,14 +89,9 @@
           <input type="text" class="filter-select" id="filterSearch" placeholder="Nome, protocolo, bairro..." onkeyup="applyFilters()">
         </div>
         <div class="filter-group">
-          <label>Período CSV:</label>
-          <div style="display: flex; gap: 8px;">
-            <input type="date" class="filter-select" id="csvDataInicio" style="flex: 1;">
-            <input type="date" class="filter-select" id="csvDataFim" style="flex: 1;">
-            <button class="btn" onclick="downloadCSVComPeriodo()" style="background: var(--orange-500); padding: 8px 12px;">
-              📊 CSV
-            </button>
-          </div>
+          <button onclick="downloadCSV()" class="btn" style="background-color: var(--orange-500); color: white; border: none; padding: 8px 16px;">
+            📊 Download CSV
+          </button>
         </div>
       </div>
       

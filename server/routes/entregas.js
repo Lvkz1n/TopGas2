@@ -126,37 +126,20 @@ r.get("/test-data", requireAuth, requireAdmin, async (req, res) => {
 // Rota GET /entregas/csv para download do relatório CSV (apenas admin)
 r.get("/csv", requireAuth, requireAdmin, async (req, res) => {
   try {
-    const { data_inicio, data_fim } = req.query;
-    
     console.log("=== INÍCIO CSV ===");
-    console.log("Parâmetros recebidos:", { data_inicio, data_fim });
     
-    // Query mais simples primeiro
-    let querySQL = `SELECT * FROM topgas_entregas LIMIT 10`;
-    let params = [];
-    
-    // Se tem filtro de período, aplicar
-    if (data_inicio && data_fim) {
-      querySQL = `
-        SELECT * FROM topgas_entregas 
-        WHERE data_e_hora_inicio_pedido IS NOT NULL 
-        AND DATE(data_e_hora_inicio_pedido) BETWEEN $1 AND $2
-        ORDER BY id DESC
-      `;
-      params = [data_inicio, data_fim];
-    }
+    // Query simples para todas as entregas
+    const querySQL = `SELECT * FROM topgas_entregas ORDER BY id DESC`;
     
     console.log("Query SQL:", querySQL);
-    console.log("Parâmetros:", params);
     
-    const { rows: entregas } = await query(querySQL, params);
+    const { rows: entregas } = await query(querySQL);
     console.log(`Encontradas ${entregas.length} entregas`);
     
     if (entregas.length === 0) {
       console.log("Nenhuma entrega encontrada");
       return res.status(404).json({ 
-        error: "Nenhuma entrega encontrada para o período selecionado",
-        details: `Período: ${data_inicio} a ${data_fim}`
+        error: "Nenhuma entrega encontrada"
       });
     }
     
@@ -208,9 +191,7 @@ r.get("/csv", requireAuth, requireAdmin, async (req, res) => {
     
     const csv = csvRows.join('\n');
     
-    const filename = data_inicio && data_fim 
-      ? `relatorio_${data_inicio}_${data_fim}.csv`
-      : 'relatorio.csv';
+    const filename = `relatorio_entregas_${new Date().toISOString().split('T')[0]}.csv`;
     
     console.log("CSV gerado:", csv.length, "caracteres");
     console.log("=== FIM CSV ===");
