@@ -2,36 +2,50 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <title>TopGas – Login</title>
     <link rel="icon" type="image/png" href="/favi.png" />
     <link rel="apple-touch-icon" href="/favi.png" />
+    <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#ff7a00" />
     <link rel="stylesheet" href="./css/global.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   </head>
-  <body>
-    <main class="container" style="max-width: 420px">
-      <h1>Entrar no TopGas</h1>
-      <form id="frmLogin" class="card">
-        <label
-          >Email<br /><input type="email" id="email" required class="input"
-        /></label>
-        <br />
-        <label
-          >Senha<br /><input
-            type="password"
-            id="password"
-            required
-            class="input"
-        /></label>
-        <br />
-        <button class="btn" type="submit">Entrar</button>
+  <body class="login-body">
+    <div class="login-background">
+      <div class="login-fire-icon">
+        <i data-lucide="flame"></i>
+      </div>
+    </div>
+    
+    <main class="login-container">
+      <div class="login-logo">
+        <h1>Top Gás</h1>
+      </div>
+      
+      <form id="frmLogin" class="login-form">
+        <div class="login-input-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" required class="login-input" placeholder="seu@email.com" />
+        </div>
+        
+        <div class="login-input-group">
+          <label for="password">Senha</label>
+          <input type="password" id="password" required class="login-input" placeholder="Sua senha" />
+        </div>
+        
+        <button class="login-btn" type="submit">Entrar</button>
       </form>
     </main>
 
     <script src="./js/api.js"></script>
     <script src="./js/auth.js"></script>
     <script>
+      // Inicializar ícones Lucide
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+      
       document
         .getElementById("frmLogin")
         .addEventListener("submit", async (e) => {

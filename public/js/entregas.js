@@ -175,6 +175,22 @@ function toggleDeliveryDetails(index) {
   }
 }
 
+function toggleTimestamps(entregaId) {
+  const details = document.getElementById(`timestamps-${entregaId}`);
+  const accordion = details.closest('.timestamp-accordion');
+  const arrow = accordion.querySelector('.timestamp-arrow');
+  
+  if (details.style.display === 'none' || details.style.display === '') {
+    details.style.display = 'block';
+    arrow.textContent = '▲';
+    accordion.classList.add('expanded');
+  } else {
+    details.style.display = 'none';
+    arrow.textContent = '▼';
+    accordion.classList.remove('expanded');
+  }
+}
+
 function renderPaginacaoEntregas() {
   if (!dadosEntregas) return;
   
@@ -228,105 +244,32 @@ function formatarDataSimples(dataString) {
 }
 
 function calcularTempoTotal(inicio, fim) {
-  console.log("=== CALCULAR TEMPO TOTAL ===");
-  console.log("Início:", inicio);
-  console.log("Fim:", fim);
-  
-  if (!inicio) {
-    console.log("Sem data de início");
-    return "Calculando...";
-  }
+  if (!inicio) return "Calculando...";
   
   const dataInicio = new Date(inicio);
   const dataFim = fim ? new Date(fim) : new Date();
   
-  console.log("Data início:", dataInicio);
-  console.log("Data fim:", dataFim);
-  
-  if (isNaN(dataInicio.getTime())) {
-    console.log("Data início inválida");
-    return "Calculando...";
-  }
-  
-  if (fim && isNaN(dataFim.getTime())) {
-    console.log("Data fim inválida");
+  if (isNaN(dataInicio.getTime()) || (fim && isNaN(dataFim.getTime()))) {
     return "Calculando...";
   }
   
   const diffMs = dataFim - dataInicio;
-  console.log("Diferença em ms:", diffMs);
+  if (diffMs < 0) return "Calculando...";
   
-  if (diffMs < 0) {
-    console.log("Diferença negativa");
-    return "Calculando...";
-  }
-  
-  const diffHoras = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffMinutos = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  const diffMinutos = Math.floor(diffMs / (1000 * 60));
   const diffSegundos = Math.floor((diffMs % (1000 * 60)) / 1000);
   
-  console.log("Diferença:", { diffHoras, diffMinutos, diffSegundos });
-  
-  let resultado;
-  if (diffHoras > 0) {
-    resultado = `${diffHoras}h ${diffMinutos}m`;
-  } else if (diffMinutos > 0) {
-    resultado = `${diffMinutos}m ${diffSegundos}s`;
+  if (diffMinutos > 0) {
+    return `${diffMinutos}m ${diffSegundos}s`;
   } else {
-    resultado = `${diffSegundos}s`;
+    return `${diffSegundos}s`;
   }
-  
-  console.log("Resultado final:", resultado);
-  console.log("=== FIM CALCULAR TEMPO TOTAL ===");
-  return resultado;
 }
 
 function renderTimestamps(entrega) {
-  console.log("=== RENDER TIMESTAMPS ===");
-  console.log("Entrega ID:", entrega.id);
-  console.log("Dados de horário:", {
-    inicio: entrega.data_e_hora_inicio_pedido,
-    envio: entrega.data_e_hora_envio_pedido,
-    confirmacao: entrega.data_e_hora_confirmacao_pedido,
-    cancelamento: entrega.data_e_hora_cancelamento_pedido
-  });
-  
-  const timestamps = [];
-  
-  // Pedido feito - sempre mostrar
-  const pedidoFeito = formatarDataSimples(entrega.data_e_hora_inicio_pedido);
-  console.log("Pedido feito formatado:", pedidoFeito);
-  timestamps.push({
-    label: 'Pedido feito',
-    value: pedidoFeito
-  });
-  
-  // Enviado - sempre mostrar
-  const enviado = formatarDataSimples(entrega.data_e_hora_envio_pedido);
-  console.log("Enviado formatado:", enviado);
-  timestamps.push({
-    label: 'Enviado',
-    value: enviado
-  });
-  
-  // Finalizado - mostrar confirmação ou cancelamento
-  let finalizado = "Aguardando...";
-  if (entrega.data_e_hora_confirmacao_pedido) {
-    finalizado = formatarDataSimples(entrega.data_e_hora_confirmacao_pedido);
-  } else if (entrega.data_e_hora_cancelamento_pedido) {
-    finalizado = formatarDataSimples(entrega.data_e_hora_cancelamento_pedido);
-  }
-  console.log("Finalizado formatado:", finalizado);
-  
-  timestamps.push({
-    label: 'Finalizado',
-    value: finalizado
-  });
-  
-  // Tempo total - calcular do início ao fim do pedido
+  // Calcular tempo total
   let tempoTotal = "Calculando...";
   
-  // Se tem data de início
   if (entrega.data_e_hora_inicio_pedido) {
     if (entrega.data_e_hora_confirmacao_pedido) {
       // Pedido finalizado com sucesso
@@ -340,24 +283,42 @@ function renderTimestamps(entrega) {
     }
   }
   
-  console.log("Tempo total calculado:", tempoTotal);
+  // Preparar dados para accordion
+  const pedidoFeito = formatarDataSimples(entrega.data_e_hora_inicio_pedido);
+  const enviado = formatarDataSimples(entrega.data_e_hora_envio_pedido);
   
-  const timestampsHtml = timestamps.map(ts => 
-    `<div class="timestamp-item">
-      <span class="timestamp-label">${ts.label}:</span>
-      <span class="timestamp-value">${ts.value}</span>
-    </div>`
-  ).join('');
+  let finalizado = "Aguardando...";
+  if (entrega.data_e_hora_confirmacao_pedido) {
+    finalizado = formatarDataSimples(entrega.data_e_hora_confirmacao_pedido);
+  } else if (entrega.data_e_hora_cancelamento_pedido) {
+    finalizado = formatarDataSimples(entrega.data_e_hora_cancelamento_pedido);
+  }
   
-  const tempoTotalHtml = `
-    <div class="timestamp-item timestamp-total">
-      <span class="timestamp-label">Tempo total:</span>
-      <span class="timestamp-value">${tempoTotal}</span>
+  return `
+    <div class="delivery-timestamps" onclick="toggleTimestamps(${entrega.id})">
+      <div class="timestamp-accordion">
+        <div class="timestamp-header">
+          <span class="timestamp-label">Tempo total:</span>
+          <span class="timestamp-value">${tempoTotal}</span>
+          <span class="timestamp-arrow">▼</span>
+        </div>
+        <div class="timestamp-details" id="timestamps-${entrega.id}" style="display: none;">
+          <div class="timestamp-item">
+            <span class="timestamp-label">Pedido feito:</span>
+            <span class="timestamp-value">${pedidoFeito}</span>
+          </div>
+          <div class="timestamp-item">
+            <span class="timestamp-label">Enviado:</span>
+            <span class="timestamp-value">${enviado}</span>
+          </div>
+          <div class="timestamp-item">
+            <span class="timestamp-label">Finalizado:</span>
+            <span class="timestamp-value">${finalizado}</span>
+          </div>
+        </div>
+      </div>
     </div>
   `;
-  
-  console.log("=== FIM RENDER TIMESTAMPS ===");
-  return `<div class="delivery-timestamps">${timestampsHtml}${tempoTotalHtml}</div>`;
 }
 
 function formatarEntregador(entregador) {
