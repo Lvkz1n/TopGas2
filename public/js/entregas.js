@@ -244,56 +244,52 @@ function calcularTempoTotal(inicio, fim) {
 function renderTimestamps(entrega) {
   const timestamps = [];
   
-  // Pedido feito
-  if (entrega.data_e_hora_inicio_pedido) {
-    timestamps.push({
-      label: 'Pedido feito',
-      value: formatarDataSimples(entrega.data_e_hora_inicio_pedido)
-    });
-  }
+  // Pedido feito - sempre mostrar
+  timestamps.push({
+    label: 'Pedido feito',
+    value: formatarDataSimples(entrega.data_e_hora_inicio_pedido)
+  });
   
-  // Enviado
-  if (entrega.data_e_hora_envio_pedido) {
-    timestamps.push({
-      label: 'Enviado',
-      value: formatarDataSimples(entrega.data_e_hora_envio_pedido)
-    });
-  }
+  // Enviado - sempre mostrar
+  timestamps.push({
+    label: 'Enviado',
+    value: formatarDataSimples(entrega.data_e_hora_envio_pedido)
+  });
   
-  // Finalizado
+  // Finalizado - mostrar confirmação ou cancelamento
+  let finalizado = "Aguardando...";
   if (entrega.data_e_hora_confirmacao_pedido) {
-    timestamps.push({
-      label: 'Finalizado',
-      value: formatarDataSimples(entrega.data_e_hora_confirmacao_pedido)
-    });
-  }
-  
-  // Tempo total
-  let tempoTotal = "Aguardando...";
-  if (entrega.data_e_hora_confirmacao_pedido) {
-    const tempo = calcularTempoTotal(entrega.data_e_hora_inicio_pedido, entrega.data_e_hora_confirmacao_pedido);
-    tempoTotal = tempo !== "-" ? tempo : "Aguardando...";
+    finalizado = formatarDataSimples(entrega.data_e_hora_confirmacao_pedido);
   } else if (entrega.data_e_hora_cancelamento_pedido) {
-    tempoTotal = "Cancelado";
-  } else if (entrega.data_e_hora_inicio_pedido) {
-    const tempo = calcularTempoTotal(entrega.data_e_hora_inicio_pedido);
-    tempoTotal = tempo !== "-" ? tempo + " (em andamento)" : "Aguardando...";
+    finalizado = formatarDataSimples(entrega.data_e_hora_cancelamento_pedido);
   }
   
-  if (timestamps.length === 0) {
-    return '<div class="delivery-timestamps"><div class="timestamp-item"><span class="timestamp-label">Sem dados</span><span class="timestamp-value">Aguardando...</span></div></div>';
+  timestamps.push({
+    label: 'Finalizado',
+    value: finalizado
+  });
+  
+  // Tempo total - calcular do início ao fim do pedido
+  let tempoTotal = "Calculando...";
+  if (entrega.data_e_hora_confirmacao_pedido) {
+    tempoTotal = calcularTempoTotal(entrega.data_e_hora_inicio_pedido, entrega.data_e_hora_confirmacao_pedido);
+  } else if (entrega.data_e_hora_cancelamento_pedido) {
+    tempoTotal = calcularTempoTotal(entrega.data_e_hora_inicio_pedido, entrega.data_e_hora_cancelamento_pedido);
+  } else if (entrega.data_e_hora_inicio_pedido) {
+    // Se ainda em andamento, mostrar tempo até agora
+    tempoTotal = calcularTempoTotal(entrega.data_e_hora_inicio_pedido) + " (em andamento)";
   }
   
   const timestampsHtml = timestamps.map(ts => 
     `<div class="timestamp-item">
-      <span class="timestamp-label">${ts.label}</span>
+      <span class="timestamp-label">${ts.label}:</span>
       <span class="timestamp-value">${ts.value}</span>
     </div>`
   ).join('');
   
   const tempoTotalHtml = `
     <div class="timestamp-item timestamp-total">
-      <span class="timestamp-label">Tempo total</span>
+      <span class="timestamp-label">Tempo total:</span>
       <span class="timestamp-value">${tempoTotal}</span>
     </div>
   `;

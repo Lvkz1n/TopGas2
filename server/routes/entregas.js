@@ -120,12 +120,9 @@ r.get("/csv", requireAuth, requireAdmin, async (req, res) => {
     
     // Adicionar filtro de período se fornecido
     if (data_inicio && data_fim) {
-      // Converter datas para timestamp e adicionar 23:59:59 na data fim
-      const dataInicioTimestamp = `${data_inicio} 00:00:00`;
-      const dataFimTimestamp = `${data_fim} 23:59:59`;
-      
-      querySQL += ` WHERE data_e_hora_inicio_pedido::timestamp BETWEEN $1 AND $2`;
-      params = [dataInicioTimestamp, dataFimTimestamp];
+      // Usar uma abordagem mais simples com DATE()
+      querySQL += ` WHERE DATE(data_e_hora_inicio_pedido) BETWEEN $1 AND $2`;
+      params = [data_inicio, data_fim];
       console.log("Query SQL com filtro de período:", querySQL);
       console.log("Parâmetros:", params);
     } else {
@@ -134,8 +131,19 @@ r.get("/csv", requireAuth, requireAdmin, async (req, res) => {
     
     querySQL += ` ORDER BY id DESC`;
     
+    console.log("Executando query:", querySQL);
+    console.log("Com parâmetros:", params);
+    
     const { rows: entregas } = await query(querySQL, params);
     console.log(`Encontradas ${entregas.length} entregas para CSV`);
+    
+    if (entregas.length === 0) {
+      console.log("Nenhuma entrega encontrada para o período");
+      return res.status(404).json({ 
+        error: "Nenhuma entrega encontrada para o período selecionado",
+        details: `Período: ${data_inicio} a ${data_fim}`
+      });
+    }
     
     const csv = generateEntregasCSV(entregas);
     
