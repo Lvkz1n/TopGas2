@@ -1,0 +1,26 @@
+{
+  "name": "TopGas - Sistema de Entregas",
+  "short_name": "TopGas",
+  "description": "Sistema de gerenciamento de entregas TopGas",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f7f8",
+  "theme_color": "#ff7a00",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favi.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favi.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "pt-BR"
+}

@@ -2,16 +2,21 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
   <title>TopGas – Entregas</title>
   <link rel="icon" type="image/png" href="/favi.png" />
   <link rel="apple-touch-icon" href="/favi.png" />
+  <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#ff7a00" />
   <link rel="stylesheet" href="./css/global.css" />
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
-<body>
-  <aside class="sidebar">
+  <body>
+    <button class="hamburger" onclick="toggleSidebar()">
+      <i data-lucide="menu"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <i data-lucide="flame" class="sidebar-brand-icon"></i>
       <span>Top Gas</span>
@@ -58,6 +63,35 @@
     </div>
     
     <div class="card">
+      <div class="delivery-filters">
+        <div class="filter-group">
+          <label>Status:</label>
+          <select class="filter-select" id="filterStatus" onchange="applyFilters()">
+            <option value="">Todos</option>
+            <option value="Em Entrega">⏳ Em Entrega</option>
+            <option value="entregue">✅ Entregue</option>
+            <option value="Entregue">✅ Entregue</option>
+            <option value="cancelado">❌ Cancelado</option>
+            <option value="Cancelado">❌ Cancelado</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Ordenar por:</label>
+          <select class="filter-select" id="filterSort" onchange="applyFilters()">
+            <option value="status">Status (Em Entrega → Entregue → Cancelado)</option>
+            <option value="protocolo">Protocolo</option>
+            <option value="nome">Nome do Cliente</option>
+            <option value="bairro">Bairro</option>
+            <option value="entregador">Entregador</option>
+            <option value="data">Data de Início</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Buscar:</label>
+          <input type="text" class="filter-select" id="filterSearch" placeholder="Nome, protocolo, bairro..." onkeyup="applyFilters()">
+        </div>
+      </div>
+      
       <table class="table" id="tbEntregas">
         <thead>
           <tr>
@@ -88,6 +122,29 @@
   <script src="./js/auth.js"></script>
   <script src="./js/entregas.js"></script>
   <script>
+    // Funções para controlar o menu mobile
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('hidden');
+    }
+    
+    function closeSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      sidebar.classList.remove('open');
+      overlay.classList.add('hidden');
+    }
+    
+    // Fechar sidebar ao clicar em um link
+    document.addEventListener('DOMContentLoaded', function() {
+      const sidebarLinks = document.querySelectorAll('.sidebar a');
+      sidebarLinks.forEach(link => {
+        link.addEventListener('click', closeSidebar);
+      });
+    });
+    
     (async () => {
       const me = await Auth.guard();
       if (me?.role === 'admin') {

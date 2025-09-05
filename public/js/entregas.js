@@ -1,6 +1,7 @@
 let paginaAtualEntregas = 1;
 const TAM_PAGINA_ENTREGAS = 10;
 let dadosEntregas = null;
+let todasEntregas = []; // Cache de todas as entregas para filtros
 
 (async function () {
   await Auth.guard();
@@ -9,36 +10,101 @@ let dadosEntregas = null;
 
 async function renderEntregas() {
   try {
-    const result = await API.api(`/entregas?page=${paginaAtualEntregas}&limit=${TAM_PAGINA_ENTREGAS}`);
+    // Carregar todas as entregas para filtros
+    const result = await API.api(`/entregas?page=1&limit=1000`); // Carregar muitas para ter todos os dados
+    todasEntregas = result.entregas;
     dadosEntregas = result;
     
-    const tbody = document.querySelector("#tbEntregas tbody");
-    tbody.innerHTML = result.entregas
-      .map((entrega) => `
-        <tr>
-          <td>${entrega.protocolo || "-"}</td>
-          <td>${entrega.nome_cliente || "-"}</td>
-          <td>${entrega.telefone_cliente || "-"}</td>
-          <td>${entrega.mercadoria_pedido || "-"}</td>
-          <td>${entrega.entregador || "-"}</td>
-          <td>${entrega.endereco || "-"}</td>
-          <td>${entrega.bairro || "-"}</td>
-          <td>${entrega.unidade_topgas || "-"}</td>
-          <td>${getStatusIcon(entrega.status_pedido)} ${entrega.status_pedido || "pendente"}</td>
-          <td>${renderTimestamps(entrega)}</td>
-        </tr>
-      `)
-      .join("");
+    // Aplicar filtros e ordenação
+    applyFilters();
     
-    renderPaginacaoEntregas();
-    
-    // Recarregar ícones Lucide após renderizar a tabela
-    if (typeof lucide !== 'undefined') {
-      lucide.createIcons();
-    }
   } catch (error) {
     console.error("Erro ao carregar entregas:", error);
     alert("Erro ao carregar entregas: " + error.message);
+  }
+}
+
+function applyFilters() {
+  const statusFilter = document.getElementById('filterStatus')?.value || '';
+  const sortFilter = document.getElementById('filterSort')?.value || 'status';
+  const searchFilter = document.getElementById('filterSearch')?.value.toLowerCase() || '';
+  
+  let filteredEntregas = [...todasEntregas];
+  
+  // Aplicar filtro de status
+  if (statusFilter) {
+    filteredEntregas = filteredEntregas.filter(entrega => 
+      entrega.status_pedido === statusFilter
+    );
+  }
+  
+  // Aplicar filtro de busca
+  if (searchFilter) {
+    filteredEntregas = filteredEntregas.filter(entrega => 
+      (entrega.nome_cliente || '').toLowerCase().includes(searchFilter) ||
+      (entrega.protocolo || '').toLowerCase().includes(searchFilter) ||
+      (entrega.bairro || '').toLowerCase().includes(searchFilter) ||
+      (entrega.entregador || '').toLowerCase().includes(searchFilter)
+    );
+  }
+  
+  // Aplicar ordenação
+  filteredEntregas = sortEntregas(filteredEntregas, sortFilter);
+  
+  // Renderizar tabela com dados filtrados
+  renderEntregasTable(filteredEntregas);
+}
+
+function sortEntregas(entregas, sortBy) {
+  return entregas.sort((a, b) => {
+    switch (sortBy) {
+      case 'status':
+        const statusOrder = { 'Em Entrega': 1, 'entregue': 2, 'Entregue': 2, 'cancelado': 3, 'Cancelado': 3 };
+        return (statusOrder[a.status_pedido] || 4) - (statusOrder[b.status_pedido] || 4);
+      
+      case 'protocolo':
+        return (a.protocolo || '').localeCompare(b.protocolo || '');
+      
+      case 'nome':
+        return (a.nome_cliente || '').localeCompare(b.nome_cliente || '');
+      
+      case 'bairro':
+        return (a.bairro || '').localeCompare(b.bairro || '');
+      
+      case 'entregador':
+        return (a.entregador || '').localeCompare(b.entregador || '');
+      
+      case 'data':
+        return new Date(b.data_e_hora_inicio_pedido || 0) - new Date(a.data_e_hora_inicio_pedido || 0);
+      
+      default:
+        return 0;
+    }
+  });
+}
+
+function renderEntregasTable(entregas) {
+  const tbody = document.querySelector("#tbEntregas tbody");
+  tbody.innerHTML = entregas
+    .map((entrega) => `
+      <tr>
+        <td>${entrega.protocolo || "-"}</td>
+        <td>${entrega.nome_cliente || "-"}</td>
+        <td>${entrega.telefone_cliente || "-"}</td>
+        <td>${entrega.mercadoria_pedido || "-"}</td>
+        <td>${entrega.entregador || "-"}</td>
+        <td>${entrega.endereco || "-"}</td>
+        <td>${entrega.bairro || "-"}</td>
+        <td>${entrega.unidade_topgas || "-"}</td>
+        <td>${getStatusIcon(entrega.status_pedido)} ${entrega.status_pedido || "pendente"}</td>
+        <td>${renderTimestamps(entrega)}</td>
+      </tr>
+    `)
+    .join("");
+  
+  // Recarregar ícones Lucide após renderizar a tabela
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
   }
 }
 
@@ -128,26 +194,20 @@ function renderTimestamps(entrega) {
     });
   }
   
-  // Cancelado
-  if (entrega.data_e_hora_cancelamento_pedido) {
-    timestamps.push({
-      label: 'Cancelado',
-      value: formatarDataSimples(entrega.data_e_hora_cancelamento_pedido)
-    });
-  }
-  
   // Tempo total
-  let tempoTotal = "-";
+  let tempoTotal = "Aguardando...";
   if (entrega.data_e_hora_confirmacao_pedido) {
-    tempoTotal = calcularTempoTotal(entrega.data_e_hora_inicio_pedido, entrega.data_e_hora_confirmacao_pedido);
+    const tempo = calcularTempoTotal(entrega.data_e_hora_inicio_pedido, entrega.data_e_hora_confirmacao_pedido);
+    tempoTotal = tempo !== "-" ? tempo : "Aguardando...";
   } else if (entrega.data_e_hora_cancelamento_pedido) {
     tempoTotal = "Cancelado";
   } else if (entrega.data_e_hora_inicio_pedido) {
-    tempoTotal = calcularTempoTotal(entrega.data_e_hora_inicio_pedido) + " (em andamento)";
+    const tempo = calcularTempoTotal(entrega.data_e_hora_inicio_pedido);
+    tempoTotal = tempo !== "-" ? tempo + " (em andamento)" : "Aguardando...";
   }
   
   if (timestamps.length === 0) {
-    return '<div class="delivery-timestamps"><div class="timestamp-item"><span class="timestamp-label">Sem dados</span><span class="timestamp-value">-</span></div></div>';
+    return '<div class="delivery-timestamps"><div class="timestamp-item"><span class="timestamp-label">Sem dados</span><span class="timestamp-value">Aguardando...</span></div></div>';
   }
   
   const timestampsHtml = timestamps.map(ts => 

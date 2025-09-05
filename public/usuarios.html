@@ -2,16 +2,21 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <title>TopGas – Usuários</title>
     <link rel="icon" type="image/png" href="/favi.png" />
     <link rel="apple-touch-icon" href="/favi.png" />
+    <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#ff7a00" />
     <link rel="stylesheet" href="./css/global.css" />
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   </head>
   <body>
-    <aside class="sidebar">
+    <button class="hamburger" onclick="toggleSidebar()">
+      <i data-lucide="menu"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">
         <i data-lucide="flame" class="sidebar-brand-icon"></i>
         <span>Top Gas</span>
@@ -111,6 +116,29 @@
     <script src="./js/auth.js"></script>
     <script src="./js/usuarios.js"></script>
     <script>
+      // Funções para controlar o menu mobile
+      function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('hidden');
+      }
+      
+      function closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        sidebar.classList.remove('open');
+        overlay.classList.add('hidden');
+      }
+      
+      // Fechar sidebar ao clicar em um link
+      document.addEventListener('DOMContentLoaded', function() {
+        const sidebarLinks = document.querySelectorAll('.sidebar a');
+        sidebarLinks.forEach(link => {
+          link.addEventListener('click', closeSidebar);
+        });
+      });
+      
       (async () => {
         await Auth.guard({ roles: ["admin"] });
         // Inicializar ícones Lucide
