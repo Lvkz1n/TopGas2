@@ -108,9 +108,35 @@ body {
 [data-theme="dark"] .card,
 [data-theme="dark"] .table-container,
 [data-theme="dark"] .delivery-item,
-[data-theme="dark"] .delivery-details {
+[data-theme="dark"] .delivery-details,
+[data-theme="dark"] .main-content,
+[data-theme="dark"] .content-wrapper,
+[data-theme="dark"] .page-header,
+[data-theme="dark"] .stats-grid,
+[data-theme="dark"] .chart-container {
   background: var(--card);
   border: 1px solid #334155;
+  color: var(--text);
+}
+
+[data-theme="dark"] .table-container table {
+  background: var(--card);
+  color: var(--text);
+}
+
+[data-theme="dark"] .table-container th {
+  background: #334155;
+  color: var(--text);
+  border-bottom: 1px solid #475569;
+}
+
+[data-theme="dark"] .table-container td {
+  border-bottom: 1px solid #334155;
+  color: var(--text);
+}
+
+[data-theme="dark"] .table-container tr:hover {
+  background: #334155;
 }
 
 [data-theme="dark"] .btn {
@@ -144,6 +170,123 @@ body {
 [data-theme="dark"] textarea:focus {
   border-color: var(--brand);
   outline: none;
+}
+
+[data-theme="dark"] .paginacao {
+  background: var(--card);
+  color: var(--text);
+}
+
+[data-theme="dark"] .paginacao button {
+  background: #475569;
+  color: var(--text);
+  border: 1px solid #334155;
+}
+
+[data-theme="dark"] .paginacao button:hover {
+  background: #64748b;
+}
+
+[data-theme="dark"] .filters {
+  background: var(--card);
+  border: 1px solid #334155;
+}
+
+[data-theme="dark"] .filters input,
+[data-theme="dark"] .filters select {
+  background: var(--card);
+  border: 1px solid #334155;
+  color: var(--text);
+}
+
+/* Estilos específicos para modo noturno */
+[data-theme="dark"] .main-content {
+  background: var(--bg);
+  color: var(--text);
+}
+
+[data-theme="dark"] .page-header h1 {
+  color: var(--text);
+}
+
+[data-theme="dark"] .page-header p {
+  color: var(--muted);
+}
+
+[data-theme="dark"] .stats-grid .stat-card {
+  background: var(--card);
+  border: 1px solid #334155;
+  color: var(--text);
+}
+
+[data-theme="dark"] .stats-grid .stat-card .stat-value {
+  color: var(--text);
+}
+
+[data-theme="dark"] .stats-grid .stat-card .stat-label {
+  color: var(--muted);
+}
+
+[data-theme="dark"] .chart-container {
+  background: var(--card);
+  border: 1px solid #334155;
+}
+
+[data-theme="dark"] .delivery-timestamps {
+  background: var(--card);
+  border: 1px solid #334155;
+  color: var(--text);
+}
+
+[data-theme="dark"] .delivery-timestamps .timestamp-header {
+  color: var(--text);
+}
+
+[data-theme="dark"] .delivery-timestamps .timestamp-value {
+  color: var(--brand);
+}
+
+[data-theme="dark"] .delivery-timestamps .timestamp-label {
+  color: var(--muted);
+}
+
+[data-theme="dark"] .delivery-timestamps .timestamp-details {
+  background: #334155;
+  border: 1px solid #475569;
+}
+
+[data-theme="dark"] .delivery-timestamps .timestamp-item {
+  border-bottom: 1px solid #475569;
+}
+
+[data-theme="dark"] .delivery-timestamps .timestamp-item:last-child {
+  border-bottom: none;
+}
+
+[data-theme="dark"] .modal {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+[data-theme="dark"] .modal-content {
+  background: var(--card);
+  border: 1px solid #334155;
+  color: var(--text);
+}
+
+[data-theme="dark"] .modal-header {
+  border-bottom: 1px solid #334155;
+}
+
+[data-theme="dark"] .modal-header h2 {
+  color: var(--text);
+}
+
+[data-theme="dark"] .modal-close {
+  color: var(--text);
+}
+
+[data-theme="dark"] .modal-close:hover {
+  color: var(--brand);
 }
 .sidebar nav {
   display: flex;

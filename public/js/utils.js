@@ -227,11 +227,37 @@ window.Utils = {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     
+    // Aplicar tema no documento atual
     document.documentElement.setAttribute('data-theme', newTheme);
+    
+    // Salvar tema no localStorage para persistência global
     localStorage.setItem('theme', newTheme);
     
     // Atualizar ícone do botão
     this.updateThemeIcon(newTheme);
+    
+    // Notificar outras abas sobre a mudança de tema
+    this.broadcastThemeChange(newTheme);
+  },
+
+  /**
+   * Transmitir mudança de tema para outras abas
+   * @param {string} theme - Novo tema
+   */
+  broadcastThemeChange(theme) {
+    // Usar BroadcastChannel se disponível
+    if (typeof BroadcastChannel !== 'undefined') {
+      const channel = new BroadcastChannel('theme-change');
+      channel.postMessage({ theme: theme });
+      channel.close();
+    }
+    
+    // Fallback: usar localStorage event
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'theme',
+      newValue: theme,
+      url: window.location.href
+    }));
   },
 
   /**
@@ -259,5 +285,32 @@ window.Utils = {
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
     this.updateThemeIcon(savedTheme);
+    
+    // Escutar mudanças de tema de outras abas
+    this.listenForThemeChanges();
+  },
+
+  /**
+   * Escutar mudanças de tema de outras abas
+   */
+  listenForThemeChanges() {
+    // Escutar BroadcastChannel
+    if (typeof BroadcastChannel !== 'undefined') {
+      const channel = new BroadcastChannel('theme-change');
+      channel.addEventListener('message', (event) => {
+        if (event.data && event.data.theme) {
+          document.documentElement.setAttribute('data-theme', event.data.theme);
+          this.updateThemeIcon(event.data.theme);
+        }
+      });
+    }
+    
+    // Escutar localStorage changes
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'theme' && event.newValue) {
+        document.documentElement.setAttribute('data-theme', event.newValue);
+        this.updateThemeIcon(event.newValue);
+      }
+    });
   }
 };

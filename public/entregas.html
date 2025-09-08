@@ -168,7 +168,9 @@
         }
         Utils.initTheme();
         // Inicializar ícones Lucide
-        Utils.updateIcons();
+        setTimeout(() => {
+          Utils.updateIcons();
+        }, 100);
       })();
   </script>
 </body>
