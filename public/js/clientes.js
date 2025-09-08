@@ -89,9 +89,7 @@ function renderPaginaClientes() {
   }
     
   // Recarregar ícones Lucide após renderizar a tabela
-  if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
-  }
+  Utils.updateIcons();
 
   const info = document.getElementById("pagInfoClientes");
   const btnPrev = document.getElementById("btnPrevClientes");
@@ -124,89 +122,48 @@ async function editarCliente(id) {
     return;
   }
   
-  // Criar modal de edição
-  const modal = document.createElement('div');
-  modal.id = 'modalEditarCliente';
-  modal.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
+  const content = `
+    <form id="formEditarCliente">
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div>
+          <label style="display: block; margin-bottom: 4px; font-weight: 500;">Nome do Cliente:</label>
+          <input type="text" id="editNome" value="${cliente.nome_cliente || ''}" class="input" required>
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 4px; font-weight: 500;">Telefone:</label>
+          <input type="tel" id="editTelefone" value="${cliente.telefone || ''}" class="input" required>
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 4px; font-weight: 500;">Bairro:</label>
+          <input type="text" id="editBairro" value="${cliente.bairro || ''}" class="input">
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 4px; font-weight: 500;">Cidade:</label>
+          <input type="text" id="editCidade" value="${cliente.cidade || ''}" class="input">
+        </div>
+      </div>
+      <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;">
+        <button type="button" id="btnCancelarEdicao" style="
+          background: #6b7280;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 8px;
+          cursor: pointer;
+        ">Cancelar</button>
+        <button type="submit" style="
+          background: var(--orange-500);
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 8px;
+          cursor: pointer;
+        ">Salvar Alterações</button>
+      </div>
+    </form>
   `;
   
-  modal.innerHTML = `
-    <div style="
-      background: white;
-      padding: 24px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 500px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    ">
-      <h3 style="margin-top: 0; color: var(--orange-600);">Editar Cliente</h3>
-      <form id="formEditarCliente">
-        <div style="display: flex; flex-direction: column; gap: 16px;">
-          <div>
-            <label style="display: block; margin-bottom: 4px; font-weight: 500;">Nome do Cliente:</label>
-            <input type="text" id="editNome" value="${cliente.nome_cliente || ''}" class="input" required>
-          </div>
-          <div>
-            <label style="display: block; margin-bottom: 4px; font-weight: 500;">Telefone:</label>
-            <input type="tel" id="editTelefone" value="${cliente.telefone || ''}" class="input" required>
-          </div>
-          <div>
-            <label style="display: block; margin-bottom: 4px; font-weight: 500;">Bairro:</label>
-            <input type="text" id="editBairro" value="${cliente.bairro || ''}" class="input">
-          </div>
-          <div>
-            <label style="display: block; margin-bottom: 4px; font-weight: 500;">Cidade:</label>
-            <input type="text" id="editCidade" value="${cliente.cidade || ''}" class="input">
-          </div>
-        </div>
-        <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;">
-          <button type="button" id="btnCancelarEdicao" style="
-            background: #6b7280;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-          ">Cancelar</button>
-          <button type="submit" style="
-            background: var(--orange-500);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-          ">Salvar Alterações</button>
-        </div>
-      </form>
-    </div>
-  `;
-  
-  document.body.appendChild(modal);
-  
-  // Função para fechar modal
-  const fecharModal = () => {
-    const modalElement = document.getElementById('modalEditarCliente');
-    if (modalElement) {
-      document.body.removeChild(modalElement);
-    }
-  };
-  
-  // Adicionar evento de fechar ao clicar fora
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      fecharModal();
-    }
-  });
+  const { modal, fecharModal } = Utils.criarModal('Editar Cliente', content);
   
   // Adicionar evento de cancelar
   document.getElementById('btnCancelarEdicao').addEventListener('click', fecharModal);
@@ -253,16 +210,10 @@ async function downloadCSV() {
     }
     
     const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'relatorio_clientes.csv';
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+    Utils.downloadFile(blob, 'relatorio_clientes.csv');
+    alert("✅ CSV gerado com sucesso!");
   } catch (error) {
     console.error("Erro ao baixar CSV:", error);
-    alert("Erro ao baixar CSV: " + error.message);
+    alert("❌ Erro ao baixar CSV: " + error.message);
   }
 }

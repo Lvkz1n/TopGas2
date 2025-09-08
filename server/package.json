@@ -4,14 +4,17 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "dev": "node server.js",
+    "dev": "cross-env NODE_ENV=development LOCALHOST=true node server.js",
+    "dev:localhost": "cross-env NODE_ENV=development LOCALHOST=true PORT=3000 node server.js",
     "start": "cross-env NODE_ENV=production node server.js",
+    "start:easypanel": "cross-env NODE_ENV=production PORT=8080 node server.js",
     "db:create": "psql %DATABASE_URL% -f schema.sql",
     "db:seed": "node seed.js",
     "db:seed:mock": "node seed-mock.js",
     "db:apply": "node db-apply.js",
     "db:migrate": "node db-migrate.js",
-    "db:setup:mock": "node db-migrate.js; node seed.js; node seed-mock.js"
+    "db:setup:mock": "node db-migrate.js; node seed.js; node seed-mock.js",
+    "setup:localhost": "npm run db:migrate && npm run db:seed:mock"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

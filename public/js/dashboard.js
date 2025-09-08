@@ -15,4 +15,6 @@
     type: "bar",
     data: { labels, datasets: [{ label: "Entregas", data: values }] },
   });
+  
+  Utils.updateIcons();
 })();
