@@ -256,14 +256,34 @@ function calcularTempoTotal(inicio, fim) {
   const diffMs = dataFim - dataInicio;
   if (diffMs < 0) return "Calculando...";
   
-  const diffMinutos = Math.floor(diffMs / (1000 * 60));
+  // Calcular dias, horas, minutos e segundos
+  const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const diffHoras = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const diffMinutos = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
   const diffSegundos = Math.floor((diffMs % (1000 * 60)) / 1000);
   
-  if (diffMinutos > 0) {
-    return `${diffMinutos}m ${diffSegundos}s`;
-  } else {
-    return `${diffSegundos}s`;
+  // Construir string apenas com as unidades que têm valor
+  const partes = [];
+  
+  if (diffDias > 0) {
+    partes.push(`${diffDias} d`);
   }
+  if (diffHoras > 0) {
+    partes.push(`${diffHoras} h`);
+  }
+  if (diffMinutos > 0) {
+    partes.push(`${diffMinutos} m`);
+  }
+  if (diffSegundos > 0) {
+    partes.push(`${diffSegundos} s`);
+  }
+  
+  // Se não há nenhuma parte, significa que é menos de 1 segundo
+  if (partes.length === 0) {
+    return "0 s";
+  }
+  
+  return partes.join(" ");
 }
 
 function renderTimestamps(entrega) {
