@@ -93,7 +93,7 @@ window.Utils = {
    * @returns {string} Tempo total formatado
    */
   calcularTempoTotalEntrega(entrega) {
-    if (!entrega.data_e_hora_inicio_pedido) {
+    if (!entrega || !entrega.data_e_hora_inicio_pedido) {
       return "Calculando...";
     }
     
@@ -103,11 +103,8 @@ window.Utils = {
     
     let dataFim = null;
     
-    if (isEntregue && entrega.data_e_hora_confirmacao_pedido) {
-      dataFim = entrega.data_e_hora_confirmacao_pedido;
-    } else if (isCancelado && entrega.data_e_hora_cancelamento_pedido) {
-      dataFim = entrega.data_e_hora_cancelamento_pedido;
-    } else if (entrega.data_e_hora_confirmacao_pedido) {
+    // Priorizar data de confirmação para entregas finalizadas
+    if (entrega.data_e_hora_confirmacao_pedido) {
       dataFim = entrega.data_e_hora_confirmacao_pedido;
     } else if (entrega.data_e_hora_cancelamento_pedido) {
       dataFim = entrega.data_e_hora_cancelamento_pedido;

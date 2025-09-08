@@ -29,8 +29,10 @@ server/cookies.txt
 # Documentação interna (ignorar no Git)
 ANOTACOES.md
 DEPENDENCIAS.md
+IMPLEMENTACAO_ENTREGAS_CLIENTES.md
 anotacoes.md
 anotacoes/*.md
+docs/
 
 # SO / editor
 .DS_Store

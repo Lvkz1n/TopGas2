@@ -106,8 +106,6 @@ function renderEntregasTable(entregas) {
   
   renderDesktopTable(entregas);
   renderMobileView(entregas);
-  
-  Utils.updateIcons();
 }
 
 // Renderizar tabela desktop
@@ -116,18 +114,18 @@ function renderDesktopTable(entregas) {
   if (!tbody) return;
   
   tbody.innerHTML = entregas.map(entrega => `
-    <tr>
-      <td>${entrega.protocolo || "-"}</td>
-      <td>${entrega.nome_cliente || "-"}</td>
-      <td>${entrega.telefone_cliente || "-"}</td>
-      <td>${entrega.mercadoria_pedido || "-"}</td>
-      <td>${Utils.formatarEntregador(entrega.entregador)}</td>
-      <td>${entrega.endereco || "-"}</td>
-      <td>${entrega.bairro || "-"}</td>
-      <td>${entrega.unidade_topgas || "-"}</td>
-      <td>${Utils.getStatusIcon(entrega.status_pedido)} ${entrega.status_pedido || "pendente"}</td>
-      <td>${renderTimestamps(entrega)}</td>
-    </tr>
+      <tr>
+        <td>${entrega.protocolo || "-"}</td>
+        <td>${entrega.nome_cliente || "-"}</td>
+        <td>${entrega.telefone_cliente || "-"}</td>
+        <td>${entrega.mercadoria_pedido || "-"}</td>
+        <td>${Utils.formatarEntregador(entrega.entregador)}</td>
+        <td>${entrega.endereco || "-"}</td>
+        <td>${entrega.bairro || "-"}</td>
+        <td>${entrega.unidade_topgas || "-"}</td>
+        <td>${Utils.getStatusIcon(entrega.status_pedido)} ${entrega.status_pedido || "pendente"}</td>
+        <td>${renderTimestamps(entrega)}</td>
+      </tr>
   `).join("");
 }
 
@@ -137,45 +135,45 @@ function renderMobileView(entregas) {
   if (!mobileContainer) return;
   
   mobileContainer.innerHTML = entregas.map((entrega, index) => `
-    <div class="delivery-item" id="delivery-${index}">
-      <div class="delivery-header" onclick="toggleDeliveryDetails(${index})">
-        <div class="delivery-name">${entrega.nome_cliente || "-"}</div>
-        <div class="delivery-status">${Utils.getStatusIcon(entrega.status_pedido)} ${entrega.status_pedido || "pendente"}</div>
+      <div class="delivery-item" id="delivery-${index}">
+        <div class="delivery-header" onclick="toggleDeliveryDetails(${index})">
+          <div class="delivery-name">${entrega.nome_cliente || "-"}</div>
+          <div class="delivery-status">${Utils.getStatusIcon(entrega.status_pedido)} ${entrega.status_pedido || "pendente"}</div>
+        </div>
+        <div class="delivery-details" id="details-${index}">
+          <div class="detail-row">
+            <span class="detail-label">Protocolo:</span>
+            <span class="detail-value">${entrega.protocolo || "-"}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Telefone:</span>
+            <span class="detail-value">${entrega.telefone_cliente || "-"}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Pedido:</span>
+            <span class="detail-value">${entrega.mercadoria_pedido || "-"}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Entregador:</span>
+            <span class="detail-value">${Utils.formatarEntregador(entrega.entregador)}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Endereço:</span>
+            <span class="detail-value">${entrega.endereco || "-"}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Bairro:</span>
+            <span class="detail-value">${entrega.bairro || "-"}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Unidade:</span>
+            <span class="detail-value">${entrega.unidade_topgas || "-"}</span>
+          </div>
+          <div class="delivery-timestamps">
+            ${renderTimestamps(entrega)}
+          </div>
+        </div>
       </div>
-      <div class="delivery-details" id="details-${index}">
-        <div class="detail-row">
-          <span class="detail-label">Protocolo:</span>
-          <span class="detail-value">${entrega.protocolo || "-"}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Telefone:</span>
-          <span class="detail-value">${entrega.telefone_cliente || "-"}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Pedido:</span>
-          <span class="detail-value">${entrega.mercadoria_pedido || "-"}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Entregador:</span>
-          <span class="detail-value">${Utils.formatarEntregador(entrega.entregador)}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Endereço:</span>
-          <span class="detail-value">${entrega.endereco || "-"}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Bairro:</span>
-          <span class="detail-value">${entrega.bairro || "-"}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Unidade:</span>
-          <span class="detail-value">${entrega.unidade_topgas || "-"}</span>
-        </div>
-        <div class="delivery-timestamps">
-          ${renderTimestamps(entrega)}
-        </div>
-      </div>
-    </div>
   `).join("");
 }
 
@@ -241,6 +239,7 @@ function atualizarTimestamps() {
       }
     }
   });
+  
 }
 
 // Funções de interação
