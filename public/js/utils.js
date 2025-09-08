@@ -103,10 +103,16 @@ window.Utils = {
     
     let dataFim = null;
     
-    // Priorizar data de confirmação para entregas finalizadas
-    if (entrega.data_e_hora_confirmacao_pedido) {
+    // Determinar data de fim baseada no status
+    if (isEntregue && entrega.data_e_hora_confirmacao_pedido) {
+      dataFim = entrega.data_e_hora_confirmacao_pedido;
+    } else if (isCancelado && entrega.data_e_hora_cancelamento_pedido) {
+      dataFim = entrega.data_e_hora_cancelamento_pedido;
+    } else if (entrega.data_e_hora_confirmacao_pedido) {
+      // Se tem data de confirmação, usar ela independente do status
       dataFim = entrega.data_e_hora_confirmacao_pedido;
     } else if (entrega.data_e_hora_cancelamento_pedido) {
+      // Se tem data de cancelamento, usar ela
       dataFim = entrega.data_e_hora_cancelamento_pedido;
     }
     
@@ -212,5 +218,46 @@ window.Utils = {
     if (typeof lucide !== 'undefined') {
       lucide.createIcons();
     }
+  },
+
+  /**
+   * Alternar modo noturno
+   */
+  toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    
+    // Atualizar ícone do botão
+    this.updateThemeIcon(newTheme);
+  },
+
+  /**
+   * Atualizar ícone do tema
+   * @param {string} theme - Tema atual
+   */
+  updateThemeIcon(theme) {
+    const themeButton = document.querySelector('.theme-toggle');
+    if (themeButton) {
+      const icon = themeButton.querySelector('svg');
+      if (icon) {
+        if (theme === 'dark') {
+          icon.innerHTML = '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>';
+        } else {
+          icon.innerHTML = '<path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>';
+        }
+      }
+    }
+  },
+
+  /**
+   * Inicializar tema
+   */
+  initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    this.updateThemeIcon(savedTheme);
   }
 };

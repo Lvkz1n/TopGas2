@@ -17,10 +17,15 @@
     </button>
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
     <aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-      <i data-lucide="flame" class="sidebar-brand-icon"></i>
-      <span>Top Gas</span>
-    </div>
+      <div class="sidebar-brand">
+        <i data-lucide="flame" class="sidebar-brand-icon"></i>
+        <span>Top Gas</span>
+        <button class="theme-toggle" onclick="Utils.toggleTheme()" title="Alternar modo noturno">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+          </svg>
+        </button>
+      </div>
     <nav>
       <a href="/dashboard.html">
         <i data-lucide="bar-chart-3" class="sidebar-icon"></i>
@@ -154,16 +159,17 @@
       });
     });
     
-    (async () => {
-      const me = await Auth.guard();
-      if (me?.role === 'admin') {
-        document.getElementById('menuUsuarios').classList.remove('hidden');
-        document.getElementById('menuConfigs').classList.remove('hidden');
-        document.getElementById('btnDownloadCSV').classList.remove('hidden');
-      }
-      // Inicializar ícones Lucide
-      lucide.createIcons();
-    })();
+      (async () => {
+        const me = await Auth.guard();
+        if (me?.role === 'admin') {
+          document.getElementById('menuUsuarios').classList.remove('hidden');
+          document.getElementById('menuConfigs').classList.remove('hidden');
+          document.getElementById('btnDownloadCSV').classList.remove('hidden');
+        }
+        Utils.initTheme();
+        // Inicializar ícones Lucide
+        Utils.updateIcons();
+      })();
   </script>
 </body>
 </html>

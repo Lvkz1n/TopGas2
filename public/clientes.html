@@ -20,6 +20,11 @@
       <div class="sidebar-brand">
         <i data-lucide="flame" class="sidebar-brand-icon"></i>
         <span>Top Gas</span>
+        <button class="theme-toggle" onclick="Utils.toggleTheme()" title="Alternar modo noturno">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+          </svg>
+        </button>
       </div>
       <nav>
         <a href="/dashboard.html">
@@ -130,6 +135,7 @@
           document.getElementById("menuConfigs").classList.remove("hidden");
           document.getElementById("btnDownloadCSV").classList.remove("hidden");
         }
+        Utils.initTheme();
         // Inicializar ícones Lucide
         Utils.updateIcons();
       })();
