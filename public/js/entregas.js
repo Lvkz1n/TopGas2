@@ -18,6 +18,11 @@ async function renderEntregas() {
     // Aplicar filtros e ordenação
     applyFilters();
     
+    // Forçar atualização dos timestamps após um pequeno delay
+    setTimeout(() => {
+      atualizarTimestamps();
+    }, 100);
+    
   } catch (error) {
     console.error("Erro ao carregar entregas:", error);
     alert("Erro ao carregar entregas: " + error.message);
@@ -162,6 +167,32 @@ function renderEntregasTable(entregas) {
   }
 }
 
+function atualizarTimestamps() {
+  // Atualizar timestamps na tabela desktop
+  const rows = document.querySelectorAll("#tbEntregas tbody tr");
+  rows.forEach((row, index) => {
+    const entrega = todasEntregas[index];
+    if (entrega) {
+      const timestampCell = row.cells[9]; // Coluna de timestamps
+      if (timestampCell) {
+        timestampCell.innerHTML = renderTimestamps(entrega);
+      }
+    }
+  });
+  
+  // Atualizar timestamps na visualização mobile
+  const mobileItems = document.querySelectorAll(".delivery-item");
+  mobileItems.forEach((item, index) => {
+    const entrega = todasEntregas[index];
+    if (entrega) {
+      const timestampContainer = item.querySelector(".delivery-timestamps");
+      if (timestampContainer) {
+        timestampContainer.innerHTML = renderTimestamps(entrega);
+      }
+    }
+  });
+}
+
 function toggleDeliveryDetails(index) {
   const details = document.getElementById(`details-${index}`);
   const item = document.getElementById(`delivery-${index}`);
@@ -244,7 +275,9 @@ function formatarDataSimples(dataString) {
 }
 
 function calcularTempoTotal(inicio, fim) {
-  if (!inicio) return "Calculando...";
+  if (!inicio) {
+    return "Calculando...";
+  }
   
   const dataInicio = new Date(inicio);
   const dataFim = fim ? new Date(fim) : new Date();
@@ -254,7 +287,10 @@ function calcularTempoTotal(inicio, fim) {
   }
   
   const diffMs = dataFim - dataInicio;
-  if (diffMs < 0) return "Calculando...";
+  
+  if (diffMs < 0) {
+    return "Calculando...";
+  }
   
   // Calcular dias, horas, minutos e segundos
   const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
@@ -291,11 +327,21 @@ function renderTimestamps(entrega) {
   let tempoTotal = "Calculando...";
   
   if (entrega.data_e_hora_inicio_pedido) {
-    if (entrega.data_e_hora_confirmacao_pedido) {
+    // Verificar se o pedido foi finalizado (entregue ou cancelado)
+    const isEntregue = entrega.status_pedido === 'Entregue' || entrega.status_pedido === 'entregue';
+    const isCancelado = entrega.status_pedido === 'cancelado' || entrega.status_pedido === 'Cancelado';
+    
+    if (isEntregue && entrega.data_e_hora_confirmacao_pedido) {
       // Pedido finalizado com sucesso
       tempoTotal = calcularTempoTotal(entrega.data_e_hora_inicio_pedido, entrega.data_e_hora_confirmacao_pedido);
-    } else if (entrega.data_e_hora_cancelamento_pedido) {
+    } else if (isCancelado && entrega.data_e_hora_cancelamento_pedido) {
       // Pedido cancelado
+      tempoTotal = calcularTempoTotal(entrega.data_e_hora_inicio_pedido, entrega.data_e_hora_cancelamento_pedido);
+    } else if (entrega.data_e_hora_confirmacao_pedido) {
+      // Fallback: se tem data de confirmação, usar ela
+      tempoTotal = calcularTempoTotal(entrega.data_e_hora_inicio_pedido, entrega.data_e_hora_confirmacao_pedido);
+    } else if (entrega.data_e_hora_cancelamento_pedido) {
+      // Fallback: se tem data de cancelamento, usar ela
       tempoTotal = calcularTempoTotal(entrega.data_e_hora_inicio_pedido, entrega.data_e_hora_cancelamento_pedido);
     } else {
       // Ainda em andamento
@@ -381,6 +427,10 @@ async function confirmarEntrega(id) {
     await renderEntregas();
     // Recarregar ícones Lucide após atualizar a tabela
     lucide.createIcons();
+    // Atualizar timestamps após confirmação
+    setTimeout(() => {
+      atualizarTimestamps();
+    }, 200);
   } catch (e) {
     alert("❌ Falha ao confirmar entrega: " + e.message);
   }
@@ -397,6 +447,10 @@ async function cancelarEntrega(id) {
     await renderEntregas();
     // Recarregar ícones Lucide após atualizar a tabela
     lucide.createIcons();
+    // Atualizar timestamps após cancelamento
+    setTimeout(() => {
+      atualizarTimestamps();
+    }, 200);
   } catch (e) {
     alert("❌ Falha ao cancelar entrega: " + e.message);
   }
