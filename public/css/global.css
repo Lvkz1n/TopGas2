@@ -125,18 +125,49 @@ body {
 }
 
 [data-theme="dark"] .table-container th {
-  background: #334155;
-  color: var(--text);
-  border-bottom: 1px solid #475569;
+  background: #334155 !important;
+  color: var(--text) !important;
+  border-bottom: 1px solid #475569 !important;
 }
 
 [data-theme="dark"] .table-container td {
   border-bottom: 1px solid #334155;
   color: var(--text);
+  background: var(--card);
 }
 
 [data-theme="dark"] .table-container tr:hover {
   background: #334155;
+}
+
+[data-theme="dark"] .table-container tr:hover td {
+  background: #334155;
+}
+
+/* Estilos específicos para tabelas */
+[data-theme="dark"] table {
+  background: var(--card) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] table th {
+  background: #334155 !important;
+  color: var(--text) !important;
+  border-bottom: 1px solid #475569 !important;
+}
+
+[data-theme="dark"] table td {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border-bottom: 1px solid #334155 !important;
+}
+
+[data-theme="dark"] table tr:hover {
+  background: #334155 !important;
+}
+
+[data-theme="dark"] table tr:hover td {
+  background: #334155 !important;
 }
 
 [data-theme="dark"] .btn {
@@ -287,6 +318,67 @@ body {
 
 [data-theme="dark"] .modal-close:hover {
   color: var(--brand);
+}
+
+/* Estilos específicos para tabelas em modo escuro */
+[data-theme="dark"] #tbClientes,
+[data-theme="dark"] #tbEntregas,
+[data-theme="dark"] #tbUsuarios,
+[data-theme="dark"] #tbConfiguracoes {
+  background: var(--card) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] #tbClientes th,
+[data-theme="dark"] #tbEntregas th,
+[data-theme="dark"] #tbUsuarios th,
+[data-theme="dark"] #tbConfiguracoes th {
+  background: #334155 !important;
+  color: var(--text) !important;
+  border-bottom: 1px solid #475569 !important;
+}
+
+[data-theme="dark"] #tbClientes td,
+[data-theme="dark"] #tbEntregas td,
+[data-theme="dark"] #tbUsuarios td,
+[data-theme="dark"] #tbConfiguracoes td {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border-bottom: 1px solid #334155 !important;
+}
+
+[data-theme="dark"] #tbClientes tr:hover,
+[data-theme="dark"] #tbEntregas tr:hover,
+[data-theme="dark"] #tbUsuarios tr:hover,
+[data-theme="dark"] #tbConfiguracoes tr:hover {
+  background: #334155 !important;
+}
+
+[data-theme="dark"] #tbClientes tr:hover td,
+[data-theme="dark"] #tbEntregas tr:hover td,
+[data-theme="dark"] #tbUsuarios tr:hover td,
+[data-theme="dark"] #tbConfiguracoes tr:hover td {
+  background: #334155 !important;
+}
+
+/* Forçar estilos para elementos específicos */
+[data-theme="dark"] .table-container {
+  background: var(--card) !important;
+  border: 1px solid #334155 !important;
+}
+
+[data-theme="dark"] .table-container * {
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .table-container th {
+  background: #334155 !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .table-container td {
+  background: var(--card) !important;
+  color: var(--text) !important;
 }
 .sidebar nav {
   display: flex;

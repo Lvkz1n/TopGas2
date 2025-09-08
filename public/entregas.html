@@ -171,6 +171,11 @@
         setTimeout(() => {
           Utils.updateIcons();
         }, 100);
+        
+        // Tentar novamente após mais tempo
+        setTimeout(() => {
+          Utils.updateIcons();
+        }, 500);
       })();
   </script>
 </body>
