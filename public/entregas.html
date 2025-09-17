@@ -32,20 +32,7 @@
           onclick="Utils.toggleTheme()"
           title="Alternar modo noturno"
         >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path
-              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-            />
-          </svg>
+          <i data-lucide="moon"></i>
         </button>
       </div>
       <nav>
@@ -217,15 +204,21 @@
           document.getElementById("btnDownloadCSV").classList.remove("hidden");
         }
         Utils.initTheme();
-        // Inicializar ícones Lucide
-        setTimeout(() => {
-          Utils.updateIcons();
-        }, 100);
 
-        // Tentar novamente após mais tempo
-        setTimeout(() => {
-          Utils.updateIcons();
-        }, 500);
+        // Inicializar ícones Lucide de forma mais robusta
+        const initIcons = () => {
+          if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+          } else {
+            // Tentar novamente se Lucide ainda não estiver carregado
+            setTimeout(initIcons, 100);
+          }
+        };
+
+        // Inicializar imediatamente e com delays
+        initIcons();
+        setTimeout(initIcons, 100);
+        setTimeout(initIcons, 500);
       })();
     </script>
   </body>

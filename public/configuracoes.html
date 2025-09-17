@@ -2,7 +2,10 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
     <title>TopGas – Configurações</title>
     <link rel="icon" type="image/png" href="/favi.png" />
     <link rel="apple-touch-icon" href="/favi.png" />
@@ -15,15 +18,21 @@
     <button class="hamburger" onclick="toggleSidebar()">
       <i data-lucide="menu"></i>
     </button>
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    <div
+      class="sidebar-overlay"
+      id="sidebarOverlay"
+      onclick="closeSidebar()"
+    ></div>
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">
         <i data-lucide="flame" class="sidebar-brand-icon"></i>
         <span>Top Gas</span>
-        <button class="theme-toggle" onclick="Utils.toggleTheme()" title="Alternar modo noturno">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
-          </svg>
+        <button
+          class="theme-toggle"
+          onclick="Utils.toggleTheme()"
+          title="Alternar modo noturno"
+        >
+          <i data-lucide="moon"></i>
         </button>
       </div>
       <nav>
@@ -108,34 +117,45 @@
     <script>
       // Funções para controlar o menu mobile
       function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebarOverlay');
-        sidebar.classList.toggle('open');
-        overlay.classList.toggle('hidden');
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+        sidebar.classList.toggle("open");
+        overlay.classList.toggle("hidden");
       }
-      
+
       function closeSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebarOverlay');
-        sidebar.classList.remove('open');
-        overlay.classList.add('hidden');
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+        sidebar.classList.remove("open");
+        overlay.classList.add("hidden");
       }
-      
+
       // Fechar sidebar ao clicar em um link
-      document.addEventListener('DOMContentLoaded', function() {
-        const sidebarLinks = document.querySelectorAll('.sidebar a');
-        sidebarLinks.forEach(link => {
-          link.addEventListener('click', closeSidebar);
+      document.addEventListener("DOMContentLoaded", function () {
+        const sidebarLinks = document.querySelectorAll(".sidebar a");
+        sidebarLinks.forEach((link) => {
+          link.addEventListener("click", closeSidebar);
         });
       });
-      
+
       (async () => {
         await Auth.guard({ roles: ["admin"] });
         Utils.initTheme();
-        // Inicializar ícones Lucide
-        setTimeout(() => {
-          Utils.updateIcons();
-        }, 100);
+
+        // Inicializar ícones Lucide de forma mais robusta
+        const initIcons = () => {
+          if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+          } else {
+            // Tentar novamente se Lucide ainda não estiver carregado
+            setTimeout(initIcons, 100);
+          }
+        };
+
+        // Inicializar imediatamente e com delays
+        initIcons();
+        setTimeout(initIcons, 100);
+        setTimeout(initIcons, 500);
       })();
     </script>
   </body>
