@@ -11,19 +11,54 @@ import {
 
 const r = Router();
 
+// Parser de data tolerante a formatos comuns (ISO, "YYYY-MM-DD HH:mm:ss", "DD/MM/YYYY[ HH:mm[:ss]]")
+function parseDateSafe(value) {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  const raw = String(value).trim();
+
+  // Caso ISO já válido
+  const direct = new Date(raw);
+  if (!isNaN(direct.getTime())) return direct;
+
+  // Converter "YYYY-MM-DD HH:mm:ss(.sss)?[±TZ]" para ISO com 'T'
+  if (
+    /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(?:\.\d+)?(?:[+-]\d{2}:?\d{2}|Z)?$/.test(
+      raw
+    )
+  ) {
+    const iso = raw.replace(" ", "T");
+    const d = new Date(iso);
+    if (!isNaN(d.getTime())) return d;
+  }
+
+  // Suportar "DD/MM/YYYY" com hora opcional
+  const m = raw.match(
+    /^(\d{2})\/(\d{2})\/(\d{4})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?$/
+  );
+  if (m) {
+    const [, dd, mm, yyyy, hh = "00", mi = "00", ss = "00"] = m;
+    const iso = `${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}`;
+    const d = new Date(iso);
+    if (!isNaN(d.getTime())) return d;
+  }
+
+  return new Date(NaN);
+}
+
 // Função para calcular tempo total da entrega
 function calcularTempoTotalEntrega(inicio, fim) {
   if (!inicio) return "Calculando...";
 
-  const dataInicio = new Date(inicio);
-  const dataFim = fim ? new Date(fim) : new Date();
+  const dataInicio = parseDateSafe(inicio);
+  const dataFim = fim ? parseDateSafe(fim) : new Date();
 
   if (isNaN(dataInicio.getTime()) || (fim && isNaN(dataFim.getTime()))) {
     return "Calculando...";
   }
 
   const diffMs = dataFim - dataInicio;
-  if (diffMs < null) return "Erro";
+  if (diffMs < 0) return "Erro";
 
   const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
   const diffHoras = Math.floor(
