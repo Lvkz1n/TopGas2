@@ -1,182 +1,232 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-  <title>TopGas – Entregas</title>
-  <link rel="icon" type="image/png" href="/favi.png" />
-  <link rel="apple-touch-icon" href="/favi.png" />
-  <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#ff7a00" />
-  <link rel="stylesheet" href="./css/global.css" />
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <title>TopGas – Entregas</title>
+    <link rel="icon" type="image/png" href="/favi.png" />
+    <link rel="apple-touch-icon" href="/favi.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#ff7a00" />
+    <link rel="stylesheet" href="./css/global.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  </head>
   <body>
     <button class="hamburger" onclick="toggleSidebar()">
       <i data-lucide="menu"></i>
     </button>
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    <div
+      class="sidebar-overlay"
+      id="sidebarOverlay"
+      onclick="closeSidebar()"
+    ></div>
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">
         <i data-lucide="flame" class="sidebar-brand-icon"></i>
         <span>Top Gas</span>
-        <button class="theme-toggle" onclick="Utils.toggleTheme()" title="Alternar modo noturno">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+        <button
+          class="theme-toggle"
+          onclick="Utils.toggleTheme()"
+          title="Alternar modo noturno"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+            />
           </svg>
         </button>
       </div>
-    <nav>
-      <a href="/dashboard.html">
-        <i data-lucide="bar-chart-3" class="sidebar-icon"></i>
-        Dashboard
-      </a>
-      <a href="/clientes.html">
-        <i data-lucide="users" class="sidebar-icon"></i>
-        Clientes
-      </a>
-      <a class="active" href="/entregas.html">
-        <i data-lucide="truck" class="sidebar-icon"></i>
-        Entregas
-      </a>
-      <a id="menuUsuarios" class="hidden" href="/usuarios.html">
-        <i data-lucide="user-cog" class="sidebar-icon"></i>
-        Usuários
-      </a>
-      <a id="menuConfigs" class="hidden" href="/configuracoes.html">
-        <i data-lucide="settings" class="sidebar-icon"></i>
-        Configurações
-      </a>
-    </nav>
-    <div class="sidebar-footer">
-      <button class="btn" onclick="Auth.logout()">
-        <i data-lucide="log-out" class="sidebar-icon"></i>
-        Sair
-      </button>
-      <p class="copyright">© 2025 Top Gas. Todos os direitos reservados.</p>
-    </div>
-  </aside>
-
-  <main>
-    <div class="header">
-      <h1>Entregas</h1>
-      <div class="header-actions">
+      <nav>
+        <a href="/dashboard.html">
+          <i data-lucide="bar-chart-3" class="sidebar-icon"></i>
+          Dashboard
+        </a>
+        <a href="/clientes.html">
+          <i data-lucide="users" class="sidebar-icon"></i>
+          Clientes
+        </a>
+        <a class="active" href="/entregas.html">
+          <i data-lucide="truck" class="sidebar-icon"></i>
+          Entregas
+        </a>
+        <a id="menuUsuarios" class="hidden" href="/usuarios.html">
+          <i data-lucide="user-cog" class="sidebar-icon"></i>
+          Usuários
+        </a>
+        <a id="menuConfigs" class="hidden" href="/configuracoes.html">
+          <i data-lucide="settings" class="sidebar-icon"></i>
+          Configurações
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn" onclick="Auth.logout()">
+          <i data-lucide="log-out" class="sidebar-icon"></i>
+          Sair
+        </button>
+        <p class="copyright">© 2025 Top Gas. Todos os direitos reservados.</p>
       </div>
-    </div>
-    
-    <div class="card">
-      <div class="delivery-filters">
-        <div class="filter-group">
-          <label>Status:</label>
-          <select class="filter-select" id="filterStatus" onchange="applyFilters()">
-            <option value="">Todos</option>
-            <option value="Em Entrega">⏳ Em Entrega</option>
-            <option value="Entregue">✅ Entregue</option>
-            <option value="cancelado">❌ Cancelado</option>
-          </select>
+    </aside>
+
+    <main>
+      <div class="header">
+        <h1>Entregas</h1>
+        <div class="header-actions"></div>
+      </div>
+
+      <div class="card">
+        <div class="delivery-filters">
+          <div class="filter-group">
+            <label>Status:</label>
+            <select
+              class="filter-select"
+              id="filterStatus"
+              onchange="applyFilters()"
+            >
+              <option value="">Todos</option>
+              <option value="Em Entrega">⏳ Em Entrega</option>
+              <option value="Entregue">✅ Entregue</option>
+              <option value="cancelado">❌ Cancelado</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Ordenar por:</label>
+            <select
+              class="filter-select"
+              id="filterSort"
+              onchange="applyFilters()"
+            >
+              <option value="status">
+                Status (Em Entrega → Entregue → Cancelado)
+              </option>
+              <option value="protocolo">Protocolo</option>
+              <option value="nome">Nome do Cliente</option>
+              <option value="bairro">Bairro</option>
+              <option value="entregador">Entregador</option>
+              <option value="data">Data de Início</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Buscar:</label>
+            <input
+              type="text"
+              class="filter-select"
+              id="filterSearch"
+              placeholder="Nome, protocolo, bairro..."
+              onkeyup="applyFilters()"
+            />
+          </div>
+          <div class="filter-group">
+            <button
+              onclick="downloadCSV()"
+              class="btn"
+              style="
+                background-color: var(--orange-500);
+                color: white;
+                border: none;
+                padding: 8px 16px;
+              "
+            >
+              📊 Download CSV
+            </button>
+          </div>
         </div>
-        <div class="filter-group">
-          <label>Ordenar por:</label>
-          <select class="filter-select" id="filterSort" onchange="applyFilters()">
-            <option value="status">Status (Em Entrega → Entregue → Cancelado)</option>
-            <option value="protocolo">Protocolo</option>
-            <option value="nome">Nome do Cliente</option>
-            <option value="bairro">Bairro</option>
-            <option value="entregador">Entregador</option>
-            <option value="data">Data de Início</option>
-          </select>
+
+        <!-- Visualização Desktop -->
+        <div class="desktop-delivery-view">
+          <table class="table" id="tbEntregas">
+            <thead>
+              <tr>
+                <th>Protocolo</th>
+                <th>Nome do Cliente</th>
+                <th>Número Cliente</th>
+                <th>Pedido</th>
+                <th>Entregador</th>
+                <th>Endereço</th>
+                <th>Bairro</th>
+                <th>Unidade</th>
+                <th>Status</th>
+                <th>Horários</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
-        <div class="filter-group">
-          <label>Buscar:</label>
-          <input type="text" class="filter-select" id="filterSearch" placeholder="Nome, protocolo, bairro..." onkeyup="applyFilters()">
+
+        <!-- Visualização Mobile -->
+        <div class="mobile-delivery-view" id="mobileEntregas">
+          <!-- Será preenchido via JavaScript -->
         </div>
-        <div class="filter-group">
-          <button onclick="downloadCSV()" class="btn" style="background-color: var(--orange-500); color: white; border: none; padding: 8px 16px;">
-            📊 Download CSV
+
+        <div id="paginacaoEntregas" class="paginacao">
+          <button class="btn" id="btnPrevEntregas" onclick="prevEntregas()">
+            Anterior
+          </button>
+          <span id="pagInfoEntregas"></span>
+          <button class="btn" id="btnNextEntregas" onclick="nextEntregas()">
+            Próxima
           </button>
         </div>
       </div>
-      
-      <!-- Visualização Desktop -->
-      <div class="desktop-delivery-view">
-        <table class="table" id="tbEntregas">
-          <thead>
-            <tr>
-              <th>Protocolo</th>
-              <th>Nome do Cliente</th>
-              <th>Número Cliente</th>
-              <th>Pedido</th>
-              <th>Entregador</th>
-              <th>Endereço</th>
-              <th>Bairro</th>
-              <th>Unidade</th>
-              <th>Status</th>
-              <th>Horários</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      
-      <!-- Visualização Mobile -->
-      <div class="mobile-delivery-view" id="mobileEntregas">
-        <!-- Será preenchido via JavaScript -->
-      </div>
-      
-      <div id="paginacaoEntregas" class="paginacao">
-        <button class="btn" id="btnPrevEntregas" onclick="prevEntregas()">Anterior</button>
-        <span id="pagInfoEntregas"></span>
-        <button class="btn" id="btnNextEntregas" onclick="nextEntregas()">Próxima</button>
-      </div>
-    </div>
-  </main>
+    </main>
 
-  <script src="./js/api.js"></script>
-  <script src="./js/auth.js"></script>
-  <script src="./js/utils.js"></script>
-  <script src="./js/entregas.js"></script>
-  <script>
-    // Funções para controlar o menu mobile
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebarOverlay');
-      sidebar.classList.toggle('open');
-      overlay.classList.toggle('hidden');
-    }
-    
-    function closeSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebarOverlay');
-      sidebar.classList.remove('open');
-      overlay.classList.add('hidden');
-    }
-    
-    // Fechar sidebar ao clicar em um link
-    document.addEventListener('DOMContentLoaded', function() {
-      const sidebarLinks = document.querySelectorAll('.sidebar a');
-      sidebarLinks.forEach(link => {
-        link.addEventListener('click', closeSidebar);
+    <script src="./js/api.js"></script>
+    <script src="./js/auth.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./js/entregas.js"></script>
+    <script>
+      // Funções para controlar o menu mobile
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+        sidebar.classList.toggle("open");
+        overlay.classList.toggle("hidden");
+      }
+
+      function closeSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+        sidebar.classList.remove("open");
+        overlay.classList.add("hidden");
+      }
+
+      // Fechar sidebar ao clicar em um link
+      document.addEventListener("DOMContentLoaded", function () {
+        const sidebarLinks = document.querySelectorAll(".sidebar a");
+        sidebarLinks.forEach((link) => {
+          link.addEventListener("click", closeSidebar);
+        });
       });
-    });
-    
+
       (async () => {
         const me = await Auth.guard();
-        if (me?.role === 'admin') {
-          document.getElementById('menuUsuarios').classList.remove('hidden');
-          document.getElementById('menuConfigs').classList.remove('hidden');
-          document.getElementById('btnDownloadCSV').classList.remove('hidden');
+        if (me?.role === "admin") {
+          document.getElementById("menuUsuarios").classList.remove("hidden");
+          document.getElementById("menuConfigs").classList.remove("hidden");
+          document.getElementById("btnDownloadCSV").classList.remove("hidden");
         }
         Utils.initTheme();
         // Inicializar ícones Lucide
         setTimeout(() => {
           Utils.updateIcons();
         }, 100);
-        
+
         // Tentar novamente após mais tempo
         setTimeout(() => {
           Utils.updateIcons();
         }, 500);
       })();
-  </script>
-</body>
+    </script>
+  </body>
 </html>
