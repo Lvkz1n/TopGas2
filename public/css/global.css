@@ -123,11 +123,15 @@ body {
 
 /* Estilos específicos para cards do dashboard no tema dark */
 [data-theme="dark"] .card h3 {
-  color: white;
+  color: white !important;
 }
 
 [data-theme="dark"] .card div {
-  color: white;
+  color: white !important;
+}
+
+[data-theme="dark"] .card * {
+  color: white !important;
 }
 
 [data-theme="dark"] .table-container table {
