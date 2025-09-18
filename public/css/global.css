@@ -549,6 +549,7 @@ copyright,
   margin-top: 0.5rem;
   cursor: pointer;
   transition: all 0.3s ease;
+  min-width: 200px;
 }
 
 .delivery-timestamps:hover {
