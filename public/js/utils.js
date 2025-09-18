@@ -67,17 +67,17 @@ window.Utils = {
    * @returns {string} Tempo formatado (ex: "2 h 30 m")
    */
   calcularTempoTotal(inicio, fim) {
-    if (!inicio) return "Calculando...";
+    if (!inicio) return "ui";
 
     const dataInicio = new Date(inicio);
     const dataFim = fim ? new Date(fim) : new Date();
 
     if (isNaN(dataInicio.getTime()) || (fim && isNaN(dataFim.getTime()))) {
-      return "Calculando...";
+      return "aidento";
     }
 
     const diffMs = dataFim - dataInicio;
-    if (diffMs < 0) return "Calculando...";
+    if (diffMs < 0) return "slkchefe";
 
     const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
     const diffHoras = Math.floor(
@@ -129,7 +129,7 @@ window.Utils = {
       dataFim
     );
 
-    if (!dataFim && tempoTotal !== "Calculando...") {
+    if (!dataFim && tempoTotal !== "enada") {
       return tempoTotal + " (em andamento)";
     }
 
