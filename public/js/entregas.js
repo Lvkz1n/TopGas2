@@ -102,7 +102,7 @@ function renderEntregasTable(entregas) {
     const tbody = document.querySelector("#tbEntregas tbody");
     if (tbody) {
       tbody.innerHTML =
-        '<tr><td colspan="10" style="text-align: center; padding: 20px;">Nenhuma entrega encontrada</td></tr>';
+        '<tr><td colspan="9" style="text-align: center; padding: 20px;">Nenhuma entrega encontrada</td></tr>';
     }
 
     const mobileContainer = document.getElementById("mobileEntregas");
@@ -132,12 +132,9 @@ function renderDesktopTable(entregas) {
         <td>${entrega.mercadoria_pedido || "-"}</td>
         <td>${Utils.formatarEntregador(entrega.entregador)}</td>
         <td>${entrega.endereco || "-"}</td>
-        <td>${entrega.bairro || "-"}</td>
-        <td>${entrega.unidade_topgas || "-"}</td>
-        <td>${Utils.getStatusIcon(entrega.status_pedido)} ${
-        entrega.status_pedido || "pendente"
-      }</td>
-        <td>${renderTimestamps(entrega)}</td>
+         <td>${entrega.bairro || "-"}</td>
+         <td>${entrega.unidade_topgas || "-"}</td>
+         <td>${renderTimestamps(entrega)}</td>
       </tr>
   `
     )

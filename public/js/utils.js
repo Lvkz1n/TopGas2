@@ -76,24 +76,24 @@ window.Utils = {
 
     // Estados finais
     if (status === "Entregue" || status === "entregue" || hasConfirmacao) {
-      return "Entregue";
+      return "✅ Entregue";
     }
 
     if (status === "cancelado" || status === "Cancelado" || hasCancelamento) {
-      return "Cancelada";
+      return "❌ Cancelada";
     }
 
     // Estados em andamento
     if (hasEnvio) {
-      return "Em rota";
+      return "🚚 Em rota";
     }
 
     if (hasInicio) {
-      return "Aguardando retirada";
+      return "⏳ Aguardando retirada";
     }
 
     // Estado inicial
-    return "Pendente";
+    return "⏸️ Pendente";
   },
 
   /**
