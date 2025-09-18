@@ -54,7 +54,7 @@ function calcularTempoTotalEntrega(inicio, fim) {
   const dataFim = fim ? parseDateSafe(fim) : new Date();
 
   if (isNaN(dataInicio.getTime()) || (fim && isNaN(dataFim.getTime()))) {
-    return "Calculando...";
+    return "meudeusmeajuda";
   }
 
   const diffMs = dataFim - dataInicio;
