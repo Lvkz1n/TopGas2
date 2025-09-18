@@ -7,7 +7,7 @@ let todasEntregas = [];
 (async function () {
   await Auth.guard();
   await renderEntregas();
-  
+
   // Atualizar timestamps a cada minuto
   setInterval(atualizarTimestamps, 60000);
 })();
@@ -20,12 +20,11 @@ async function renderEntregas() {
     const result = await API.api(`/entregas?page=1&limit=1000`);
     todasEntregas = result.entregas || [];
     dadosEntregas = result;
-    
+
     applyFilters();
-    
+
     // Atualizar timestamps após renderização
     setTimeout(atualizarTimestamps, 100);
-    
   } catch (error) {
     console.error("Erro ao carregar entregas:", error);
     alert("Erro ao carregar entregas: " + error.message);
@@ -37,30 +36,32 @@ function applyFilters() {
   if (!todasEntregas || todasEntregas.length === 0) {
     return;
   }
-  
-  const statusFilter = document.getElementById('filterStatus')?.value || '';
-  const sortFilter = document.getElementById('filterSort')?.value || 'status';
-  const searchFilter = document.getElementById('filterSearch')?.value.toLowerCase() || '';
-  
-  let filteredEntregas = todasEntregas.filter(entrega => 
-    ['Em Entrega', 'Entregue', 'cancelado'].includes(entrega.status_pedido)
+
+  const statusFilter = document.getElementById("filterStatus")?.value || "";
+  const sortFilter = document.getElementById("filterSort")?.value || "status";
+  const searchFilter =
+    document.getElementById("filterSearch")?.value.toLowerCase() || "";
+
+  let filteredEntregas = todasEntregas.filter((entrega) =>
+    ["Em Entrega", "Entregue", "cancelado"].includes(entrega.status_pedido)
   );
-  
+
   if (statusFilter) {
-    filteredEntregas = filteredEntregas.filter(entrega => 
-      entrega.status_pedido === statusFilter
+    filteredEntregas = filteredEntregas.filter(
+      (entrega) => entrega.status_pedido === statusFilter
     );
   }
-  
+
   if (searchFilter) {
-    filteredEntregas = filteredEntregas.filter(entrega => 
-      (entrega.nome_cliente || '').toLowerCase().includes(searchFilter) ||
-      (entrega.protocolo || '').toLowerCase().includes(searchFilter) ||
-      (entrega.bairro || '').toLowerCase().includes(searchFilter) ||
-      (entrega.entregador || '').toLowerCase().includes(searchFilter)
+    filteredEntregas = filteredEntregas.filter(
+      (entrega) =>
+        (entrega.nome_cliente || "").toLowerCase().includes(searchFilter) ||
+        (entrega.protocolo || "").toLowerCase().includes(searchFilter) ||
+        (entrega.bairro || "").toLowerCase().includes(searchFilter) ||
+        (entrega.entregador || "").toLowerCase().includes(searchFilter)
     );
   }
-  
+
   filteredEntregas = sortEntregas(filteredEntregas, sortFilter);
   renderEntregasTable(filteredEntregas);
 }
@@ -69,19 +70,25 @@ function applyFilters() {
 function sortEntregas(entregas, sortBy) {
   return entregas.sort((a, b) => {
     switch (sortBy) {
-      case 'status':
-        const statusOrder = { 'Em Entrega': 1, 'Entregue': 2, 'cancelado': 3 };
-        return (statusOrder[a.status_pedido] || 4) - (statusOrder[b.status_pedido] || 4);
-      case 'protocolo':
-        return (a.protocolo || '').localeCompare(b.protocolo || '');
-      case 'nome':
-        return (a.nome_cliente || '').localeCompare(b.nome_cliente || '');
-      case 'bairro':
-        return (a.bairro || '').localeCompare(b.bairro || '');
-      case 'entregador':
-        return (a.entregador || '').localeCompare(b.entregador || '');
-      case 'data':
-        return new Date(b.data_e_hora_inicio_pedido || 0) - new Date(a.data_e_hora_inicio_pedido || 0);
+      case "status":
+        const statusOrder = { "Em Entrega": 1, Entregue: 2, cancelado: 3 };
+        return (
+          (statusOrder[a.status_pedido] || 4) -
+          (statusOrder[b.status_pedido] || 4)
+        );
+      case "protocolo":
+        return (a.protocolo || "").localeCompare(b.protocolo || "");
+      case "nome":
+        return (a.nome_cliente || "").localeCompare(b.nome_cliente || "");
+      case "bairro":
+        return (a.bairro || "").localeCompare(b.bairro || "");
+      case "entregador":
+        return (a.entregador || "").localeCompare(b.entregador || "");
+      case "data":
+        return (
+          new Date(b.data_e_hora_inicio_pedido || 0) -
+          new Date(a.data_e_hora_inicio_pedido || 0)
+        );
       default:
         return 0;
     }
@@ -94,16 +101,18 @@ function renderEntregasTable(entregas) {
     // Renderizar mensagem de "nenhuma entrega encontrada"
     const tbody = document.querySelector("#tbEntregas tbody");
     if (tbody) {
-      tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 20px;">Nenhuma entrega encontrada</td></tr>';
+      tbody.innerHTML =
+        '<tr><td colspan="10" style="text-align: center; padding: 20px;">Nenhuma entrega encontrada</td></tr>';
     }
-    
+
     const mobileContainer = document.getElementById("mobileEntregas");
     if (mobileContainer) {
-      mobileContainer.innerHTML = '<div style="text-align: center; padding: 20px;">Nenhuma entrega encontrada</div>';
+      mobileContainer.innerHTML =
+        '<div style="text-align: center; padding: 20px;">Nenhuma entrega encontrada</div>';
     }
     return;
   }
-  
+
   renderDesktopTable(entregas);
   renderMobileView(entregas);
 }
@@ -112,8 +121,10 @@ function renderEntregasTable(entregas) {
 function renderDesktopTable(entregas) {
   const tbody = document.querySelector("#tbEntregas tbody");
   if (!tbody) return;
-  
-  tbody.innerHTML = entregas.map(entrega => `
+
+  tbody.innerHTML = entregas
+    .map(
+      (entrega) => `
       <tr>
         <td>${entrega.protocolo || "-"}</td>
         <td>${entrega.nome_cliente || "-"}</td>
@@ -123,22 +134,30 @@ function renderDesktopTable(entregas) {
         <td>${entrega.endereco || "-"}</td>
         <td>${entrega.bairro || "-"}</td>
         <td>${entrega.unidade_topgas || "-"}</td>
-        <td>${Utils.getStatusIcon(entrega.status_pedido)} ${entrega.status_pedido || "pendente"}</td>
+        <td>${Utils.getStatusIcon(entrega.status_pedido)} ${
+        entrega.status_pedido || "pendente"
+      }</td>
         <td>${renderTimestamps(entrega)}</td>
       </tr>
-  `).join("");
+  `
+    )
+    .join("");
 }
 
 // Renderizar visualização mobile
 function renderMobileView(entregas) {
   const mobileContainer = document.getElementById("mobileEntregas");
   if (!mobileContainer) return;
-  
-  mobileContainer.innerHTML = entregas.map((entrega, index) => `
+
+  mobileContainer.innerHTML = entregas
+    .map(
+      (entrega, index) => `
       <div class="delivery-item" id="delivery-${index}">
         <div class="delivery-header" onclick="toggleDeliveryDetails(${index})">
           <div class="delivery-name">${entrega.nome_cliente || "-"}</div>
-          <div class="delivery-status">${Utils.getStatusIcon(entrega.status_pedido)} ${entrega.status_pedido || "pendente"}</div>
+          <div class="delivery-status">${Utils.getStatusIcon(
+            entrega.status_pedido
+          )} ${entrega.status_pedido || "pendente"}</div>
         </div>
         <div class="delivery-details" id="details-${index}">
           <div class="detail-row">
@@ -151,11 +170,15 @@ function renderMobileView(entregas) {
           </div>
           <div class="detail-row">
             <span class="detail-label">Pedido:</span>
-            <span class="detail-value">${entrega.mercadoria_pedido || "-"}</span>
+            <span class="detail-value">${
+              entrega.mercadoria_pedido || "-"
+            }</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Entregador:</span>
-            <span class="detail-value">${Utils.formatarEntregador(entrega.entregador)}</span>
+            <span class="detail-value">${Utils.formatarEntregador(
+              entrega.entregador
+            )}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Endereço:</span>
@@ -174,24 +197,27 @@ function renderMobileView(entregas) {
           </div>
         </div>
       </div>
-  `).join("");
+  `
+    )
+    .join("");
 }
 
 // Renderizar timestamps
 function renderTimestamps(entrega) {
-  if (!entrega) return '<div class="delivery-timestamps">Erro ao carregar dados</div>';
-  
-  const tempoTotal = Utils.calcularTempoTotalEntrega(entrega);
+  if (!entrega)
+    return '<div class="delivery-timestamps">Erro ao carregar dados</div>';
+
+  const estadoAtual = Utils.getEstadoAtualEntrega(entrega);
   const pedidoFeito = Utils.formatarData(entrega.data_e_hora_inicio_pedido);
   const enviado = Utils.formatarData(entrega.data_e_hora_envio_pedido);
   const finalizado = Utils.getFinalizadoData(entrega);
-  
+
   return `
     <div class="delivery-timestamps" onclick="toggleTimestamps(${entrega.id})">
       <div class="timestamp-accordion">
         <div class="timestamp-header">
-          <span class="timestamp-label">Tempo total:</span>
-          <span class="timestamp-value">${tempoTotal}</span>
+          <span class="timestamp-label">Status:</span>
+          <span class="timestamp-value">${estadoAtual}</span>
           <span class="timestamp-arrow">▼</span>
         </div>
         <div class="timestamp-details" id="timestamps-${entrega.id}" style="display: none;">
@@ -218,7 +244,7 @@ function renderTimestamps(entrega) {
 // Atualizar timestamps
 function atualizarTimestamps() {
   if (!todasEntregas || todasEntregas.length === 0) return;
-  
+
   // Atualizar timestamps na tabela desktop
   const rows = document.querySelectorAll("#tbEntregas tbody tr");
   rows.forEach((row, index) => {
@@ -227,7 +253,7 @@ function atualizarTimestamps() {
       row.cells[9].innerHTML = renderTimestamps(entrega);
     }
   });
-  
+
   // Atualizar timestamps na visualização mobile
   const mobileItems = document.querySelectorAll(".delivery-item");
   mobileItems.forEach((item, index) => {
@@ -239,49 +265,53 @@ function atualizarTimestamps() {
       }
     }
   });
-  
 }
 
 // Funções de interação
 function toggleDeliveryDetails(index) {
   const details = document.getElementById(`details-${index}`);
   const item = document.getElementById(`delivery-${index}`);
-  
+
   if (details && item) {
-    details.classList.toggle('expanded');
-    item.classList.toggle('expanded');
+    details.classList.toggle("expanded");
+    item.classList.toggle("expanded");
   }
 }
 
 function toggleTimestamps(entregaId) {
   const details = document.getElementById(`timestamps-${entregaId}`);
-  const accordion = details?.closest('.timestamp-accordion');
-  const arrow = accordion?.querySelector('.timestamp-arrow');
-  
+  const accordion = details?.closest(".timestamp-accordion");
+  const arrow = accordion?.querySelector(".timestamp-arrow");
+
   if (details && arrow) {
-    const isHidden = details.style.display === 'none' || details.style.display === '';
-    details.style.display = isHidden ? 'block' : 'none';
-    arrow.textContent = isHidden ? '▲' : '▼';
-    accordion.classList.toggle('expanded', isHidden);
+    const isHidden =
+      details.style.display === "none" || details.style.display === "";
+    details.style.display = isHidden ? "block" : "none";
+    arrow.textContent = isHidden ? "▲" : "▼";
+    accordion.classList.toggle("expanded", isHidden);
   }
 }
 
 // Funções de paginação
 function renderPaginacaoEntregas() {
   if (!dadosEntregas) return;
-  
+
   const { paginacao } = dadosEntregas;
   const info = document.getElementById("pagInfoEntregas");
   const btnPrev = document.getElementById("btnPrevEntregas");
   const btnNext = document.getElementById("btnNextEntregas");
-  
-  if (info) info.textContent = `${paginacao.pagina} / ${paginacao.totalPaginas}`;
+
+  if (info)
+    info.textContent = `${paginacao.pagina} / ${paginacao.totalPaginas}`;
   if (btnPrev) btnPrev.disabled = paginacao.pagina <= 1;
   if (btnNext) btnNext.disabled = paginacao.pagina >= paginacao.totalPaginas;
 }
 
 function nextEntregas() {
-  if (dadosEntregas && paginaAtualEntregas < dadosEntregas.paginacao.totalPaginas) {
+  if (
+    dadosEntregas &&
+    paginaAtualEntregas < dadosEntregas.paginacao.totalPaginas
+  ) {
     paginaAtualEntregas++;
     renderEntregas();
   }
@@ -297,7 +327,7 @@ function prevEntregas() {
 // Funções de ação
 async function confirmarEntrega(id) {
   if (!confirm("Tem certeza que deseja confirmar esta entrega?")) return;
-  
+
   try {
     await API.api(`/entregas/${id}/confirmar`, { method: "POST" });
     alert("✅ Entrega confirmada com sucesso!");
@@ -311,7 +341,7 @@ async function confirmarEntrega(id) {
 
 async function cancelarEntrega(id) {
   if (!confirm("Tem certeza que deseja cancelar esta entrega?")) return;
-  
+
   try {
     await API.api(`/entregas/${id}/cancelar`, { method: "POST" });
     alert("❌ Entrega cancelada com sucesso!");
@@ -330,13 +360,13 @@ async function downloadCSV() {
     const originalText = btn.innerHTML;
     btn.innerHTML = "⏳ Gerando...";
     btn.disabled = true;
-    
-    const response = await fetch('/api/entregas/csv', {
-      method: 'GET',
-      credentials: 'include',
-      headers: { 'Accept': 'text/csv,application/csv' }
+
+    const response = await fetch("/api/entregas/csv", {
+      method: "GET",
+      credentials: "include",
+      headers: { Accept: "text/csv,application/csv" },
     });
-    
+
     if (!response.ok) {
       let errorMessage = `Erro ${response.status}`;
       try {
@@ -348,17 +378,18 @@ async function downloadCSV() {
       }
       throw new Error(errorMessage);
     }
-    
+
     const blob = await response.blob();
     if (blob.size === 0) {
       throw new Error("Arquivo CSV está vazio.");
     }
-    
-    const filename = `relatorio_entregas_${new Date().toISOString().split('T')[0]}.csv`;
+
+    const filename = `relatorio_entregas_${
+      new Date().toISOString().split("T")[0]
+    }.csv`;
     Utils.downloadFile(blob, filename);
-    
+
     alert("✅ CSV gerado com sucesso!");
-    
   } catch (error) {
     console.error("Erro ao baixar CSV:", error);
     alert("❌ Erro ao baixar CSV: " + error.message);

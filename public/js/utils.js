@@ -61,6 +61,42 @@ window.Utils = {
   },
 
   /**
+   * Determinar o estado atual da entrega baseado no status e datas
+   * @param {Object} entrega - Objeto da entrega
+   * @returns {string} Estado atual da entrega
+   */
+  getEstadoAtualEntrega(entrega) {
+    if (!entrega) return "Status desconhecido";
+
+    const status = entrega.status_pedido;
+    const hasInicio = entrega.data_e_hora_inicio_pedido;
+    const hasEnvio = entrega.data_e_hora_envio_pedido;
+    const hasConfirmacao = entrega.data_e_hora_confirmacao_pedido;
+    const hasCancelamento = entrega.data_e_hora_cancelamento_pedido;
+
+    // Estados finais
+    if (status === "Entregue" || status === "entregue" || hasConfirmacao) {
+      return "Entregue";
+    }
+
+    if (status === "cancelado" || status === "Cancelado" || hasCancelamento) {
+      return "Cancelada";
+    }
+
+    // Estados em andamento
+    if (hasEnvio) {
+      return "Em rota";
+    }
+
+    if (hasInicio) {
+      return "Aguardando retirada";
+    }
+
+    // Estado inicial
+    return "Pendente";
+  },
+
+  /**
    * Calcular tempo total entre duas datas
    * @param {string|Date} inicio - Data/hora de início
    * @param {string|Date} fim - Data/hora de fim (opcional, usa agora se não fornecido)
@@ -93,47 +129,6 @@ window.Utils = {
     if (diffSegundos > 0) partes.push(`${diffSegundos} s`);
 
     return partes.length === 0 ? "0 s" : partes.join(" ");
-  },
-
-  /**
-   * Calcular tempo total da entrega considerando status
-   * @param {Object} entrega - Objeto da entrega
-   * @returns {string} Tempo total formatado
-   */
-  calcularTempoTotalEntrega(entrega) {
-    if (!entrega || !entrega.data_e_hora_inicio_pedido) {
-      return "seimaisnao";
-    }
-
-    const status = entrega.status_pedido;
-    const isEntregue = status === "Entregue" || status === "entregue";
-    const isCancelado = status === "cancelado" || status === "Cancelado";
-
-    let dataFim = null;
-
-    // Determinar data de fim baseada no status
-    if (isEntregue && entrega.data_e_hora_confirmacao_pedido) {
-      dataFim = entrega.data_e_hora_confirmacao_pedido;
-    } else if (isCancelado && entrega.data_e_hora_cancelamento_pedido) {
-      dataFim = entrega.data_e_hora_cancelamento_pedido;
-    } else if (entrega.data_e_hora_confirmacao_pedido) {
-      // Se tem data de confirmação, usar ela independente do status
-      dataFim = entrega.data_e_hora_confirmacao_pedido;
-    } else if (entrega.data_e_hora_cancelamento_pedido) {
-      // Se tem data de cancelamento, usar ela
-      dataFim = entrega.data_e_hora_cancelamento_pedido;
-    }
-
-    const tempoTotal = this.calcularTempoTotal(
-      entrega.data_e_hora_inicio_pedido,
-      dataFim
-    );
-
-    if (!dataFim && tempoTotal !== "enada") {
-      return tempoTotal + " (em andamento)";
-    }
-
-    return tempoTotal;
   },
 
   /**
