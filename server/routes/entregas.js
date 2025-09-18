@@ -48,7 +48,7 @@ function parseDateSafe(value) {
 
 // Função para calcular tempo total da entrega
 function calcularTempoTotalEntrega(inicio, fim) {
-  if (!inicio) return "Calculando...";
+  if (!inicio) return "Erro...";
 
   const dataInicio = parseDateSafe(inicio);
   const dataFim = fim ? parseDateSafe(fim) : new Date();
