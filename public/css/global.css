@@ -121,6 +121,15 @@ body {
   color: var(--text);
 }
 
+/* Estilos específicos para cards do dashboard no tema dark */
+[data-theme="dark"] .card h3 {
+  color: white;
+}
+
+[data-theme="dark"] .card div {
+  color: white;
+}
+
 [data-theme="dark"] .table-container table {
   background: var(--card);
   color: var(--text);

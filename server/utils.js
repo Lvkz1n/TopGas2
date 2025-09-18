@@ -51,17 +51,17 @@ export function setCSVHeaders(res, filename) {
  * @returns {string} Tempo formatado (ex: "2 h 30 m")
  */
 export function calcularTempoTotal(inicio, fim = null) {
-  if (!inicio) return "ui";
+  if (!inicio) return "";
 
   const dataInicio = new Date(inicio);
   const dataFim = fim ? new Date(fim) : new Date();
 
   if (isNaN(dataInicio.getTime()) || (fim && isNaN(dataFim.getTime()))) {
-    return "aid";
+    return "";
   }
 
   const diffMs = dataFim - dataInicio;
-  if (diffMs < 0) return "diff";
+  if (diffMs < 0) return "";
 
   const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
   const diffHoras = Math.floor(
