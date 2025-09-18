@@ -7,23 +7,27 @@ window.Utils = {
    * @returns {string} Data formatada
    */
   formatarData(dataString) {
-    if (!dataString || dataString === null || dataString === '') {
+    if (!dataString || dataString === null || dataString === "") {
       return "Aguardando...";
     }
-    
-    if (typeof dataString === 'string' && dataString.includes('/')) {
+
+    if (typeof dataString === "string" && dataString.includes("/")) {
       return dataString;
     }
-    
+
     const data = new Date(dataString);
     if (isNaN(data.getTime())) {
       return "Aguardando...";
     }
-    
-    return data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
+
+    return (
+      data.toLocaleDateString("pt-BR") +
+      " " +
+      data.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    );
   },
 
   /**
@@ -33,7 +37,9 @@ window.Utils = {
    */
   formatarEntregador(entregador) {
     if (!entregador) return "-";
-    return entregador.includes(':') ? entregador.split(':').slice(1).join(':').trim() : entregador;
+    return entregador.includes(":")
+      ? entregador.split(":").slice(1).join(":").trim()
+      : entregador;
   },
 
   /**
@@ -43,15 +49,15 @@ window.Utils = {
    */
   getStatusIcon(status) {
     const icons = {
-      'entregue': '✅',
-      'Entregue': '✅',
-      'em_andamento': '⏳',
-      'Em Entrega': '⏳',
-      'cancelado': '❌',
-      'Cancelado': '❌',
-      'pendente': '⏳'
+      entregue: "✅",
+      Entregue: "✅",
+      em_andamento: "⏳",
+      "Em Entrega": "⏳",
+      cancelado: "❌",
+      Cancelado: "❌",
+      pendente: "⏳",
     };
-    return icons[status] || '❓';
+    return icons[status] || "❓";
   },
 
   /**
@@ -62,28 +68,30 @@ window.Utils = {
    */
   calcularTempoTotal(inicio, fim) {
     if (!inicio) return "Calculando...";
-    
+
     const dataInicio = new Date(inicio);
     const dataFim = fim ? new Date(fim) : new Date();
-    
+
     if (isNaN(dataInicio.getTime()) || (fim && isNaN(dataFim.getTime()))) {
       return "Calculando...";
     }
-    
+
     const diffMs = dataFim - dataInicio;
     if (diffMs < 0) return "Calculando...";
-    
+
     const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const diffHoras = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const diffHoras = Math.floor(
+      (diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
     const diffMinutos = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
     const diffSegundos = Math.floor((diffMs % (1000 * 60)) / 1000);
-    
+
     const partes = [];
     if (diffDias > 0) partes.push(`${diffDias} d`);
     if (diffHoras > 0) partes.push(`${diffHoras} h`);
     if (diffMinutos > 0) partes.push(`${diffMinutos} m`);
     if (diffSegundos > 0) partes.push(`${diffSegundos} s`);
-    
+
     return partes.length === 0 ? "0 s" : partes.join(" ");
   },
 
@@ -94,15 +102,15 @@ window.Utils = {
    */
   calcularTempoTotalEntrega(entrega) {
     if (!entrega || !entrega.data_e_hora_inicio_pedido) {
-      return "Calculando...";
+      return "seimaisnao";
     }
-    
+
     const status = entrega.status_pedido;
-    const isEntregue = status === 'Entregue' || status === 'entregue';
-    const isCancelado = status === 'cancelado' || status === 'Cancelado';
-    
+    const isEntregue = status === "Entregue" || status === "entregue";
+    const isCancelado = status === "cancelado" || status === "Cancelado";
+
     let dataFim = null;
-    
+
     // Determinar data de fim baseada no status
     if (isEntregue && entrega.data_e_hora_confirmacao_pedido) {
       dataFim = entrega.data_e_hora_confirmacao_pedido;
@@ -115,13 +123,16 @@ window.Utils = {
       // Se tem data de cancelamento, usar ela
       dataFim = entrega.data_e_hora_cancelamento_pedido;
     }
-    
-    const tempoTotal = this.calcularTempoTotal(entrega.data_e_hora_inicio_pedido, dataFim);
-    
+
+    const tempoTotal = this.calcularTempoTotal(
+      entrega.data_e_hora_inicio_pedido,
+      dataFim
+    );
+
     if (!dataFim && tempoTotal !== "Calculando...") {
       return tempoTotal + " (em andamento)";
     }
-    
+
     return tempoTotal;
   },
 
@@ -148,7 +159,7 @@ window.Utils = {
    * @returns {HTMLElement} Elemento do modal
    */
   criarModal(title, content, onClose = null) {
-    const modal = document.createElement('div');
+    const modal = document.createElement("div");
     modal.style.cssText = `
       position: fixed;
       top: 0;
@@ -161,7 +172,7 @@ window.Utils = {
       justify-content: center;
       z-index: 1000;
     `;
-    
+
     modal.innerHTML = `
       <div style="
         background: white;
@@ -175,18 +186,18 @@ window.Utils = {
         ${content}
       </div>
     `;
-    
+
     const fecharModal = () => {
       if (onClose) onClose();
       document.body.removeChild(modal);
     };
-    
-    modal.addEventListener('click', (e) => {
+
+    modal.addEventListener("click", (e) => {
       if (e.target === modal) {
         fecharModal();
       }
     });
-    
+
     document.body.appendChild(modal);
     return { modal, fecharModal };
   },
@@ -198,13 +209,13 @@ window.Utils = {
    */
   downloadFile(blob, filename) {
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = filename;
-    a.style.display = 'none';
+    a.style.display = "none";
     document.body.appendChild(a);
     a.click();
-    
+
     setTimeout(() => {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
@@ -215,7 +226,7 @@ window.Utils = {
    * Atualizar ícones Lucide
    */
   updateIcons() {
-    if (typeof lucide !== 'undefined') {
+    if (typeof lucide !== "undefined") {
       lucide.createIcons();
     }
   },
@@ -224,18 +235,18 @@ window.Utils = {
    * Alternar modo noturno
    */
   toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
+    const currentTheme = document.documentElement.getAttribute("data-theme");
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+
     // Aplicar tema no documento atual
-    document.documentElement.setAttribute('data-theme', newTheme);
-    
+    document.documentElement.setAttribute("data-theme", newTheme);
+
     // Salvar tema no localStorage para persistência global
-    localStorage.setItem('theme', newTheme);
-    
+    localStorage.setItem("theme", newTheme);
+
     // Atualizar ícone do botão
     this.updateThemeIcon(newTheme);
-    
+
     // Notificar outras abas sobre a mudança de tema
     this.broadcastThemeChange(newTheme);
   },
@@ -246,18 +257,20 @@ window.Utils = {
    */
   broadcastThemeChange(theme) {
     // Usar BroadcastChannel se disponível
-    if (typeof BroadcastChannel !== 'undefined') {
-      const channel = new BroadcastChannel('theme-change');
+    if (typeof BroadcastChannel !== "undefined") {
+      const channel = new BroadcastChannel("theme-change");
       channel.postMessage({ theme: theme });
       channel.close();
     }
-    
+
     // Fallback: usar localStorage event
-    window.dispatchEvent(new StorageEvent('storage', {
-      key: 'theme',
-      newValue: theme,
-      url: window.location.href
-    }));
+    window.dispatchEvent(
+      new StorageEvent("storage", {
+        key: "theme",
+        newValue: theme,
+        url: window.location.href,
+      })
+    );
   },
 
   /**
@@ -265,14 +278,16 @@ window.Utils = {
    * @param {string} theme - Tema atual
    */
   updateThemeIcon(theme) {
-    const themeButton = document.querySelector('.theme-toggle');
+    const themeButton = document.querySelector(".theme-toggle");
     if (themeButton) {
-      const icon = themeButton.querySelector('svg');
+      const icon = themeButton.querySelector("svg");
       if (icon) {
-        if (theme === 'dark') {
-          icon.innerHTML = '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>';
+        if (theme === "dark") {
+          icon.innerHTML =
+            '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>';
         } else {
-          icon.innerHTML = '<path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>';
+          icon.innerHTML =
+            '<path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>';
         }
       }
     }
@@ -282,10 +297,10 @@ window.Utils = {
    * Inicializar tema
    */
   initTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
+    const savedTheme = localStorage.getItem("theme") || "light";
+    document.documentElement.setAttribute("data-theme", savedTheme);
     this.updateThemeIcon(savedTheme);
-    
+
     // Escutar mudanças de tema de outras abas
     this.listenForThemeChanges();
   },
@@ -295,22 +310,22 @@ window.Utils = {
    */
   listenForThemeChanges() {
     // Escutar BroadcastChannel
-    if (typeof BroadcastChannel !== 'undefined') {
-      const channel = new BroadcastChannel('theme-change');
-      channel.addEventListener('message', (event) => {
+    if (typeof BroadcastChannel !== "undefined") {
+      const channel = new BroadcastChannel("theme-change");
+      channel.addEventListener("message", (event) => {
         if (event.data && event.data.theme) {
-          document.documentElement.setAttribute('data-theme', event.data.theme);
+          document.documentElement.setAttribute("data-theme", event.data.theme);
           this.updateThemeIcon(event.data.theme);
         }
       });
     }
-    
+
     // Escutar localStorage changes
-    window.addEventListener('storage', (event) => {
-      if (event.key === 'theme' && event.newValue) {
-        document.documentElement.setAttribute('data-theme', event.newValue);
+    window.addEventListener("storage", (event) => {
+      if (event.key === "theme" && event.newValue) {
+        document.documentElement.setAttribute("data-theme", event.newValue);
         this.updateThemeIcon(event.newValue);
       }
     });
-  }
+  },
 };
