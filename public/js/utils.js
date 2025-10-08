@@ -31,6 +31,30 @@ window.Utils = {
   },
 
   /**
+   * Verificar se a data informada representa um momento valido
+   * @param {string|Date} dateValue - Valor a ser checado
+   * @returns {boolean} Indica se a data e valida
+   */
+  isDataValida(dateValue) {
+    if (!dateValue) return false;
+
+    if (typeof dateValue === "string") {
+      const trimmed = dateValue.trim();
+      if (
+        trimmed === "" ||
+        trimmed === "0000-00-00 00:00:00" ||
+        trimmed === "0000-00-00T00:00:00" ||
+        trimmed.toLowerCase() === "null"
+      ) {
+        return false;
+      }
+    }
+
+    const data = new Date(dateValue);
+    return !isNaN(data.getTime());
+  },
+
+  /**
    * Formatar nome do entregador removendo prefixos
    * @param {string} entregador - Nome do entregador
    * @returns {string} Nome formatado
@@ -69,10 +93,14 @@ window.Utils = {
     if (!entrega) return "Status desconhecido";
 
     const status = entrega.status_pedido;
-    const hasInicio = entrega.data_e_hora_inicio_pedido;
-    const hasEnvio = entrega.data_e_hora_envio_pedido;
-    const hasConfirmacao = entrega.data_e_hora_confirmacao_pedido;
-    const hasCancelamento = entrega.data_e_hora_cancelamento_pedido;
+    const hasInicio = this.isDataValida(entrega.data_e_hora_inicio_pedido);
+    const hasEnvio = this.isDataValida(entrega.data_e_hora_envio_pedido);
+    const hasConfirmacao = this.isDataValida(
+      entrega.data_e_hora_confirmacao_pedido
+    );
+    const hasCancelamento = this.isDataValida(
+      entrega.data_e_hora_cancelamento_pedido
+    );
 
     // Estados finais
     if (status === "Entregue" || status === "entregue" || hasConfirmacao) {
@@ -84,7 +112,7 @@ window.Utils = {
     }
 
     // Estados em andamento
-    if (hasEnvio) {
+    if (status === "Em Entrega" || status === "em_andamento" || hasEnvio) {
       return "🚚 Em rota";
     }
 
