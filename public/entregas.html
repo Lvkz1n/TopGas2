@@ -82,9 +82,29 @@
               onchange="applyFilters()"
             >
               <option value="">Todos</option>
-              <option value="Em Entrega">⏳ Em Entrega</option>
-              <option value="Entregue">✅ Entregue</option>
-              <option value="cancelado">❌ Cancelado</option>
+              <option value="Em Entrega">Em Entrega</option>
+              <option value="Entregue">Entregue</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Unidade:</label>
+            <select
+              class="filter-select"
+              id="filterUnidade"
+              onchange="applyFilters()"
+            >
+              <option value="">Todas</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Entregador:</label>
+            <select
+              class="filter-select"
+              id="filterEntregador"
+              onchange="applyFilters()"
+            >
+              <option value="">Todos</option>
             </select>
           </div>
           <div class="filter-group">
@@ -95,14 +115,32 @@
               onchange="applyFilters()"
             >
               <option value="status">
-                Status (Em Entrega → Entregue → Cancelado)
+                Status (Em Entrega -> Entregue -> Cancelado)
               </option>
               <option value="protocolo">Protocolo</option>
               <option value="nome">Nome do Cliente</option>
               <option value="bairro">Bairro</option>
               <option value="entregador">Entregador</option>
-              <option value="data">Data de Início</option>
+              <option value="data">Data de Inicio</option>
             </select>
+          </div>
+          <div class="filter-group filter-period">
+            <label>Periodo:</label>
+            <div class="period-inputs">
+              <input
+                type="date"
+                class="filter-select"
+                id="filterStartDate"
+                onchange="applyFilters()"
+              />
+              <span class="period-separator">ate</span>
+              <input
+                type="date"
+                class="filter-select"
+                id="filterEndDate"
+                onchange="applyFilters()"
+              />
+            </div>
           </div>
           <div class="filter-group">
             <label>Buscar:</label>
@@ -114,10 +152,7 @@
               onkeyup="applyFilters()"
             />
           </div>
-          <div
-            class="filter-group"
-            style="justify-content: flex-end; margin-left: auto"
-          >
+          <div class="filter-group filter-actions">
             <button
               id="btnDownloadCSV"
               onclick="downloadCSV()"
@@ -129,11 +164,10 @@
                 padding: 8px 16px;
               "
             >
-              📊 Download CSV
+              Download CSV
             </button>
           </div>
         </div>
-
         <!-- Visualização Desktop -->
         <div class="desktop-delivery-view">
           <table class="table" id="tbEntregas">
@@ -226,3 +260,4 @@
     </script>
   </body>
 </html>
+

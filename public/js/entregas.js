@@ -21,6 +21,7 @@ async function renderEntregas() {
     todasEntregas = result.entregas || [];
     dadosEntregas = result;
 
+    populateFilterOptions();
     applyFilters();
 
     // Atualizar timestamps após renderização
@@ -41,6 +42,32 @@ function applyFilters() {
   const sortFilter = document.getElementById("filterSort")?.value || "status";
   const searchFilter =
     document.getElementById("filterSearch")?.value.toLowerCase() || "";
+  const unidadeFilter = document.getElementById("filterUnidade")?.value || "";
+  const entregadorFilter =
+    document.getElementById("filterEntregador")?.value || "";
+  const startDateValue =
+    document.getElementById("filterStartDate")?.value || "";
+  const endDateValue = document.getElementById("filterEndDate")?.value || "";
+
+  syncPeriodInputBounds(startDateValue, endDateValue);
+
+  let startDate = startDateValue
+    ? new Date(`${startDateValue}T00:00:00`)
+    : null;
+  let endDate = endDateValue
+    ? new Date(`${endDateValue}T23:59:59.999`)
+    : null;
+
+  if (startDate && isNaN(startDate.getTime())) {
+    startDate = null;
+  }
+
+  if (endDate && isNaN(endDate.getTime())) {
+    endDate = null;
+  }
+
+  const unidadeFilterLower = unidadeFilter.toLowerCase();
+  const entregadorFilterLower = entregadorFilter.toLowerCase();
 
   let filteredEntregas = todasEntregas.filter((entrega) =>
     ["Em Entrega", "Entregue", "cancelado"].includes(entrega.status_pedido)
@@ -52,18 +79,177 @@ function applyFilters() {
     );
   }
 
+  if (unidadeFilter) {
+    filteredEntregas = filteredEntregas.filter(
+      (entrega) =>
+        (entrega.unidade_topgas || "").toLowerCase() === unidadeFilterLower
+    );
+  }
+
+  if (entregadorFilter) {
+    filteredEntregas = filteredEntregas.filter(
+      (entrega) =>
+        Utils.formatarEntregador(entrega.entregador || "").toLowerCase() ===
+        entregadorFilterLower
+    );
+  }
+
+  if (startDate || endDate) {
+    filteredEntregas = filteredEntregas.filter((entrega) => {
+      const dataReferencia =
+        parseEntregaDate(entrega.data_e_hora_inicio_pedido) ||
+        parseEntregaDate(entrega.data_e_hora_envio_pedido) ||
+        parseEntregaDate(entrega.data_e_hora_confirmacao_pedido);
+
+      if (!dataReferencia) {
+        return false;
+      }
+
+      if (startDate && dataReferencia < startDate) {
+        return false;
+      }
+
+      if (endDate && dataReferencia > endDate) {
+        return false;
+      }
+
+      return true;
+    });
+  }
+
   if (searchFilter) {
     filteredEntregas = filteredEntregas.filter(
       (entrega) =>
         (entrega.nome_cliente || "").toLowerCase().includes(searchFilter) ||
         (entrega.protocolo || "").toLowerCase().includes(searchFilter) ||
         (entrega.bairro || "").toLowerCase().includes(searchFilter) ||
-        (entrega.entregador || "").toLowerCase().includes(searchFilter)
+        (entrega.entregador || "").toLowerCase().includes(searchFilter) ||
+        (entrega.unidade_topgas || "").toLowerCase().includes(searchFilter)
     );
   }
 
   filteredEntregas = sortEntregas(filteredEntregas, sortFilter);
   renderEntregasTable(filteredEntregas);
+}
+
+function populateFilterOptions() {
+  const unidadeSelect = document.getElementById("filterUnidade");
+  const entregadorSelect = document.getElementById("filterEntregador");
+
+  if (!unidadeSelect || !entregadorSelect) {
+    return;
+  }
+
+  const currentUnidade = unidadeSelect.value;
+  const currentEntregador = entregadorSelect.value;
+
+  const unidades = Array.from(
+    new Set(
+      (todasEntregas || [])
+        .map((entrega) => (entrega.unidade_topgas || "").trim())
+        .filter((value) => value)
+    )
+  ).sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+  const entregadores = Array.from(
+    new Set(
+      (todasEntregas || [])
+        .map((entrega) =>
+          Utils.formatarEntregador(entrega.entregador || "").trim()
+        )
+        .filter((value) => value && value !== "-")
+    )
+  ).sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+  fillSelectWithOptions(unidadeSelect, unidades, "Todas");
+  fillSelectWithOptions(entregadorSelect, entregadores, "Todos");
+
+  if (currentUnidade && unidades.includes(currentUnidade)) {
+    unidadeSelect.value = currentUnidade;
+  }
+
+  if (currentEntregador && entregadores.includes(currentEntregador)) {
+    entregadorSelect.value = currentEntregador;
+  }
+}
+
+function fillSelectWithOptions(selectElement, values, defaultLabel) {
+  if (!selectElement) return;
+
+  selectElement.innerHTML = "";
+
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = defaultLabel;
+  selectElement.appendChild(defaultOption);
+
+  values.forEach((value) => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = value;
+    selectElement.appendChild(option);
+  });
+}
+
+function syncPeriodInputBounds(startValue, endValue) {
+  const startInput = document.getElementById("filterStartDate");
+  const endInput = document.getElementById("filterEndDate");
+
+  if (startInput) {
+    startInput.max = endValue || "";
+  }
+
+  if (endInput) {
+    endInput.min = startValue || "";
+  }
+}
+
+function parseEntregaDate(value) {
+  if (!value) {
+    return null;
+  }
+
+  if (value instanceof Date) {
+    return isNaN(value.getTime()) ? null : value;
+  }
+
+  if (typeof value === "number") {
+    const numericDate = new Date(value);
+    return isNaN(numericDate.getTime()) ? null : numericDate;
+  }
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return null;
+    }
+
+    let parsed = new Date(trimmed);
+    if (isNaN(parsed.getTime()) && trimmed.includes(" ")) {
+      parsed = new Date(trimmed.replace(" ", "T"));
+    }
+
+    if (isNaN(parsed.getTime()) && /^\d{2}\/\d{2}\/\d{4}/.test(trimmed)) {
+      const [datePart, timePart = "00:00:00"] = trimmed.split(" ");
+      const [day, month, year] = datePart.split("/");
+      const timePieces = timePart.split(":");
+      const hour = Number(timePieces[0] || "00");
+      const minute = Number(timePieces[1] || "00");
+      const second = Number(timePieces[2] || "00");
+      parsed = new Date(
+        Number(year),
+        Number(month) - 1,
+        Number(day),
+        hour,
+        minute,
+        second
+      );
+    }
+
+    return isNaN(parsed.getTime()) ? null : parsed;
+  }
+
+  return null;
 }
 
 // Ordenar entregas
@@ -352,11 +538,20 @@ async function cancelarEntrega(id) {
 
 // Download CSV
 async function downloadCSV() {
+  let btn = null;
+  let originalText = "";
+
   try {
-    const btn = event.target;
-    const originalText = btn.innerHTML;
-    btn.innerHTML = "⏳ Gerando...";
-    btn.disabled = true;
+    const maybeEvent = typeof event !== "undefined" ? event : null;
+    btn =
+      (maybeEvent && (maybeEvent.currentTarget || maybeEvent.target)) ||
+      document.getElementById("btnDownloadCSV");
+
+    if (btn) {
+      originalText = btn.textContent;
+      btn.textContent = "Gerando...";
+      btn.disabled = true;
+    }
 
     const response = await fetch("/api/entregas/csv", {
       method: "GET",
@@ -378,21 +573,23 @@ async function downloadCSV() {
 
     const blob = await response.blob();
     if (blob.size === 0) {
-      throw new Error("Arquivo CSV está vazio.");
+      throw new Error("Arquivo CSV esta vazio.");
     }
 
-    const filename = `relatorio_entregas_${
-      new Date().toISOString().split("T")[0]
-    }.csv`;
+    const filename = `relatorio_entregas_${new Date()
+      .toISOString()
+      .split("T")[0]}.csv`;
     Utils.downloadFile(blob, filename);
 
-    alert("✅ CSV gerado com sucesso!");
+    alert("CSV gerado com sucesso!");
   } catch (error) {
     console.error("Erro ao baixar CSV:", error);
-    alert("❌ Erro ao baixar CSV: " + error.message);
+    alert("Erro ao baixar CSV: " + error.message);
   } finally {
-    const btn = event.target;
-    btn.innerHTML = "📊 Download CSV";
-    btn.disabled = false;
+    if (btn) {
+      btn.textContent = originalText || "Download CSV";
+      btn.disabled = false;
+    }
   }
 }
+
