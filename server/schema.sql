@@ -45,11 +45,16 @@ CREATE TABLE IF NOT EXISTS configuracoes (
 -- ===== PRODUTOS =====
 CREATE TABLE IF NOT EXISTS produtos (
   id SERIAL PRIMARY KEY,
-  codigo TEXT UNIQUE,
   nome TEXT NOT NULL,
   descricao TEXT,
   valor NUMERIC(10,2) NOT NULL DEFAULT 0,
+  valor_pix NUMERIC(10,2),
+  valor_debito NUMERIC(10,2),
+  valor_credito NUMERIC(10,2),
+  valor_entrega NUMERIC(10,2),
+  valor_retirada NUMERIC(10,2),
   unidade TEXT NOT NULL,
+  observacoes TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ,
   ativo BOOLEAN NOT NULL DEFAULT TRUE

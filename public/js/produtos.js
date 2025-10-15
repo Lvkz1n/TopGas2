@@ -15,15 +15,23 @@
       .replace(/'/g, "&#039;");
   };
 
+  const formatNumberInput = (value) => {
+    if (value === null || value === undefined || value === "") return "";
+    const num = Number(value);
+    if (Number.isNaN(num)) return "";
+    return num.toFixed(2);
+  };
+
   const ProdutosPage = {
     cache: [],
     filtered: [],
     isAdmin: false,
     loading: false,
+    expanded: new Set(),
 
     async init() {
       await this.loadProdutos();
-      this.renderAdminActions();
+      this.renderHeaderActions();
     },
 
     async loadProdutos(preserveFilters = true) {
@@ -39,6 +47,7 @@
       try {
         const data = await API.api("/produtos");
         this.cache = Array.isArray(data) ? data : [];
+        this.expanded.clear();
         this.populateUnidades(previousUnidade);
         if (preserveFilters && buscaInput) {
           buscaInput.value = previousBusca;
@@ -96,9 +105,17 @@
           ? (produto.unidade || "").toLowerCase() === unidade
           : true;
 
+        const fieldsToSearch = [
+          produto.nome,
+          produto.id,
+          produto.unidade,
+          produto.descricao,
+          produto.observacoes,
+        ];
         const matchesBusca = busca
-          ? [produto.nome, produto.codigo, produto.id]
-              .map((field) => (field ?? "").toString().toLowerCase())
+          ? fieldsToSearch
+              .filter((field) => field !== null && field !== undefined)
+              .map((field) => field.toString().toLowerCase())
               .some((value) => value.includes(busca))
           : true;
 
@@ -125,159 +142,248 @@
       if (emptyState) emptyState.classList.add("hidden");
 
       tbody.innerHTML = this.filtered
-        .map((produto) => {
-          const statusBadge = produto.ativo
-            ? ""
-            : '<span class="produto-status inativo">Inativo</span>';
-          const descricaoHtml = produto.descricao
-            ? `<div class="produto-descricao">${escapeHtml(
-                produto.descricao
-              )}</div>`
-            : "";
-          const codigoOuId = produto.codigo
-            ? escapeHtml(produto.codigo)
-            : `#${produto.id}`;
-
-          const actions = this.isAdmin
-            ? `
-              <div class="produto-acoes">
-                <button class="btn btn-small" onclick="ProdutosPage.editProduct(${produto.id})" title="Editar produto">
-                  <i data-lucide="edit-3"></i>
-                </button>
-                <button class="btn btn-small btn-danger" onclick="ProdutosPage.deleteProduct(${produto.id})" title="Excluir produto">
-                  <i data-lucide="trash-2"></i>
-                </button>
-              </div>
-            `
-            : '<span style="color: var(--muted);">-</span>';
-
-          return `
-            <tr>
-              <td>${codigoOuId}</td>
-              <td>
-                <div class="produto-nome">${escapeHtml(produto.nome)} ${statusBadge}</div>
-                ${descricaoHtml}
-              </td>
-              <td>${this.formatCurrency(produto.valor)}</td>
-              <td>${escapeHtml(produto.unidade || "-")}</td>
-              <td>${actions}</td>
-            </tr>
-          `;
-        })
+        .map((produto) => this.renderDesktopRow(produto))
         .join("");
 
       if (mobileList) {
         mobileList.innerHTML = this.filtered
-          .map((produto) => {
-            const status = produto.ativo ? "Ativo" : "Inativo";
-            return `
-              <div class="produto-card">
-                <div class="produto-card-header">
-                  <div>
-                    <div class="produto-card-nome">${escapeHtml(
-                      produto.nome
-                    )}</div>
-                    ${
-                      produto.codigo
-                        ? `<div class="produto-card-codigo">Codigo: ${escapeHtml(
-                            produto.codigo
-                          )}</div>`
-                        : ""
-                    }
-                  </div>
-                  <div class="produto-card-valor">${this.formatCurrency(
-                    produto.valor
-                  )}</div>
-                </div>
-                <div class="produto-card-body">
-                  <div><strong>Unidade:</strong> ${escapeHtml(
-                    produto.unidade || "-"
-                  )}</div>
-                  <div><strong>Status:</strong> ${status}</div>
-                  ${
-                    produto.descricao
-                      ? `<div class="produto-card-descricao">${escapeHtml(
-                          produto.descricao
-                        )}</div>`
-                      : ""
-                  }
-                </div>
-                ${
-                  this.isAdmin
-                    ? `
-                        <div class="produto-card-actions">
-                          <button class="btn" onclick="ProdutosPage.editProduct(${produto.id})">
-                            <i data-lucide="edit-3"></i>
-                            Editar
-                          </button>
-                          <button class="btn btn-danger" onclick="ProdutosPage.deleteProduct(${produto.id})">
-                            <i data-lucide="trash-2"></i>
-                            Excluir
-                          </button>
-                        </div>
-                      `
-                    : ""
-                }
-              </div>
-            `;
-          })
+          .map((produto) => this.renderMobileCard(produto))
           .join("");
       }
 
       Utils.updateIcons();
     },
 
+    renderDesktopRow(produto) {
+      const isExpanded = this.expanded.has(produto.id);
+      const statusBadge = produto.ativo
+        ? ""
+        : '<span class="produto-status inativo">Inativo</span>';
+      const toggleIcon = isExpanded ? "chevron-up" : "chevron-down";
+
+      const resumo = `
+        <div class="produto-resumo">
+          <span>Pix: ${this.formatOptionalCurrency(produto.valor_pix)}</span>
+          <span>Debito: ${this.formatOptionalCurrency(produto.valor_debito)}</span>
+          <span>Credito: ${this.formatOptionalCurrency(produto.valor_credito)}</span>
+        </div>
+      `;
+
+      const actions = [
+        `<button class="btn btn-small btn-outline" data-produto-toggle="${produto.id}" onclick="ProdutosPage.toggleDetails(${produto.id})">
+            <i data-lucide="${toggleIcon}"></i>
+            ${isExpanded ? "Fechar" : "Detalhes"}
+          </button>`,
+      ];
+
+      if (this.isAdmin) {
+        actions.push(
+          `<button class="btn btn-small" onclick="ProdutosPage.editProduct(${produto.id})" title="Editar">
+              <i data-lucide="edit-3"></i>
+            </button>`
+        );
+        actions.push(
+          `<button class="btn btn-small btn-danger" onclick="ProdutosPage.deleteProduct(${produto.id})" title="Excluir">
+              <i data-lucide="trash-2"></i>
+            </button>`
+        );
+      }
+
+      return `
+        <tr class="produto-row">
+          <td>${produto.id}</td>
+          <td>
+            <div class="produto-nome">${escapeHtml(produto.nome)} ${statusBadge}</div>
+            ${produto.descricao ? `<div class="produto-descricao">${escapeHtml(produto.descricao)}</div>` : ""}
+            ${resumo}
+          </td>
+          <td>${this.formatCurrency(produto.valor)}</td>
+          <td>${escapeHtml(produto.unidade || "-")}</td>
+          <td>
+            <div class="produto-acoes">
+              ${actions.join("")}
+            </div>
+          </td>
+        </tr>
+        <tr class="produto-detalhes-row ${isExpanded ? "" : "hidden"}" data-produto-details="${produto.id}">
+          <td colspan="5">
+            ${this.renderDetalhes(produto)}
+          </td>
+        </tr>
+      `;
+    },
+
+    renderDetalhes(produto) {
+      const itens = [
+        { label: "Valor base", value: this.formatOptionalCurrency(produto.valor) },
+        { label: "Valor Pix", value: this.formatOptionalCurrency(produto.valor_pix) },
+        { label: "Valor debito", value: this.formatOptionalCurrency(produto.valor_debito) },
+        { label: "Valor credito", value: this.formatOptionalCurrency(produto.valor_credito) },
+        { label: "Entrega delivery", value: this.formatOptionalCurrency(produto.valor_entrega) },
+        { label: "Retirada", value: this.formatOptionalCurrency(produto.valor_retirada) },
+      ];
+
+      const detalhesGrid = itens
+        .map(
+          (item) => `
+            <div class="produto-detalhe">
+              <span>${escapeHtml(item.label)}:</span>
+              <strong>${item.value}</strong>
+            </div>
+          `
+        )
+        .join("");
+
+      const observacoes = produto.observacoes
+        ? `<div class="produto-observacoes"><strong>Observacoes:</strong> ${escapeHtml(produto.observacoes)}</div>`
+        : "";
+
+      return `
+        <div class="produto-detalhes">
+          <div class="produto-detalhes-grid">
+            ${detalhesGrid}
+          </div>
+          ${observacoes}
+          <div class="produto-meta">
+            <span>Criado em: ${this.formatDate(produto.created_at)}</span>
+            <span>Atualizado em: ${this.formatDate(produto.updated_at)}</span>
+            <span>Status: ${produto.ativo ? "Ativo" : "Inativo"}</span>
+          </div>
+        </div>
+      `;
+    },
+
+    renderMobileCard(produto) {
+      return `
+        <div class="produto-card">
+          <div class="produto-card-header">
+            <div>
+              <div class="produto-card-nome">${escapeHtml(produto.nome)}</div>
+              <div class="produto-card-status">${produto.ativo ? "Ativo" : "Inativo"}</div>
+            </div>
+            <div class="produto-card-valor">${this.formatCurrency(produto.valor)}</div>
+          </div>
+          <div class="produto-card-body">
+            <div><strong>Unidade:</strong> ${escapeHtml(produto.unidade || "-")}</div>
+            <div><strong>Pix:</strong> ${this.formatOptionalCurrency(produto.valor_pix)}</div>
+            <div><strong>Debito:</strong> ${this.formatOptionalCurrency(produto.valor_debito)}</div>
+            <div><strong>Credito:</strong> ${this.formatOptionalCurrency(produto.valor_credito)}</div>
+            <div><strong>Entrega:</strong> ${this.formatOptionalCurrency(produto.valor_entrega)}</div>
+            <div><strong>Retirada:</strong> ${this.formatOptionalCurrency(produto.valor_retirada)}</div>
+            ${produto.descricao ? `<div><strong>Descricao:</strong> ${escapeHtml(produto.descricao)}</div>` : ""}
+            ${produto.observacoes ? `<div><strong>Observacoes:</strong> ${escapeHtml(produto.observacoes)}</div>` : ""}
+          </div>
+          <div class="produto-card-meta">
+            <span>Criado: ${this.formatDate(produto.created_at)}</span>
+            <span>Atualizado: ${this.formatDate(produto.updated_at)}</span>
+          </div>
+          ${this.isAdmin
+            ? `<div class="produto-card-actions">
+                <button class="btn" onclick="ProdutosPage.editProduct(${produto.id})">
+                  <i data-lucide="edit-3"></i>
+                  Editar
+                </button>
+                <button class="btn btn-danger" onclick="ProdutosPage.deleteProduct(${produto.id})">
+                  <i data-lucide="trash-2"></i>
+                  Excluir
+                </button>
+              </div>`
+            : ""}
+        </div>
+      `;
+    },
+
+    formatCurrency(valor) {
+      if (valor === null || valor === undefined || Number.isNaN(Number(valor))) {
+        return "-";
+      }
+      return currencyFormatter.format(Number(valor));
+    },
+
+    formatOptionalCurrency(valor) {
+      if (valor === null || valor === undefined || valor === "") {
+        return "-";
+      }
+      const num = Number(valor);
+      if (Number.isNaN(num)) return "-";
+      return currencyFormatter.format(num);
+    },
+
+    formatDate(value) {
+      if (!value) return "-";
+      return Utils.formatarData(value);
+    },
+
     setLoading(isLoading) {
       this.loading = isLoading;
       const tbody = document.querySelector("#tbProdutos tbody");
-      if (isLoading && tbody) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="5" style="text-align: center; padding: 24px;">
-              Carregando produtos...
-            </td>
-          </tr>
-        `;
+      const mobileList = document.getElementById("mobileProdutos");
+      if (isLoading) {
+        if (tbody) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="5" style="text-align: center; padding: 24px;">
+                Carregando produtos...
+              </td>
+            </tr>
+          `;
+        }
+        if (mobileList) {
+          mobileList.innerHTML = `
+            <div class="produto-card">
+              <div style="text-align: center; padding: 16px;">Carregando produtos...</div>
+            </div>
+          `;
+        }
       }
     },
 
     enableAdminFeatures() {
       this.isAdmin = true;
-      this.renderAdminActions();
+      this.renderHeaderActions();
     },
 
-    renderAdminActions() {
-      if (!this.isAdmin) return;
+    renderHeaderActions() {
+      const container = document.getElementById("produtoHeaderActions");
+      if (!container) return;
 
-      const headerActions = document.getElementById("produtoHeaderActions");
-      if (headerActions) {
-        headerActions.innerHTML = `
+      const buttons = [];
+
+      if (this.isAdmin) {
+        buttons.push(`
           <button class="btn" id="btnNovoProduto" style="background: var(--orange-500); color: white;">
             <i data-lucide="plus"></i>
             Novo Produto
           </button>
-        `;
-        document
-          .getElementById("btnNovoProduto")
-          ?.addEventListener("click", () => this.openForm());
+        `);
       }
 
-      const filterActions = document.getElementById("produtoActions");
-      if (filterActions) {
-        filterActions.innerHTML = `
-          <button class="btn" id="btnProdutosAtualizar">
-            <i data-lucide="refresh-cw"></i>
-            Atualizar
-          </button>
+      buttons.push(`
+        <button class="btn" id="btnProdutosAtualizar">
+          <i data-lucide="refresh-cw"></i>
+          Atualizar
+        </button>
+      `);
+
+      if (this.isAdmin) {
+        buttons.push(`
           <button class="btn" id="btnProdutosCSV" style="background: var(--orange-500); color: white;">
             <i data-lucide="download"></i>
             Exportar CSV
           </button>
-        `;
+        `);
+      }
 
+      container.innerHTML = `<div class="produto-header-actions">${buttons.join("")}</div>`;
+
+      document
+        .getElementById("btnProdutosAtualizar")
+        ?.addEventListener("click", () => this.loadProdutos());
+
+      if (this.isAdmin) {
         document
-          .getElementById("btnProdutosAtualizar")
-          ?.addEventListener("click", () => this.loadProdutos());
+          .getElementById("btnNovoProduto")
+          ?.addEventListener("click", () => this.openForm());
 
         document
           .getElementById("btnProdutosCSV")
@@ -285,13 +391,6 @@
       }
 
       Utils.updateIcons();
-    },
-
-    formatCurrency(valor) {
-      if (valor === null || valor === undefined || Number.isNaN(valor)) {
-        return "-";
-      }
-      return currencyFormatter.format(Number(valor));
     },
 
     openForm(produto = null) {
@@ -302,48 +401,52 @@
         <form id="produtoForm" class="produto-form">
           <div class="form-grid">
             <label class="form-field">
-              <span>Codigo (opcional)</span>
-              <input type="text" id="produtoCodigo" value="${
-                produto?.codigo ? escapeHtml(produto.codigo) : ""
-              }" placeholder="Ex: P13" />
-            </label>
-            <label class="form-field">
               <span>Nome *</span>
-              <input type="text" id="produtoNome" value="${
-                produto?.nome ? escapeHtml(produto.nome) : ""
-              }" required />
-            </label>
-            <label class="form-field">
-              <span>Valor *</span>
-              <input type="number" id="produtoValor" step="0.01" min="0" value="${
-                produto?.valor !== null && produto?.valor !== undefined
-                  ? escapeHtml(produto.valor.toFixed(2))
-                  : ""
-              }" required />
+              <input type="text" id="produtoNome" value="${produto?.nome ? escapeHtml(produto.nome) : ""}" required />
             </label>
             <label class="form-field">
               <span>Unidade *</span>
-              <input type="text" id="produtoUnidade" value="${
-                produto?.unidade ? escapeHtml(produto.unidade) : ""
-              }" required />
+              <input type="text" id="produtoUnidade" value="${produto?.unidade ? escapeHtml(produto.unidade) : ""}" required />
+            </label>
+            <label class="form-field">
+              <span>Valor base *</span>
+              <input type="number" step="0.01" min="0" id="produtoValor" value="${formatNumberInput(produto?.valor)}" required />
+            </label>
+            <label class="form-field">
+              <span>Valor Pix</span>
+              <input type="number" step="0.01" min="0" id="produtoValorPix" value="${formatNumberInput(produto?.valor_pix)}" />
+            </label>
+            <label class="form-field">
+              <span>Valor debito</span>
+              <input type="number" step="0.01" min="0" id="produtoValorDebito" value="${formatNumberInput(produto?.valor_debito)}" />
+            </label>
+            <label class="form-field">
+              <span>Valor credito</span>
+              <input type="number" step="0.01" min="0" id="produtoValorCredito" value="${formatNumberInput(produto?.valor_credito)}" />
+            </label>
+            <label class="form-field">
+              <span>Valor entrega delivery</span>
+              <input type="number" step="0.01" min="0" id="produtoValorEntrega" value="${formatNumberInput(produto?.valor_entrega)}" />
+            </label>
+            <label class="form-field">
+              <span>Valor retirada</span>
+              <input type="number" step="0.01" min="0" id="produtoValorRetirada" value="${formatNumberInput(produto?.valor_retirada)}" />
             </label>
             <label class="form-field form-full">
               <span>Descricao</span>
-              <textarea id="produtoDescricao" rows="3" placeholder="Detalhes adicionais do produto">${
-                produto?.descricao ? escapeHtml(produto.descricao) : ""
-              }</textarea>
+              <textarea id="produtoDescricao" rows="3" placeholder="Detalhes adicionais">${produto?.descricao ? escapeHtml(produto.descricao) : ""}</textarea>
+            </label>
+            <label class="form-field form-full">
+              <span>Observacoes</span>
+              <textarea id="produtoObservacoes" rows="3" placeholder="Anotacoes internas ou politicas de venda">${produto?.observacoes ? escapeHtml(produto.observacoes) : ""}</textarea>
             </label>
             <label class="form-field checkbox-field">
-              <input type="checkbox" id="produtoAtivo" ${
-                produto?.ativo !== false ? "checked" : ""
-              } />
+              <input type="checkbox" id="produtoAtivo" ${produto?.ativo !== false ? "checked" : ""} />
               <span>Produto ativo</span>
             </label>
           </div>
           <div class="modal-actions">
-            <button type="button" class="btn btn-muted" id="produtoCancelar">
-              Cancelar
-            </button>
+            <button type="button" class="btn btn-muted" id="produtoCancelar">Cancelar</button>
             <button type="submit" class="btn" style="background: var(--orange-500); color: white;">
               ${isEdit ? "Salvar alteracoes" : "Cadastrar produto"}
             </button>
@@ -394,11 +497,26 @@
         });
     },
 
+    parseOptionalNumber(rawValue, label) {
+      if (rawValue === null || rawValue === undefined || rawValue === "") {
+        return null;
+      }
+      const normalized = String(rawValue).replace(",", ".");
+      const num = Number(normalized);
+      if (Number.isNaN(num)) {
+        alert(`Valor invalido para ${label}.`);
+        throw new Error("invalid_number");
+      }
+      return num;
+    },
+
     getFormPayload() {
       const nome = document.getElementById("produtoNome")?.value.trim();
-      const codigo = document.getElementById("produtoCodigo")?.value.trim();
       const descricao = document
         .getElementById("produtoDescricao")
+        ?.value.trim();
+      const observacoes = document
+        .getElementById("produtoObservacoes")
         ?.value.trim();
       const unidade = document.getElementById("produtoUnidade")?.value.trim();
       const ativo = document.getElementById("produtoAtivo")?.checked ?? true;
@@ -424,14 +542,69 @@
         return null;
       }
 
-      return {
-        nome,
-        codigo: codigo || null,
-        descricao: descricao || null,
-        unidade,
-        valor,
-        ativo,
-      };
+      try {
+        const valor_pix = this.parseOptionalNumber(
+          document.getElementById("produtoValorPix")?.value,
+          "valor Pix"
+        );
+        const valor_debito = this.parseOptionalNumber(
+          document.getElementById("produtoValorDebito")?.value,
+          "valor debito"
+        );
+        const valor_credito = this.parseOptionalNumber(
+          document.getElementById("produtoValorCredito")?.value,
+          "valor credito"
+        );
+        const valor_entrega = this.parseOptionalNumber(
+          document.getElementById("produtoValorEntrega")?.value,
+          "valor de entrega"
+        );
+        const valor_retirada = this.parseOptionalNumber(
+          document.getElementById("produtoValorRetirada")?.value,
+          "valor de retirada"
+        );
+
+        return {
+          nome,
+          descricao: descricao || null,
+          observacoes: observacoes || null,
+          unidade,
+          valor,
+          valor_pix,
+          valor_debito,
+          valor_credito,
+          valor_entrega,
+          valor_retirada,
+          ativo,
+        };
+      } catch (error) {
+        if (error.message === "invalid_number") {
+          return null;
+        }
+        throw error;
+      }
+    },
+
+    toggleDetails(id) {
+      const row = document.querySelector(
+        `tr[data-produto-details="${id}"]`
+      );
+      if (!row) return;
+      row.classList.toggle("hidden");
+      const expanded = !row.classList.contains("hidden");
+      if (expanded) {
+        this.expanded.add(id);
+      } else {
+        this.expanded.delete(id);
+      }
+
+      const icon = document.querySelector(
+        `button[data-produto-toggle="${id}"] i`
+      );
+      if (icon) {
+        icon.setAttribute("data-lucide", expanded ? "chevron-up" : "chevron-down");
+        Utils.updateIcons();
+      }
     },
 
     editProduct(id) {
@@ -493,3 +666,4 @@
 
   window.ProdutosPage = ProdutosPage;
 })();
+
