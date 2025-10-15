@@ -11,6 +11,7 @@ import clientes from "./routes/clientes.js";
 import entregas from "./routes/entregas.js";
 import usuarios from "./routes/usuarios.js";
 import configuracoes from "./routes/configuracoes.js";
+import produtos from "./routes/produtos.js";
 
 const app = express();
 app.use(express.json());
@@ -97,6 +98,7 @@ app.get("/api/metricas", requireAuth, asyncHandler(async (_req, res) => {
 // ===== ROTAS DE MÓDULOS =====
 app.use("/api/clientes", requireAuth, clientes);
 app.use("/api/entregas", requireAuth, entregas);
+app.use("/api/produtos", requireAuth, produtos);
 app.use("/api/usuarios", requireAuth, requireAdmin, usuarios);
 app.use("/api/configuracoes", requireAuth, requireAdmin, configuracoes);
 

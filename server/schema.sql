@@ -42,3 +42,20 @@ CREATE TABLE IF NOT EXISTS configuracoes (
   value TEXT NOT NULL DEFAULT ''
 );
 
+-- ===== PRODUTOS =====
+CREATE TABLE IF NOT EXISTS produtos (
+  id SERIAL PRIMARY KEY,
+  codigo TEXT UNIQUE,
+  nome TEXT NOT NULL,
+  descricao TEXT,
+  valor NUMERIC(10,2) NOT NULL DEFAULT 0,
+  unidade TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ,
+  ativo BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE INDEX IF NOT EXISTS idx_produtos_nome ON produtos (nome);
+CREATE INDEX IF NOT EXISTS idx_produtos_unidade ON produtos (unidade);
+
+

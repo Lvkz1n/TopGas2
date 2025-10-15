@@ -1166,3 +1166,185 @@ copyright,
   }
 }
 
+/* Produtos */
+.btn-small {
+  padding: 6px 10px;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+.btn-muted {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.btn-muted:hover {
+  background: #d1d5db;
+}
+
+.produto-nome {
+  font-weight: 600;
+  color: var(--orange-700);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.produto-descricao {
+  font-size: 0.875rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.produto-status.inativo {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.produto-acoes {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.produto-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid var(--orange-500);
+  margin-bottom: 12px;
+}
+
+[data-theme="dark"] .produto-card {
+  background: var(--card);
+  border: 1px solid #334155;
+}
+
+.produto-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.produto-card-nome {
+  font-weight: 600;
+  color: var(--orange-700);
+  font-size: 1rem;
+}
+
+[data-theme="dark"] .produto-card-nome {
+  color: var(--orange-400);
+}
+
+.produto-card-valor {
+  font-weight: 600;
+  color: var(--orange-600);
+}
+
+.produto-card-body {
+  margin-top: 12px;
+  display: grid;
+  gap: 6px;
+  color: var(--text);
+  font-size: 0.875rem;
+}
+
+.produto-card-descricao {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.produto-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.produto-form .form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.produto-form .form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+.produto-form .form-field span {
+  font-weight: 500;
+  color: var(--orange-700);
+}
+
+.produto-form .form-field input,
+.produto-form .form-field textarea {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 0.95rem;
+  background: #fff;
+  color: #111;
+}
+
+[data-theme="dark"] .produto-form .form-field input,
+[data-theme="dark"] .produto-form .form-field textarea {
+  background: var(--card);
+  border: 1px solid #475569;
+  color: var(--text);
+}
+
+.produto-form .form-field textarea {
+  resize: vertical;
+}
+
+.produto-form .form-full {
+  grid-column: span 2;
+}
+
+.produto-form .checkbox-field {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-actions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .produto-card {
+    border-left-width: 3px;
+  }
+
+  .produto-form .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .produto-form .form-full {
+    grid-column: span 1;
+  }
+}

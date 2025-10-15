@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, user-scalable=no"
     />
-    <title>TopGas – Configurações</title>
+    <title>TopGas — Produtos</title>
     <link rel="icon" type="image/png" href="/favi.png" />
     <link rel="apple-touch-icon" href="/favi.png" />
     <link rel="manifest" href="/manifest.json" />
@@ -48,15 +48,15 @@
           <i data-lucide="truck" class="sidebar-icon"></i>
           Entregas
         </a>
-        <a href="/produtos.html">
+        <a class="active" href="/produtos.html">
           <i data-lucide="package" class="sidebar-icon"></i>
           Produtos
         </a>
-        <a href="/usuarios.html">
+        <a id="menuUsuarios" class="hidden" href="/usuarios.html">
           <i data-lucide="user-cog" class="sidebar-icon"></i>
           Usuários
         </a>
-        <a class="active" href="/configuracoes.html">
+        <a id="menuConfigs" class="hidden" href="/configuracoes.html">
           <i data-lucide="settings" class="sidebar-icon"></i>
           Configurações
         </a>
@@ -71,55 +71,64 @@
     </aside>
 
     <main>
-      <div class="header"><h1>Configurações</h1></div>
-
-      <div class="card" style="margin-bottom: 16px">
-        <form id="frmSetKey">
-          <div
-            class="grid"
-            style="
-              grid-template-columns: 1fr 2fr auto;
-              gap: 10px;
-              max-width: 1000px;
-            "
-          >
-            <input
-              id="cfg_key"
-              class="input"
-              placeholder="key (ex: webhook_confirmar)"
-              required
-            />
-            <input
-              id="cfg_value"
-              class="input"
-              placeholder="value (URL ou outra config)"
-              required
-            />
-            <button class="btn" type="submit">Salvar/Atualizar</button>
-          </div>
-        </form>
+      <div class="header">
+        <h1>Produtos</h1>
+        <div class="header-actions" id="produtoHeaderActions"></div>
       </div>
 
       <div class="card">
-        <table class="table" id="tbCfg">
-          <thead>
-            <tr>
-              <th>Key</th>
-              <th>Value</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+        <div class="delivery-filters">
+          <div class="filter-group">
+            <label>Unidade:</label>
+            <select
+              class="filter-select"
+              id="filterProdutoUnidade"
+              onchange="ProdutosPage.applyFilters()"
+            >
+              <option value="">Todas</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Buscar:</label>
+            <input
+              type="text"
+              class="filter-select"
+              id="filterProdutoBusca"
+              placeholder="Nome ou código..."
+              oninput="ProdutosPage.applyFilters()"
+            />
+          </div>
+          <div class="filter-group filter-actions" id="produtoActions"></div>
+        </div>
+
+        <div class="desktop-delivery-view">
+          <table class="table" id="tbProdutos">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Valor</th>
+                <th>Unidade</th>
+                <th style="width: 140px">Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="mobile-delivery-view" id="mobileProdutos"></div>
+
+        <div id="produtosEmptyState" class="empty-state hidden">
+          Nenhum produto encontrado.
+        </div>
       </div>
     </main>
 
     <script src="./js/api.js"></script>
     <script src="./js/auth.js"></script>
     <script src="./js/utils.js"></script>
-    <script src="./js/configuracoes.js"></script>
+    <script src="./js/produtos.js"></script>
     <script>
-      // Funções para controlar o menu mobile
       function toggleSidebar() {
         const sidebar = document.getElementById("sidebar");
         const overlay = document.getElementById("sidebarOverlay");
@@ -134,7 +143,6 @@
         overlay.classList.add("hidden");
       }
 
-      // Fechar sidebar ao clicar em um link
       document.addEventListener("DOMContentLoaded", function () {
         const sidebarLinks = document.querySelectorAll(".sidebar a");
         sidebarLinks.forEach((link) => {
@@ -143,24 +151,28 @@
       });
 
       (async () => {
-        await Auth.guard({ roles: ["admin"] });
+        const me = await Auth.guard();
+        if (me?.role === "admin") {
+          document.getElementById("menuUsuarios").classList.remove("hidden");
+          document.getElementById("menuConfigs").classList.remove("hidden");
+          ProdutosPage.enableAdminFeatures();
+        }
         Utils.initTheme();
-
-        // Inicializar ícones Lucide de forma mais robusta
         const initIcons = () => {
           if (typeof lucide !== "undefined") {
             lucide.createIcons();
           } else {
-            // Tentar novamente se Lucide ainda não estiver carregado
             setTimeout(initIcons, 100);
           }
         };
 
-        // Inicializar imediatamente e com delays
         initIcons();
         setTimeout(initIcons, 100);
         setTimeout(initIcons, 500);
+
+        ProdutosPage.init();
       })();
     </script>
   </body>
 </html>
+
