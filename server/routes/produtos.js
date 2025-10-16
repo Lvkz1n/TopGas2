@@ -37,7 +37,6 @@ function mapProduto(row) {
   return {
     id: row.id,
     nome: row.nome,
-    descricao: row.descricao ?? null,
     valor: valorBase,
     valor_pix: valorPix,
     valor_debito: valorDebito,
@@ -56,7 +55,7 @@ router.get(
   "/",
   asyncHandler(async (_req, res) => {
     const { rows } = await query(
-      `SELECT id, nome, descricao, valor, valor_pix, valor_debito, valor_credito,
+      `SELECT id, nome, valor, valor_pix, valor_debito, valor_credito,
               valor_entrega, valor_retirada, unidade, observacoes, ativo,
               created_at, updated_at
        FROM produtos
@@ -84,7 +83,7 @@ router.get(
   requireAdmin,
   asyncHandler(async (_req, res) => {
     const { rows } = await query(
-      `SELECT id, nome, descricao, valor, valor_pix, valor_debito, valor_credito,
+      `SELECT id, nome, valor, valor_pix, valor_debito, valor_credito,
               valor_entrega, valor_retirada, unidade, observacoes, ativo,
               created_at, updated_at
        FROM produtos
@@ -108,7 +107,6 @@ router.get(
       "Valor Retirada",
       "Unidade",
       "Ativo",
-      "Descricao",
       "Observacoes",
       "Criado Em",
       "Atualizado Em",
@@ -124,7 +122,6 @@ router.get(
       "Valor Retirada": "valor_retirada_formatado",
       Unidade: "unidade",
       Ativo: "ativo_formatado",
-      Descricao: "descricao",
       Observacoes: "observacoes",
       "Criado Em": "criado_em",
       "Atualizado Em": "atualizado_em",
@@ -157,7 +154,6 @@ router.get(
           : "",
       unidade: row.unidade,
       ativo_formatado: row.ativo ? "Sim" : "Nao",
-      descricao: row.descricao ?? "",
       observacoes: row.observacoes ?? "",
       criado_em: row.created_at ?? "",
       atualizado_em: row.updated_at ?? "",
@@ -179,7 +175,6 @@ router.post(
   asyncHandler(async (req, res) => {
     const {
       nome,
-      descricao = null,
       valor,
       unidade,
       ativo = true,
@@ -231,7 +226,6 @@ router.post(
 
     const payload = [
       String(nome).trim(),
-      descricao ? String(descricao).trim() : null,
       Number(valor),
       parsedNumbers.valor_pix,
       parsedNumbers.valor_debito,
@@ -245,10 +239,10 @@ router.post(
 
     try {
       const { rows } = await query(
-        `INSERT INTO produtos (nome, descricao, valor, valor_pix, valor_debito, valor_credito,
+        `INSERT INTO produtos (nome, valor, valor_pix, valor_debito, valor_credito,
                                valor_entrega, valor_retirada, unidade, observacoes, ativo)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-         RETURNING id, nome, descricao, valor, valor_pix, valor_debito, valor_credito,
+         RETURNING id, nome, valor, valor_pix, valor_debito, valor_credito,
                    valor_entrega, valor_retirada, unidade, observacoes, ativo, created_at, updated_at`,
         payload
       );
@@ -271,7 +265,6 @@ router.put(
 
     const {
       nome,
-      descricao = null,
       valor,
       unidade,
       ativo = true,
@@ -323,7 +316,6 @@ router.put(
 
     const payload = [
       String(nome).trim(),
-      descricao ? String(descricao).trim() : null,
       Number(valor),
       parsedNumbers.valor_pix,
       parsedNumbers.valor_debito,
@@ -340,7 +332,6 @@ router.put(
       const { rows } = await query(
         `UPDATE produtos
          SET nome = $1,
-             descricao = $2,
              valor = $3,
              valor_pix = $4,
              valor_debito = $5,
@@ -352,7 +343,7 @@ router.put(
              ativo = $11,
              updated_at = NOW()
          WHERE id = $12
-         RETURNING id, nome, descricao, valor, valor_pix, valor_debito, valor_credito,
+         RETURNING id, nome, valor, valor_pix, valor_debito, valor_credito,
                    valor_entrega, valor_retirada, unidade, observacoes, ativo, created_at, updated_at`,
         payload
       );

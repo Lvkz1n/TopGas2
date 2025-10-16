@@ -46,7 +46,6 @@ CREATE TABLE IF NOT EXISTS configuracoes (
 CREATE TABLE IF NOT EXISTS produtos (
   id SERIAL PRIMARY KEY,
   nome TEXT NOT NULL,
-  descricao TEXT,
   valor NUMERIC(10,2) NOT NULL DEFAULT 0,
   valor_pix NUMERIC(10,2),
   valor_debito NUMERIC(10,2),
