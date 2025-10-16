@@ -94,9 +94,7 @@
       const unidade = (
         document.getElementById("filterProdutoUnidade")?.value || ""
       ).toLowerCase();
-      const busca = (
-        document.getElementById("filterProdutoBusca")?.value || ""
-      )
+      const busca = (document.getElementById("filterProdutoBusca")?.value || "")
         .trim()
         .toLowerCase();
 
@@ -109,7 +107,6 @@
           produto.nome,
           produto.id,
           produto.unidade,
-          produto.descricao,
           produto.observacoes,
         ];
         const matchesBusca = busca
@@ -164,13 +161,19 @@
       const resumo = `
         <div class="produto-resumo">
           <span>Pix: ${this.formatOptionalCurrency(produto.valor_pix)}</span>
-          <span>Debito: ${this.formatOptionalCurrency(produto.valor_debito)}</span>
-          <span>Credito: ${this.formatOptionalCurrency(produto.valor_credito)}</span>
+          <span>Debito: ${this.formatOptionalCurrency(
+            produto.valor_debito
+          )}</span>
+          <span>Credito: ${this.formatOptionalCurrency(
+            produto.valor_credito
+          )}</span>
         </div>
       `;
 
       const actions = [
-        `<button class="btn btn-small btn-outline" data-produto-toggle="${produto.id}" onclick="ProdutosPage.toggleDetails(${produto.id})">
+        `<button class="btn btn-small btn-outline" data-produto-toggle="${
+          produto.id
+        }" onclick="ProdutosPage.toggleDetails(${produto.id})">
             <i data-lucide="${toggleIcon}"></i>
             ${isExpanded ? "Fechar" : "Detalhes"}
           </button>`,
@@ -192,11 +195,6 @@
       return `
         <tr class="produto-row">
           <td>${produto.id}</td>
-          <td>
-            <div class="produto-nome">${escapeHtml(produto.nome)} ${statusBadge}</div>
-            ${produto.descricao ? `<div class="produto-descricao">${escapeHtml(produto.descricao)}</div>` : ""}
-            ${resumo}
-          </td>
           <td>${this.formatCurrency(produto.valor)}</td>
           <td>${escapeHtml(produto.unidade || "-")}</td>
           <td>
@@ -205,7 +203,9 @@
             </div>
           </td>
         </tr>
-        <tr class="produto-detalhes-row ${isExpanded ? "" : "hidden"}" data-produto-details="${produto.id}">
+        <tr class="produto-detalhes-row ${
+          isExpanded ? "" : "hidden"
+        }" data-produto-details="${produto.id}">
           <td colspan="5">
             ${this.renderDetalhes(produto)}
           </td>
@@ -215,12 +215,30 @@
 
     renderDetalhes(produto) {
       const itens = [
-        { label: "Valor base", value: this.formatOptionalCurrency(produto.valor) },
-        { label: "Valor Pix", value: this.formatOptionalCurrency(produto.valor_pix) },
-        { label: "Valor debito", value: this.formatOptionalCurrency(produto.valor_debito) },
-        { label: "Valor credito", value: this.formatOptionalCurrency(produto.valor_credito) },
-        { label: "Entrega delivery", value: this.formatOptionalCurrency(produto.valor_entrega) },
-        { label: "Retirada", value: this.formatOptionalCurrency(produto.valor_retirada) },
+        {
+          label: "Valor base",
+          value: this.formatOptionalCurrency(produto.valor),
+        },
+        {
+          label: "Valor Pix",
+          value: this.formatOptionalCurrency(produto.valor_pix),
+        },
+        {
+          label: "Valor debito",
+          value: this.formatOptionalCurrency(produto.valor_debito),
+        },
+        {
+          label: "Valor credito",
+          value: this.formatOptionalCurrency(produto.valor_credito),
+        },
+        {
+          label: "Entrega delivery",
+          value: this.formatOptionalCurrency(produto.valor_entrega),
+        },
+        {
+          label: "Retirada",
+          value: this.formatOptionalCurrency(produto.valor_retirada),
+        },
       ];
 
       const detalhesGrid = itens
@@ -235,7 +253,9 @@
         .join("");
 
       const observacoes = produto.observacoes
-        ? `<div class="produto-observacoes"><strong>Observacoes:</strong> ${escapeHtml(produto.observacoes)}</div>`
+        ? `<div class="produto-observacoes"><strong>Observacoes:</strong> ${escapeHtml(
+            produto.observacoes
+          )}</div>`
         : "";
 
       return `
@@ -259,26 +279,48 @@
           <div class="produto-card-header">
             <div>
               <div class="produto-card-nome">${escapeHtml(produto.nome)}</div>
-              <div class="produto-card-status">${produto.ativo ? "Ativo" : "Inativo"}</div>
+              <div class="produto-card-status">${
+                produto.ativo ? "Ativo" : "Inativo"
+              }</div>
             </div>
-            <div class="produto-card-valor">${this.formatCurrency(produto.valor)}</div>
+            <div class="produto-card-valor">${this.formatCurrency(
+              produto.valor
+            )}</div>
           </div>
           <div class="produto-card-body">
-            <div><strong>Unidade:</strong> ${escapeHtml(produto.unidade || "-")}</div>
-            <div><strong>Pix:</strong> ${this.formatOptionalCurrency(produto.valor_pix)}</div>
-            <div><strong>Debito:</strong> ${this.formatOptionalCurrency(produto.valor_debito)}</div>
-            <div><strong>Credito:</strong> ${this.formatOptionalCurrency(produto.valor_credito)}</div>
-            <div><strong>Entrega:</strong> ${this.formatOptionalCurrency(produto.valor_entrega)}</div>
-            <div><strong>Retirada:</strong> ${this.formatOptionalCurrency(produto.valor_retirada)}</div>
-            ${produto.descricao ? `<div><strong>Descricao:</strong> ${escapeHtml(produto.descricao)}</div>` : ""}
-            ${produto.observacoes ? `<div><strong>Observacoes:</strong> ${escapeHtml(produto.observacoes)}</div>` : ""}
+            <div><strong>Unidade:</strong> ${escapeHtml(
+              produto.unidade || "-"
+            )}</div>
+            <div><strong>Pix:</strong> ${this.formatOptionalCurrency(
+              produto.valor_pix
+            )}</div>
+            <div><strong>Debito:</strong> ${this.formatOptionalCurrency(
+              produto.valor_debito
+            )}</div>
+            <div><strong>Credito:</strong> ${this.formatOptionalCurrency(
+              produto.valor_credito
+            )}</div>
+            <div><strong>Entrega:</strong> ${this.formatOptionalCurrency(
+              produto.valor_entrega
+            )}</div>
+            <div><strong>Retirada:</strong> ${this.formatOptionalCurrency(
+              produto.valor_retirada
+            )}</div>
+            ${
+              produto.observacoes
+                ? `<div><strong>Observacoes:</strong> ${escapeHtml(
+                    produto.observacoes
+                  )}</div>`
+                : ""
+            }
           </div>
           <div class="produto-card-meta">
             <span>Criado: ${this.formatDate(produto.created_at)}</span>
             <span>Atualizado: ${this.formatDate(produto.updated_at)}</span>
           </div>
-          ${this.isAdmin
-            ? `<div class="produto-card-actions">
+          ${
+            this.isAdmin
+              ? `<div class="produto-card-actions">
                 <button class="btn" onclick="ProdutosPage.editProduct(${produto.id})">
                   <i data-lucide="edit-3"></i>
                   Editar
@@ -288,13 +330,18 @@
                   Excluir
                 </button>
               </div>`
-            : ""}
+              : ""
+          }
         </div>
       `;
     },
 
     formatCurrency(valor) {
-      if (valor === null || valor === undefined || Number.isNaN(Number(valor))) {
+      if (
+        valor === null ||
+        valor === undefined ||
+        Number.isNaN(Number(valor))
+      ) {
         return "-";
       }
       return currencyFormatter.format(Number(valor));
@@ -374,7 +421,9 @@
         `);
       }
 
-      container.innerHTML = `<div class="produto-header-actions">${buttons.join("")}</div>`;
+      container.innerHTML = `<div class="produto-header-actions">${buttons.join(
+        ""
+      )}</div>`;
 
       document
         .getElementById("btnProdutosAtualizar")
@@ -402,46 +451,62 @@
           <div class="form-grid">
             <label class="form-field">
               <span>Nome *</span>
-              <input type="text" id="produtoNome" value="${produto?.nome ? escapeHtml(produto.nome) : ""}" required />
+              <input type="text" id="produtoNome" value="${
+                produto?.nome ? escapeHtml(produto.nome) : ""
+              }" required />
             </label>
             <label class="form-field">
               <span>Unidade *</span>
-              <input type="text" id="produtoUnidade" value="${produto?.unidade ? escapeHtml(produto.unidade) : ""}" required />
+              <input type="text" id="produtoUnidade" value="${
+                produto?.unidade ? escapeHtml(produto.unidade) : ""
+              }" required />
             </label>
             <label class="form-field">
               <span>Valor base *</span>
-              <input type="number" step="0.01" min="0" id="produtoValor" value="${formatNumberInput(produto?.valor)}" required />
+              <input type="number" step="0.01" min="0" id="produtoValor" value="${formatNumberInput(
+                produto?.valor
+              )}" required />
             </label>
             <label class="form-field">
               <span>Valor Pix</span>
-              <input type="number" step="0.01" min="0" id="produtoValorPix" value="${formatNumberInput(produto?.valor_pix)}" />
+              <input type="number" step="0.01" min="0" id="produtoValorPix" value="${formatNumberInput(
+                produto?.valor_pix
+              )}" />
             </label>
             <label class="form-field">
               <span>Valor debito</span>
-              <input type="number" step="0.01" min="0" id="produtoValorDebito" value="${formatNumberInput(produto?.valor_debito)}" />
+              <input type="number" step="0.01" min="0" id="produtoValorDebito" value="${formatNumberInput(
+                produto?.valor_debito
+              )}" />
             </label>
             <label class="form-field">
               <span>Valor credito</span>
-              <input type="number" step="0.01" min="0" id="produtoValorCredito" value="${formatNumberInput(produto?.valor_credito)}" />
+              <input type="number" step="0.01" min="0" id="produtoValorCredito" value="${formatNumberInput(
+                produto?.valor_credito
+              )}" />
             </label>
             <label class="form-field">
               <span>Valor entrega delivery</span>
-              <input type="number" step="0.01" min="0" id="produtoValorEntrega" value="${formatNumberInput(produto?.valor_entrega)}" />
+              <input type="number" step="0.01" min="0" id="produtoValorEntrega" value="${formatNumberInput(
+                produto?.valor_entrega
+              )}" />
             </label>
             <label class="form-field">
               <span>Valor retirada</span>
-              <input type="number" step="0.01" min="0" id="produtoValorRetirada" value="${formatNumberInput(produto?.valor_retirada)}" />
-            </label>
-            <label class="form-field form-full">
-              <span>Descricao</span>
-              <textarea id="produtoDescricao" rows="3" placeholder="Detalhes adicionais">${produto?.descricao ? escapeHtml(produto.descricao) : ""}</textarea>
+              <input type="number" step="0.01" min="0" id="produtoValorRetirada" value="${formatNumberInput(
+                produto?.valor_retirada
+              )}" />
             </label>
             <label class="form-field form-full">
               <span>Observacoes</span>
-              <textarea id="produtoObservacoes" rows="3" placeholder="Anotacoes internas ou politicas de venda">${produto?.observacoes ? escapeHtml(produto.observacoes) : ""}</textarea>
+              <textarea id="produtoObservacoes" rows="3" placeholder="Anotacoes internas ou politicas de venda">${
+                produto?.observacoes ? escapeHtml(produto.observacoes) : ""
+              }</textarea>
             </label>
             <label class="form-field checkbox-field">
-              <input type="checkbox" id="produtoAtivo" ${produto?.ativo !== false ? "checked" : ""} />
+              <input type="checkbox" id="produtoAtivo" ${
+                produto?.ativo !== false ? "checked" : ""
+              } />
               <span>Produto ativo</span>
             </label>
           </div>
@@ -512,9 +577,6 @@
 
     getFormPayload() {
       const nome = document.getElementById("produtoNome")?.value.trim();
-      const descricao = document
-        .getElementById("produtoDescricao")
-        ?.value.trim();
       const observacoes = document
         .getElementById("produtoObservacoes")
         ?.value.trim();
@@ -566,7 +628,6 @@
 
         return {
           nome,
-          descricao: descricao || null,
           observacoes: observacoes || null,
           unidade,
           valor,
@@ -586,9 +647,7 @@
     },
 
     toggleDetails(id) {
-      const row = document.querySelector(
-        `tr[data-produto-details="${id}"]`
-      );
+      const row = document.querySelector(`tr[data-produto-details="${id}"]`);
       if (!row) return;
       row.classList.toggle("hidden");
       const expanded = !row.classList.contains("hidden");
@@ -602,7 +661,10 @@
         `button[data-produto-toggle="${id}"] i`
       );
       if (icon) {
-        icon.setAttribute("data-lucide", expanded ? "chevron-up" : "chevron-down");
+        icon.setAttribute(
+          "data-lucide",
+          expanded ? "chevron-up" : "chevron-down"
+        );
         Utils.updateIcons();
       }
     },
@@ -666,4 +728,3 @@
 
   window.ProdutosPage = ProdutosPage;
 })();
-

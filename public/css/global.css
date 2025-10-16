@@ -1201,12 +1201,6 @@ copyright,
   gap: 8px;
 }
 
-.produto-descricao {
-  font-size: 0.875rem;
-  color: var(--muted);
-  margin-top: 4px;
-}
-
 .produto-status.inativo {
   display: inline-flex;
   align-items: center;
@@ -1266,11 +1260,6 @@ copyright,
   gap: 6px;
   color: var(--text);
   font-size: 0.875rem;
-}
-
-.produto-card-descricao {
-  color: var(--muted);
-  font-size: 0.8rem;
 }
 
 .produto-card-actions {
