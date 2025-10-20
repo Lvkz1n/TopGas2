@@ -49,6 +49,10 @@
           <i data-lucide="truck" class="sidebar-icon"></i>
           Entregas
         </a>
+        <a href="/entregadores.html">
+          <i data-lucide="bike" class="sidebar-icon"></i>
+          Entregadores
+        </a>
         <a href="/produtos.html">
           <i data-lucide="package" class="sidebar-icon"></i>
           Produtos
@@ -72,7 +76,15 @@
     </aside>
 
     <main>
-      <div class="header"><h1>Dashboard</h1></div>
+      <div class="header">
+        <h1>Dashboard</h1>
+        <div class="header-actions">
+          <button class="btn" id="btnDashboardReload">
+            <i data-lucide="refresh-cw"></i>
+            Recarregar
+          </button>
+        </div>
+      </div>
       <div class="grid grid-4">
         <div class="card">
           <h3>📊 Total de Pedidos</h3>
@@ -132,6 +144,7 @@
           document.getElementById("menuConfigs").classList.remove("hidden");
         }
         Utils.initTheme();
+        Utils.setupReloadButton("btnDashboardReload");
 
         // Inicializar ícones Lucide de forma mais robusta
         const initIcons = () => {

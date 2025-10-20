@@ -106,6 +106,30 @@ ALTER TABLE produtos ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ;
 ALTER TABLE produtos ADD COLUMN IF NOT EXISTS ativo BOOLEAN NOT NULL DEFAULT TRUE;
 CREATE INDEX IF NOT EXISTS idx_produtos_nome ON produtos(nome);
 CREATE INDEX IF NOT EXISTS idx_produtos_unidade ON produtos(unidade);
+
+-- ===== ENTREGADORES =====
+CREATE TABLE IF NOT EXISTS entregadores (
+  id SERIAL PRIMARY KEY,
+  nome TEXT NOT NULL,
+  unidade TEXT,
+  telefone TEXT,
+  valor_frete NUMERIC(10,2),
+  observacoes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ,
+  ativo BOOLEAN NOT NULL DEFAULT TRUE
+);
+ALTER TABLE entregadores ADD COLUMN IF NOT EXISTS nome TEXT;
+ALTER TABLE entregadores ALTER COLUMN nome SET NOT NULL;
+ALTER TABLE entregadores ADD COLUMN IF NOT EXISTS unidade TEXT;
+ALTER TABLE entregadores ADD COLUMN IF NOT EXISTS telefone TEXT;
+ALTER TABLE entregadores ADD COLUMN IF NOT EXISTS valor_frete NUMERIC(10,2);
+ALTER TABLE entregadores ADD COLUMN IF NOT EXISTS observacoes TEXT;
+ALTER TABLE entregadores ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+ALTER TABLE entregadores ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ;
+ALTER TABLE entregadores ADD COLUMN IF NOT EXISTS ativo BOOLEAN NOT NULL DEFAULT TRUE;
+CREATE INDEX IF NOT EXISTS idx_entregadores_nome ON entregadores(nome);
+CREATE INDEX IF NOT EXISTS idx_entregadores_unidade ON entregadores(unidade);
 `;
 
 async function main() {

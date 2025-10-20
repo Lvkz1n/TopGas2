@@ -406,9 +406,9 @@
       }
 
       buttons.push(`
-        <button class="btn" id="btnProdutosAtualizar">
+        <button class="btn" id="btnProdutosReload">
           <i data-lucide="refresh-cw"></i>
-          Atualizar
+          Recarregar
         </button>
       `);
 
@@ -425,9 +425,7 @@
         ""
       )}</div>`;
 
-      document
-        .getElementById("btnProdutosAtualizar")
-        ?.addEventListener("click", () => this.loadProdutos());
+      Utils.setupReloadButton("btnProdutosReload");
 
       if (this.isAdmin) {
         document

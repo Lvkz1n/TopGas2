@@ -329,6 +329,30 @@ window.Utils = {
   },
 
   /**
+   * Recarregar pagina forcando atualizacao de cache
+   */
+  hardReload() {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => registration.update());
+      });
+    }
+    window.location.reload(true);
+  },
+
+  /**
+   * Conectar botao para executar hard reload
+   * @param {string} buttonId - ID do botao
+   */
+  setupReloadButton(buttonId) {
+    const btn = document.getElementById(buttonId);
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+      this.hardReload();
+    });
+  },
+
+  /**
    * Escutar mudanças de tema de outras abas
    */
   listenForThemeChanges() {

@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, user-scalable=no"
     />
-    <title>TopGas – Usuários</title>
+    <title>TopGas - Entregadores</title>
     <link rel="icon" type="image/png" href="/favi.png" />
     <link rel="apple-touch-icon" href="/favi.png" />
     <link rel="manifest" href="/manifest.json" />
@@ -52,15 +52,15 @@
           <i data-lucide="package" class="sidebar-icon"></i>
           Produtos
         </a>
-        <a href="/entregadores.html">
+        <a class="active" href="/entregadores.html">
           <i data-lucide="bike" class="sidebar-icon"></i>
           Entregadores
         </a>
-        <a class="active" href="/usuarios.html">
+        <a id="menuUsuarios" class="hidden" href="/usuarios.html">
           <i data-lucide="user-cog" class="sidebar-icon"></i>
           Usuários
         </a>
-        <a href="/configuracoes.html">
+        <a id="menuConfigs" class="hidden" href="/configuracoes.html">
           <i data-lucide="settings" class="sidebar-icon"></i>
           Configurações
         </a>
@@ -76,78 +76,68 @@
 
     <main>
       <div class="header">
-        <h1>Usuários</h1>
-        <div class="header-actions">
-          <button class="btn" id="btnUsuariosReload">
+        <h1>Entregadores</h1>
+        <div class="header-actions" id="entregadoresHeaderActions">
+          <button class="btn" id="btnEntregadoresReload">
             <i data-lucide="refresh-cw"></i>
             Recarregar
           </button>
         </div>
       </div>
 
-      <div class="card" style="margin-bottom: 16px">
-        <h3>Novo usuário</h3>
-        <form id="frmNovoUser">
-          <div
-            class="grid"
-            style="
-              grid-template-columns: repeat(4, 1fr);
-              gap: 10px;
-              max-width: 1000px;
-            "
-          >
-            <input
-              id="nu_email"
-              type="email"
-              class="input"
-              placeholder="Email"
-              required
-            />
-            <input id="nu_nome" type="text" class="input" placeholder="Nome" />
-            <select id="nu_role" class="input">
-              <option value="user">user</option>
-              <option value="admin">admin</option>
-            </select>
-            <input
-              id="nu_password"
-              type="password"
-              class="input"
-              placeholder="Senha"
-              required
-            />
-          </div>
-          <div style="margin-top: 10px">
-            <label
-              ><input type="checkbox" id="nu_active" checked /> Ativo</label
-            >
-            <button class="btn" type="submit">Criar</button>
-          </div>
-        </form>
-      </div>
-
       <div class="card">
-        <table class="table" id="tbUsers">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Email</th>
-              <th>Nome</th>
-              <th>Role</th>
-              <th>Ativo</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+        <div class="delivery-filters">
+          <div class="filter-group">
+            <label>Unidade:</label>
+            <select
+              class="filter-select"
+              id="filterEntregadorUnidade"
+              onchange="EntregadoresPage.applyFilters()"
+            >
+              <option value="">Todas</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Buscar:</label>
+            <input
+              type="text"
+              class="filter-select"
+              id="filterEntregadorBusca"
+              placeholder="Nome, unidade ou telefone..."
+              oninput="EntregadoresPage.applyFilters()"
+            />
+          </div>
+        </div>
+
+        <div class="desktop-delivery-view">
+          <table class="table" id="tbEntregadores">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Unidade</th>
+                <th>Telefone</th>
+                <th>Valor Frete</th>
+                <th style="width: 200px">Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="mobile-delivery-view" id="mobileEntregadores"></div>
+
+        <div id="entregadoresEmptyState" class="empty-state hidden">
+          Nenhum entregador encontrado.
+        </div>
       </div>
     </main>
 
     <script src="./js/api.js"></script>
     <script src="./js/auth.js"></script>
     <script src="./js/utils.js"></script>
-    <script src="./js/usuarios.js"></script>
+    <script src="./js/entregadores.js"></script>
     <script>
-      // Funções para controlar o menu mobile
       function toggleSidebar() {
         const sidebar = document.getElementById("sidebar");
         const overlay = document.getElementById("sidebarOverlay");
@@ -162,34 +152,37 @@
         overlay.classList.add("hidden");
       }
 
-      // Fechar sidebar ao clicar em um link
       document.addEventListener("DOMContentLoaded", function () {
-        const sidebarLinks = document.querySelectorAll(".sidebar a");
-        sidebarLinks.forEach((link) => {
-          link.addEventListener("click", closeSidebar);
-        });
+        document
+          .querySelectorAll(".sidebar a")
+          .forEach((link) => link.addEventListener("click", closeSidebar));
       });
 
       (async () => {
-        await Auth.guard({ roles: ["admin"] });
+        const me = await Auth.guard();
+        if (me?.role === "admin") {
+          document.getElementById("menuUsuarios").classList.remove("hidden");
+          document.getElementById("menuConfigs").classList.remove("hidden");
+          EntregadoresPage.enableAdminFeatures();
+        }
         Utils.initTheme();
-        Utils.setupReloadButton("btnUsuariosReload");
+        Utils.setupReloadButton("btnEntregadoresReload");
 
-        // Inicializar ícones Lucide de forma mais robusta
         const initIcons = () => {
           if (typeof lucide !== "undefined") {
             lucide.createIcons();
           } else {
-            // Tentar novamente se Lucide ainda não estiver carregado
             setTimeout(initIcons, 100);
           }
         };
 
-        // Inicializar imediatamente e com delays
         initIcons();
         setTimeout(initIcons, 100);
         setTimeout(initIcons, 500);
+
+        EntregadoresPage.init();
       })();
     </script>
   </body>
 </html>
+

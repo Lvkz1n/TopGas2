@@ -62,4 +62,20 @@ CREATE TABLE IF NOT EXISTS produtos (
 CREATE INDEX IF NOT EXISTS idx_produtos_nome ON produtos (nome);
 CREATE INDEX IF NOT EXISTS idx_produtos_unidade ON produtos (unidade);
 
+-- ===== ENTREGADORES =====
+CREATE TABLE IF NOT EXISTS entregadores (
+  id SERIAL PRIMARY KEY,
+  nome TEXT NOT NULL,
+  unidade TEXT,
+  telefone TEXT,
+  valor_frete NUMERIC(10,2),
+  observacoes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ,
+  ativo BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE INDEX IF NOT EXISTS idx_entregadores_nome ON entregadores (nome);
+CREATE INDEX IF NOT EXISTS idx_entregadores_unidade ON entregadores (unidade);
+
 

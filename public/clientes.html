@@ -48,6 +48,10 @@
           <i data-lucide="truck" class="sidebar-icon"></i>
           Entregas
         </a>
+        <a href="/entregadores.html">
+          <i data-lucide="bike" class="sidebar-icon"></i>
+          Entregadores
+        </a>
         <a href="/produtos.html">
           <i data-lucide="package" class="sidebar-icon"></i>
           Produtos
@@ -74,6 +78,10 @@
       <div class="header">
         <h1>Clientes</h1>
         <div class="header-actions">
+          <button class="btn" id="btnClientesReload">
+            <i data-lucide="refresh-cw"></i>
+            Recarregar
+          </button>
           <button
             id="btnDownloadCSV"
             class="btn btn-primary hidden"
@@ -172,6 +180,7 @@
           document.getElementById("btnDownloadCSV").classList.remove("hidden");
         }
         Utils.initTheme();
+        Utils.setupReloadButton(\"btnClientesReload\");
 
         // Inicializar ícones Lucide de forma mais robusta
         const initIcons = () => {

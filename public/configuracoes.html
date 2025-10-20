@@ -52,6 +52,10 @@
           <i data-lucide="package" class="sidebar-icon"></i>
           Produtos
         </a>
+        <a href="/entregadores.html">
+          <i data-lucide="bike" class="sidebar-icon"></i>
+          Entregadores
+        </a>
         <a href="/usuarios.html">
           <i data-lucide="user-cog" class="sidebar-icon"></i>
           Usuários
@@ -71,7 +75,15 @@
     </aside>
 
     <main>
-      <div class="header"><h1>Configurações</h1></div>
+      <div class="header">
+        <h1>Configurações</h1>
+        <div class="header-actions">
+          <button class="btn" id="btnConfiguracoesReload">
+            <i data-lucide="refresh-cw"></i>
+            Recarregar
+          </button>
+        </div>
+      </div>
 
       <div class="card" style="margin-bottom: 16px">
         <form id="frmSetKey">
@@ -145,6 +157,7 @@
       (async () => {
         await Auth.guard({ roles: ["admin"] });
         Utils.initTheme();
+        Utils.setupReloadButton("btnConfiguracoesReload");
 
         // Inicializar ícones Lucide de forma mais robusta
         const initIcons = () => {
