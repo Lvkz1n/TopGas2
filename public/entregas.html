@@ -78,6 +78,10 @@
       <div class="header">
         <h1>Entregas</h1>
         <div class="header-actions">
+          <button class="btn btn-outline" id="btnToggleFilters">
+            <i data-lucide="sliders-horizontal"></i>
+            Filtros
+          </button>
           <button class="btn" id="btnEntregasReload">
             <i data-lucide="refresh-cw"></i>
             Recarregar
@@ -86,7 +90,8 @@
       </div>
 
       <div class="card">
-        <div class="delivery-filters">
+        <div class="filters-wrapper collapsed" id="filtersWrapper">
+          <div class="delivery-filters" id="deliveryFilters">
           <div class="filter-group">
             <label>Status:</label>
             <select
@@ -181,6 +186,7 @@
             </button>
           </div>
         </div>
+        </div>
         <!-- Visualização Desktop -->
         <div class="desktop-delivery-view">
           <table class="table" id="tbEntregas">
@@ -191,10 +197,12 @@
                 <th>Número Cliente</th>
                 <th>Pedido</th>
                 <th>Entregador</th>
+                <th>Valores</th>
                 <th>Endereço</th>
                 <th>Bairro</th>
                 <th>Unidade</th>
                 <th>Horários & Status</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody></tbody>
