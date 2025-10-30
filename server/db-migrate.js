@@ -130,6 +130,63 @@ ALTER TABLE entregadores ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ;
 ALTER TABLE entregadores ADD COLUMN IF NOT EXISTS ativo BOOLEAN NOT NULL DEFAULT TRUE;
 CREATE INDEX IF NOT EXISTS idx_entregadores_nome ON entregadores(nome);
 CREATE INDEX IF NOT EXISTS idx_entregadores_unidade ON entregadores(unidade);
+
+-- ===== TOPGAS_ENTREGAS =====
+CREATE TABLE IF NOT EXISTS topgas_entregas (
+  id SERIAL PRIMARY KEY
+);
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS protocolo TEXT;
+ALTER TABLE topgas_entregas ALTER COLUMN protocolo SET NOT NULL;
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS nome_cliente TEXT;
+ALTER TABLE topgas_entregas ALTER COLUMN nome_cliente SET NOT NULL;
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS telefone_cliente TEXT;
+ALTER TABLE topgas_entregas ALTER COLUMN telefone_cliente SET NOT NULL;
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS mercadoria_pedido TEXT;
+ALTER TABLE topgas_entregas ALTER COLUMN mercadoria_pedido SET NOT NULL;
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS forma_pagamento TEXT;
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS valor_itens NUMERIC(10,2);
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS valor_frete NUMERIC(10,2) DEFAULT 0;
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS valor_total NUMERIC(10,2);
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS entregador TEXT;
+ALTER TABLE topgas_entregas ALTER COLUMN entregador SET NOT NULL;
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS telefone_entregador TEXT;
+ALTER TABLE topgas_entregas ALTER COLUMN telefone_entregador SET NOT NULL;
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS entregador_id INTEGER;
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS endereco TEXT;
+ALTER TABLE topgas_entregas ALTER COLUMN endereco SET NOT NULL;
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS cidade TEXT;
+ALTER TABLE topgas_entregas ALTER COLUMN cidade SET NOT NULL;
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS bairro TEXT;
+ALTER TABLE topgas_entregas ALTER COLUMN bairro SET NOT NULL;
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS ponto_de_referencia TEXT;
+ALTER TABLE topgas_entregas ALTER COLUMN ponto_de_referencia SET NOT NULL;
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS status_pedido TEXT NOT NULL DEFAULT 'pendente';
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS data_e_hora_inicio_pedido TEXT;
+ALTER TABLE topgas_entregas ALTER COLUMN data_e_hora_inicio_pedido SET NOT NULL;
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS data_e_hora_envio_pedido TEXT;
+ALTER TABLE topgas_entregas ALTER COLUMN data_e_hora_envio_pedido SET NOT NULL;
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS data_e_hora_confirmacao_pedido TEXT;
+ALTER TABLE topgas_entregas ALTER COLUMN data_e_hora_confirmacao_pedido SET NOT NULL;
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS data_e_hora_cancelamento_pedido TEXT;
+ALTER TABLE topgas_entregas ALTER COLUMN data_e_hora_cancelamento_pedido SET NOT NULL;
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS data_finalizacao TIMESTAMPTZ;
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS unidade_topgas TEXT DEFAULT '0';
+ALTER TABLE topgas_entregas ADD COLUMN IF NOT EXISTS observacoes TEXT;
+DO $$
+BEGIN
+  ALTER TABLE topgas_entregas
+    ADD CONSTRAINT fk_topgas_entregas_entregador
+    FOREIGN KEY (entregador_id)
+    REFERENCES entregadores(id)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+CREATE INDEX IF NOT EXISTS idx_topgas_entregas_entregador_id ON topgas_entregas(entregador_id);
+CREATE INDEX IF NOT EXISTS idx_topgas_entregas_status ON topgas_entregas(status_pedido);
+CREATE INDEX IF NOT EXISTS idx_topgas_entregas_data_inicio ON topgas_entregas(data_e_hora_inicio_pedido);
+
 `;
 
 async function main() {
