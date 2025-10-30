@@ -31,51 +31,6 @@ window.Utils = {
   },
 
   /**
-   * Formatar valores monetários em BRL
-   * @param {number|string|null} valor - Valor a ser formatado
-   * @param {Object} [options] - Opções de formatação
-   * @param {string} [options.fallback="-"] - Texto padrão quando o valor é inválido
-   * @returns {string} Valor formatado em moeda brasileira
-   */
-  formatCurrency(valor, options = {}) {
-    if (valor === null || valor === undefined || valor === "") {
-      return options.fallback ?? "-";
-    }
-    const numero = Number(valor);
-    if (!Number.isFinite(numero)) {
-      return options.fallback ?? "-";
-    }
-    return numero.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-  },
-
-  /**
-   * Padronizar rótulo da forma de pagamento
-   * @param {string} forma - Forma de pagamento
-    * @returns {string} Texto formatado
-   */
-  formatarFormaPagamento(forma) {
-    if (!forma) return "-";
-    const mapa = {
-      dinheiro: "Dinheiro",
-      cash: "Dinheiro",
-      pix: "Pix",
-      debito: "Débito",
-      débito: "Débito",
-      credito: "Crédito",
-      crédito: "Crédito",
-      cartao: "Cartão",
-      cartão: "Cartão",
-    };
-    const key = String(forma).toLowerCase().trim();
-    return mapa[key] || forma;
-  },
-
-  /**
    * Verificar se a data informada representa um momento valido
    * @param {string|Date} dateValue - Valor a ser checado
    * @returns {boolean} Indica se a data e valida

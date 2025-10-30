@@ -21,13 +21,8 @@ CREATE TABLE IF NOT EXISTS topgas_entregas (
   nome_cliente TEXT NOT NULL,
   telefone_cliente TEXT NOT NULL,
   mercadoria_pedido TEXT NOT NULL,
-  forma_pagamento TEXT,
-  valor_itens NUMERIC(10,2),
-  valor_frete NUMERIC(10,2) DEFAULT 0,
-  valor_total NUMERIC(10,2),
   entregador TEXT NOT NULL,
   telefone_entregador TEXT NOT NULL,
-  entregador_id INTEGER,
   endereco TEXT NOT NULL,
   cidade TEXT NOT NULL,
   bairro TEXT NOT NULL,
@@ -37,9 +32,7 @@ CREATE TABLE IF NOT EXISTS topgas_entregas (
   data_e_hora_envio_pedido TEXT NOT NULL,
   data_e_hora_confirmacao_pedido TEXT NOT NULL,
   data_e_hora_cancelamento_pedido TEXT NOT NULL,
-  data_finalizacao TIMESTAMPTZ,
-  unidade_topgas TEXT DEFAULT '0',
-  observacoes TEXT
+  unidade_topgas TEXT DEFAULT '0'
 );
 
 -- ===== CONFIGURAÇÕES =====
@@ -57,6 +50,8 @@ CREATE TABLE IF NOT EXISTS produtos (
   valor_pix NUMERIC(10,2),
   valor_debito NUMERIC(10,2),
   valor_credito NUMERIC(10,2),
+  valor_entrega NUMERIC(10,2),
+  valor_retirada NUMERIC(10,2),
   unidade TEXT NOT NULL,
   observacoes TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -82,19 +77,5 @@ CREATE TABLE IF NOT EXISTS entregadores (
 
 CREATE INDEX IF NOT EXISTS idx_entregadores_nome ON entregadores (nome);
 CREATE INDEX IF NOT EXISTS idx_entregadores_unidade ON entregadores (unidade);
-
--- FK para vincular entregas a entregadores
-DO $$
-BEGIN
-  ALTER TABLE topgas_entregas
-    ADD CONSTRAINT fk_topgas_entregas_entregador
-    FOREIGN KEY (entregador_id)
-    REFERENCES entregadores(id)
-    ON UPDATE CASCADE
-    ON DELETE SET NULL;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-END $$;
-
 
 
